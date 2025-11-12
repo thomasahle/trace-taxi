@@ -1,3 +1,5 @@
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function isObject(x: any): x is Record<string, any> {
   return x && typeof x === 'object' && !Array.isArray(x);
@@ -44,4 +46,8 @@ export function groupToolPairs(events: any[]): Array<{use: any, result?: any}> {
     out.push({ use: u, result: r });
   }
   return out;
+}
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 }

@@ -1,6 +1,8 @@
 
 <script lang="ts">
-  import { loadTraceFromFile } from '../lib/store';
+  import { loadTraceFromFile, errorMessage } from '../lib/store';
+  import Button from "$lib/components/ui/button.svelte";
+  import Card from "$lib/components/ui/card.svelte";
 
   let dragging = false;
   let fileInput: HTMLInputElement;
@@ -20,11 +22,37 @@
     const f = fileInput.files?.[0];
     if (f) await loadTraceFromFile(f);
   }
+
+  function dismissError() {
+    errorMessage.set(null);
+  }
 </script>
 
-<div class="upload panel" on:dragover={onDragOver} on:dragleave={onDragLeave} on:drop={onDrop} style="border-color:{dragging ? '#6ea8fe' : 'var(--border)'}">
-  <input bind:this={fileInput} type="file" accept=".jsonl,.json" on:change={onPick} />
-  <h2>Drop your <code>.jsonl</code> trace here</h2>
-  <p class="small">Each line should be a JSON message in the OpenAI format. You can also pass <code>?file=URL</code> to load by URL.</p>
-  <button class="btn" on:click={pick}>Select file…</button>
+<div
+  class="border-2 border-dashed rounded-xl p-10 text-center bg-muted transition-all {dragging ? 'border-primary bg-primary/10' : 'border-border'}"
+  on:dragover={onDragOver}
+  on:dragleave={onDragLeave}
+  on:drop={onDrop}
+>
+  <input bind:this={fileInput} type="file" accept=".jsonl,.json" on:change={onPick} class="hidden" />
+  <h2 class="text-xl font-semibold mb-2">Drop your <code class="bg-background border border-border px-1.5 py-0.5 rounded">. jsonl</code> trace here</h2>
+  <p class="text-sm text-muted-foreground mb-4">Each line should be a JSON message in the OpenAI format. You can also pass <code class="bg-background border border-border px-1 py-0.5 rounded text-xs">?file=URL</code> to load by URL.</p>
+  <Button on:click={pick}>
+    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+    </svg>
+    Select file…
+  </Button>
+
+  {#if $errorMessage}
+    <div class="flex items-center justify-between gap-3 mt-4 px-4 py-3 bg-destructive/10 border border-destructive rounded-md text-destructive text-sm">
+      <span>⚠️ {$errorMessage}</span>
+      <button
+        class="bg-transparent border-0 text-destructive text-2xl leading-none cursor-pointer p-0 w-6 h-6 flex items-center justify-center shrink-0 hover:opacity-70"
+        on:click={dismissError}
+      >
+        ×
+      </button>
+    </div>
+  {/if}
 </div>

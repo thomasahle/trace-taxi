@@ -199,7 +199,7 @@
   }
 
   .todo-item.in-progress {
-    background: #fff8c5;
+    background: var(--todo-in-progress-bg);
   }
 
   .todo-number {

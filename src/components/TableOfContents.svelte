@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { trace } from '../lib/store';
+  import { trace, theme } from '../lib/store';
   import type { MessageEvent } from '../lib/types';
   import { onMount, onDestroy } from 'svelte';
+  import ScrollArea from "$lib/components/ui/scroll-area.svelte";
 
   // Extract user and assistant messages for TOC with their original indices
   $: conversationMessages = $trace?.events?.map((event: MessageEvent, index: number) => ({
@@ -105,127 +106,22 @@
   });
 </script>
 
-<div class="toc-container">
-  <div class="toc-header">
-    <h3>Conversation</h3>
-  </div>
-
-  <div class="toc-list">
+<div class="fixed top-12 right-0 w-[280px] h-[calc(100vh-3rem)] border-l border-border/30 flex flex-col overflow-hidden z-10" style="background-color: {$theme === 'dark' ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)'}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+  <ScrollArea class="flex-1 p-1 pb-24 pt-3">
     {#each conversationMessages as item, index}
       {@const isUser = item.event.kind === 'user'}
       {@const isActive = index === activeIndex}
       <button
-        class="toc-item"
-        class:user={isUser}
-        class:assistant={!isUser}
-        class:active={isActive}
+        class="flex items-center gap-2 w-full px-2 py-1.5 mb-px rounded border-0 bg-background cursor-pointer text-left transition-colors hover:bg-accent/50 {isActive ? 'bg-muted' : ''}"
         on:click={() => {
           activeIndex = index;
           scrollToMessage(item.event, item.globalIndex);
         }}
         title={item.event.text}
       >
-        <span class="toc-number">{index + 1}</span>
-        <span class="toc-text">{truncateText(item.event.text)}</span>
+        <span class="shrink-0 min-w-[20px] text-muted-foreground text-xs {isActive ? 'text-primary font-semibold' : ''}">{index + 1}</span>
+        <span class="flex-1 text-xs leading-tight overflow-hidden text-ellipsis whitespace-nowrap {isActive ? 'font-medium' : ''}">{truncateText(item.event.text)}</span>
       </button>
     {/each}
-  </div>
+  </ScrollArea>
 </div>
-
-<style>
-  .toc-container {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: 280px;
-    height: 100vh;
-    border-left: 1px solid var(--border-light);
-    background: var(--bg);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    z-index: 10;
-  }
-
-  .toc-header {
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border-light);
-  }
-
-  .toc-header h3 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-  }
-
-  .toc-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 4px 4px 100px 4px;
-  }
-
-  .toc-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    padding: 6px 8px;
-    margin-bottom: 1px;
-    border-radius: 4px;
-    border: none;
-    background: var(--bg);
-    cursor: pointer;
-    text-align: left;
-    transition: background 0.15s;
-  }
-
-  .toc-item:hover {
-    background: var(--panel-hover);
-  }
-
-  .toc-item.active {
-    background: var(--panel);
-  }
-
-  .toc-item.active .toc-text {
-    color: var(--text);
-    font-weight: 500;
-  }
-
-  .toc-item.active .toc-number {
-    color: var(--accent);
-    font-weight: 600;
-  }
-
-  .toc-number {
-    flex-shrink: 0;
-    min-width: 20px;
-    color: var(--muted);
-    font-size: 13px;
-    font-weight: 400;
-    text-align: left;
-  }
-
-  .toc-item.user {
-    background: var(--bg);
-  }
-
-  .toc-item.assistant {
-    background: var(--bg);
-  }
-
-  .toc-item.user:hover {
-    background: #f0f6fc;
-  }
-
-  .toc-text {
-    flex: 1;
-    font-size: 12px;
-    color: var(--text);
-    line-height: 1.4;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-</style>
