@@ -10,7 +10,84 @@ function parseLine(line: string): any | null {
   catch { return null; }
 }
 
-// Supports both legacy ChatCompletion logging and the new Responses API style (messages with tool_use/tool_result blocks).
+// Detect trace format by examining the first few entries
+function detectTraceFormat(raw: any[]): 'openai' | 'claude-code' {
+  // Check first few non-empty entries
+  for (const entry of raw.slice(0, 10)) {
+    if (!entry) continue;
+
+    // Claude Code traces have a specific structure with type + message
+    if (entry.type && entry.message && entry.uuid && entry.timestamp) {
+      // Further validate it's Claude Code format
+      if (entry.type === 'user' || entry.type === 'assistant' ||
+          entry.type === 'system' || entry.type === 'file-history-snapshot') {
+        return 'claude-code';
+      }
+    }
+  }
+
+  // Default to OpenAI format
+  return 'openai';
+}
+
+// Parse Claude Code format traces
+function parseClaudeCodeFormat(raw: any[]): OpenAIMessage[] {
+  const messages: OpenAIMessage[] = [];
+
+  for (const entry of raw) {
+    // Skip file history snapshots and non-message types
+    if (!entry.type || !entry.message) continue;
+    if (entry.type === 'file-history-snapshot') continue;
+    if (entry.type === 'summary') continue;
+
+    // Handle user messages - these can be either actual user messages or tool results
+    if (entry.type === 'user' && entry.message) {
+      const msg = entry.message;
+
+      // Check if this is a tool result (has tool_result in content array)
+      if (Array.isArray(msg.content)) {
+        const hasToolResult = msg.content.some((block: any) => block?.type === 'tool_result');
+        if (hasToolResult) {
+          // This is a tool result, keep the message structure as-is
+          messages.push(msg);
+          continue;
+        }
+      }
+
+      // Regular user message
+      messages.push(msg);
+      continue;
+    }
+
+    // Handle assistant messages
+    if (entry.type === 'assistant' && entry.message) {
+      messages.push(entry.message);
+      continue;
+    }
+
+    // Handle system messages
+    if (entry.type === 'system' && entry.message) {
+      messages.push(entry.message);
+      continue;
+    }
+  }
+
+  return messages;
+}
+
+// Parse OpenAI format traces
+function parseOpenAIFormat(raw: any[]): OpenAIMessage[] {
+  const messages: OpenAIMessage[] = raw.map((r) => {
+    // If wrapper objects exist (e.g. {type:'message', message:{...}}) normalize.
+    if (r?.type === 'message' && r?.message) return r.message;
+    if (r?.object === 'chat.completion.chunk' && r?.choices) return r; // ignore streaming chunks later
+    return r;
+  }).filter(Boolean);
+
+  return messages;
+}
+
+// Supports both OpenAI and Claude Code trace formats with automatic detection
 export function parseJsonl(text: string): TraceData {
   const lines = text.split(/\r?\n/);
   const raw: any[] = [];
@@ -27,19 +104,11 @@ export function parseJsonl(text: string): TraceData {
     } catch {}
   }
 
-  // If wrapper objects exist (e.g. {type:'message', message:{...}}) normalize.
-  const messages: OpenAIMessage[] = raw.map((r) => {
-    // Claude Code format: {type: 'user'|'assistant', message: {...}}
-    if ((r?.type === 'user' || r?.type === 'assistant') && r?.message) {
-      return r.message;
-    }
-    // Skip file history snapshots and other non-message types
-    if (r?.type === 'file-history-snapshot') return null;
-
-    if (r?.type === 'message' && r?.message) return r.message;
-    if (r?.object === 'chat.completion.chunk' && r?.choices) return r; // ignore streaming chunks later
-    return r;
-  }).filter(Boolean);
+  // Detect format and parse accordingly
+  const format = detectTraceFormat(raw);
+  const messages: OpenAIMessage[] = format === 'claude-code'
+    ? parseClaudeCodeFormat(raw)
+    : parseOpenAIFormat(raw);
 
   const events: TraceEvent[] = [];
 
@@ -109,6 +178,35 @@ export function parseJsonl(text: string): TraceData {
         });
       }
       continue;
+    }
+
+    // Check for Claude Code tool results (come as user messages with tool_result blocks)
+    if (m.role === 'user' && Array.isArray(m.content)) {
+      const toolResults = m.content.filter((block: any) => block?.type === 'tool_result');
+      if (toolResults.length > 0) {
+        // Process each tool result
+        for (const block of toolResults) {
+          let output = block.content || '';
+          // Handle array content in tool results
+          if (Array.isArray(output)) {
+            output = output.map((item: any) => {
+              if (typeof item === 'string') return item;
+              if (item?.text) return item.text;
+              if (item?.type === 'text' && item?.text) return item.text;
+              return JSON.stringify(item);
+            }).join('\n');
+          }
+          events.push({
+            kind: 'tool-result',
+            tool_call_id: block.tool_use_id || '',
+            name: '', // Name will be inferred from tool-use pairing
+            output,
+            raw: m,
+            created_at: m.created_at
+          });
+        }
+        continue;
+      }
     }
 
     // Plain text messages

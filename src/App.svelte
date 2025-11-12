@@ -6,6 +6,8 @@
   import TableOfContents from './components/TableOfContents.svelte';
   import { trace, loadTraceFromUrl, loadTraceFromFile, theme } from './lib/store';
   import { threads, activeThreadId, type Thread } from './lib/threads';
+  import { decompressFromHash, createShareLink, downloadTrace } from './lib/share';
+  import { parseJsonl } from './lib/parser';
 
   import { onMount } from 'svelte';
   let dragging = false;
@@ -13,8 +15,23 @@
   let showThreadsList = true;
   let showTOC = true;
   let showConfigDropdown = false;
+  let showShareNotification = false;
+  let shareNotificationMessage = '';
 
   onMount(() => {
+    // First, check for hash-based compressed trace
+    const hashText = decompressFromHash(window.location.hash);
+    if (hashText) {
+      try {
+        const data = parseJsonl(hashText);
+        trace.set(data);
+        return;
+      } catch (error) {
+        console.error('Failed to parse trace from hash:', error);
+      }
+    }
+
+    // Fallback to URL parameter
     const params = new URLSearchParams(window.location.search);
     const urlParam = params.get('file');
     if (urlParam) {
@@ -73,6 +90,41 @@
     }
   }
 
+  async function handleShare() {
+    if (!hasData || !$trace.originalMessages) {
+      return;
+    }
+
+    // Convert trace to JSONL format
+    const jsonlText = $trace.originalMessages.map(msg => JSON.stringify(msg)).join('\n');
+
+    // Try compressed URL first
+    const shareResult = createShareLink(jsonlText);
+
+    if (shareResult.compressed) {
+      // Copy to clipboard
+      try {
+        await navigator.clipboard.writeText(shareResult.url);
+        showNotification('Link copied to clipboard!');
+      } catch (error) {
+        console.error('Failed to copy to clipboard:', error);
+        showNotification('Failed to copy link');
+      }
+    } else {
+      // Fallback to download
+      showNotification('Trace too large for URL, downloading file...');
+      downloadTrace(jsonlText, `${$trace.title || 'trace'}.jsonl`);
+    }
+  }
+
+  function showNotification(message: string) {
+    shareNotificationMessage = message;
+    showShareNotification = true;
+    setTimeout(() => {
+      showShareNotification = false;
+    }, 3000);
+  }
+
   // Global drag and drop handlers
   function handleDragEnter(e: DragEvent) {
     e.preventDefault();
@@ -127,6 +179,14 @@
       <path d="M1 2.75A.75.75 0 011.75 2h12.5a.75.75 0 010 1.5H1.75A.75.75 0 011 2.75zm0 5A.75.75 0 011.75 7h12.5a.75.75 0 010 1.5H1.75A.75.75 0 011 7.75zM1.75 12a.75.75 0 000 1.5h12.5a.75.75 0 000-1.5H1.75z"/>
     </svg>
   </button>
+
+  {#if hasData}
+    <button class="share-button" on:click={handleShare} title="Share trace">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M7.823 1.677 4.927 4.573A.25.25 0 0 0 5.104 5H7.25v3.236a.75.75 0 1 0 1.5 0V5h2.146a.25.25 0 0 0 .177-.427L8.177 1.677a.25.25 0 0 0-.354 0ZM3.75 6.5a.75.75 0 0 0 0 1.5h.5a.75.75 0 0 0 0-1.5h-.5ZM3 3.75a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 0 1.5h-.5A.75.75 0 0 1 3 3.75ZM3.75 9a.75.75 0 0 0 0 1.5h.5a.75.75 0 0 0 0-1.5h-.5ZM10 3.75a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 0 1.5h-.5a.75.75 0 0 1-.75-.75Zm.75 2.75a.75.75 0 0 0 0 1.5h.5a.75.75 0 0 0 0-1.5h-.5ZM10 9a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 0 1.5h-.5A.75.75 0 0 1 10 9ZM3.75 12a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5Z"></path>
+      </svg>
+    </button>
+  {/if}
 
   <button class="config-button" on:click={toggleConfigDropdown} title="Settings">
     <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -196,6 +256,12 @@
       </div>
     {/if}
   </div>
+
+  {#if showShareNotification}
+    <div class="share-notification">
+      {shareNotificationMessage}
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -208,16 +274,38 @@
   .content-wrapper {
     flex: 1;
     display: flex;
-    overflow-y: auto;
+    overflow: hidden;
     min-height: 0;
   }
 
   .main-content {
-    flex: 1;
+    flex: 0 0 auto;
+    width: calc(100% - 280px); /* Reserve space for fixed TOC */
     display: flex;
     flex-direction: column;
     min-width: 0;
-    margin-right: 280px; /* Make room for fixed TOC */
+    overflow-y: scroll; /* Force scrollbar to always be visible */
+  }
+
+  /* Style scrollbar for better visibility */
+  .main-content::-webkit-scrollbar {
+    width: 14px;
+    background: var(--panel);
+  }
+
+  .main-content::-webkit-scrollbar-track {
+    background: var(--panel);
+    border-left: 1px solid var(--border-light);
+  }
+
+  .main-content::-webkit-scrollbar-thumb {
+    background: #c0c0c0;
+    border-radius: 7px;
+    border: 2px solid var(--panel);
+  }
+
+  .main-content::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0;
   }
 
   .sidebar-toggle {
@@ -250,7 +338,7 @@
   .config-button {
     position: fixed;
     top: 12px;
-    right: 16px;
+    right: 296px; /* 280px TOC width + 16px margin */
     width: 32px;
     height: 32px;
     border-radius: 6px;
@@ -269,10 +357,32 @@
     background: var(--panel-hover);
   }
 
+  .share-button {
+    position: fixed;
+    top: 12px;
+    right: 336px; /* 280px TOC width + 16px margin + 32px config button + 8px gap */
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    z-index: 100;
+  }
+
+  .share-button:hover {
+    background: var(--panel-hover);
+  }
+
   .config-dropdown {
     position: fixed;
     top: 50px;
-    right: 16px;
+    right: 296px; /* Align with config button */
     min-width: 200px;
     background: var(--panel);
     border: 1px solid var(--border);
@@ -357,5 +467,32 @@
   .drag-message p {
     color: var(--muted);
     margin: 0;
+  }
+
+  .share-notification {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 14px;
+    color: var(--text);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1001;
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
   }
 </style>

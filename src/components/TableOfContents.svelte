@@ -45,11 +45,11 @@
     // Don't update if we're in the middle of a programmatic scroll
     if (isScrollingProgrammatically) return;
 
-    const contentWrapper = document.querySelector('.content-wrapper');
-    if (!contentWrapper) return;
+    const mainContent = document.querySelector('.main-content');
+    if (!mainContent) return;
 
     const messages = Array.from(document.querySelectorAll('.msg-list > *'));
-    const containerRect = contentWrapper.getBoundingClientRect();
+    const containerRect = mainContent.getBoundingClientRect();
 
     let mostVisibleIndex = -1;
     let maxVisibleArea = 0;
@@ -90,17 +90,17 @@
   }
 
   onMount(() => {
-    const contentWrapper = document.querySelector('.content-wrapper');
-    if (contentWrapper) {
-      contentWrapper.addEventListener('scroll', updateActiveMessage);
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+      mainContent.addEventListener('scroll', updateActiveMessage);
       updateActiveMessage();
     }
   });
 
   onDestroy(() => {
-    const contentWrapper = document.querySelector('.content-wrapper');
-    if (contentWrapper) {
-      contentWrapper.removeEventListener('scroll', updateActiveMessage);
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+      mainContent.removeEventListener('scroll', updateActiveMessage);
     }
   });
 </script>
