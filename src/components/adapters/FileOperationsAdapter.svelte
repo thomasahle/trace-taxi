@@ -117,6 +117,62 @@
     return langMap[ext] || 'plaintext';
   }
 
+  // Create diff view for Edit operations
+  function createDiffView(oldStr: string, newStr: string): string {
+    const oldLines = oldStr.split('\n');
+    const newLines = newStr.split('\n');
+
+    let diffHtml = '';
+    let i = 0, j = 0;
+
+    // Simple diff algorithm: find matching and different lines
+    while (i < oldLines.length || j < newLines.length) {
+      const oldLine = i < oldLines.length ? oldLines[i] : null;
+      const newLine = j < newLines.length ? newLines[j] : null;
+
+      if (oldLine === newLine && oldLine !== null) {
+        // Lines match - show as context
+        const escaped = escapeHtml(oldLine);
+        diffHtml += `<div class="diff-line context"><span class="diff-marker"> </span><span class="diff-content">${escaped}</span></div>`;
+        i++;
+        j++;
+      } else {
+        // Lines differ - show deletions and additions
+        let foundMatch = false;
+
+        // Look ahead to find if this is a modification or insertion/deletion
+        for (let k = j; k < Math.min(j + 3, newLines.length); k++) {
+          if (oldLine === newLines[k]) {
+            foundMatch = true;
+            break;
+          }
+        }
+
+        if (oldLine !== null && (newLine === null || !foundMatch)) {
+          // Deletion
+          const escaped = escapeHtml(oldLine);
+          diffHtml += `<div class="diff-line removed"><span class="diff-marker">-</span><span class="diff-content">${escaped}</span></div>`;
+          i++;
+        } else {
+          if (newLine !== null) {
+            // Addition
+            const escaped = escapeHtml(newLine);
+            diffHtml += `<div class="diff-line added"><span class="diff-marker">+</span><span class="diff-content">${escaped}</span></div>`;
+            j++;
+          }
+        }
+      }
+    }
+
+    return diffHtml;
+  }
+
+  function escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   // Apply syntax highlighting reactively
   $: {
     if (content && operation === 'write') {
@@ -187,21 +243,18 @@
 
   {#if operation === 'edit'}
     <div class="edit-container">
-      <div class="edit-section">
-        <div class="section-label">🔍 Find:</div>
-        <pre class="code-block old">{oldString}</pre>
-      </div>
-      <div class="edit-section">
-        <div class="section-label">✏️ Replace with:</div>
-        <pre class="code-block new">{newString}</pre>
+      <div class="diff-view">
+        {@html createDiffView(oldString, newString)}
       </div>
       {#if replaceAll}
         <div class="replace-all">⚡ Replace all occurrences</div>
       {/if}
     </div>
-    <div class="output-status" class:success={isSuccess}>
-      {output}
-    </div>
+    {#if output && !isSuccess}
+      <div class="output-status">
+        {output}
+      </div>
+    {/if}
   {/if}
 </div>
 
@@ -239,7 +292,7 @@
     margin-bottom: 12px;
   }
 
-  .content-label, .section-label {
+  .content-label {
     font-size: 12px;
     color: var(--muted);
     margin-bottom: 6px;
@@ -279,31 +332,7 @@
     font-weight: 400;
   }
 
-  .code-block.old {
-    background: hsl(0 100% 96%);
-    border-color: hsl(0 100% 88%);
-  }
-
-  :global(.dark) .code-block.old {
-    background: hsl(0 40% 20%);
-    border-color: hsl(0 40% 30%);
-  }
-
-  .code-block.new {
-    background: hsl(140 50% 90%);
-    border-color: hsl(140 50% 75%);
-  }
-
-  :global(.dark) .code-block.new {
-    background: hsl(140 40% 20%);
-    border-color: hsl(140 40% 30%);
-  }
-
   .edit-container {
-    margin-bottom: 12px;
-  }
-
-  .edit-section {
     margin-bottom: 12px;
   }
 
@@ -331,5 +360,76 @@
     font-size: 11px;
     padding: 4px 8px;
     opacity: 0.7;
+  }
+
+  .diff-view {
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--code-bg);
+  }
+
+  .diff-view :global(.diff-line) {
+    display: flex;
+    padding: 2px 8px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .diff-view :global(.diff-marker) {
+    display: inline-block;
+    width: 20px;
+    flex-shrink: 0;
+    user-select: none;
+    font-weight: 600;
+  }
+
+  .diff-view :global(.diff-content) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .diff-view :global(.diff-line.context) {
+    background: var(--code-bg);
+    color: var(--text);
+  }
+
+  .diff-view :global(.diff-line.removed) {
+    background: hsl(0 100% 95%);
+    color: hsl(0 70% 30%);
+  }
+
+  .diff-view :global(.diff-line.removed .diff-marker) {
+    color: hsl(0 70% 40%);
+  }
+
+  :global(.dark) .diff-view :global(.diff-line.removed) {
+    background: hsl(0 40% 22%);
+    color: hsl(0 60% 80%);
+  }
+
+  :global(.dark) .diff-view :global(.diff-line.removed .diff-marker) {
+    color: hsl(0 70% 70%);
+  }
+
+  .diff-view :global(.diff-line.added) {
+    background: hsl(140 50% 92%);
+    color: hsl(140 70% 25%);
+  }
+
+  .diff-view :global(.diff-line.added .diff-marker) {
+    color: hsl(140 70% 35%);
+  }
+
+  :global(.dark) .diff-view :global(.diff-line.added) {
+    background: hsl(140 40% 22%);
+    color: hsl(140 60% 80%);
+  }
+
+  :global(.dark) .diff-view :global(.diff-line.added .diff-marker) {
+    color: hsl(140 70% 70%);
   }
 </style>

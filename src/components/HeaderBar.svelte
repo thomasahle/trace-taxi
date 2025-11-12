@@ -1,8 +1,8 @@
 <script lang="ts">
   import Button from "$lib/components/ui/button.svelte";
-  import { theme } from '../lib/store';
-  import { Menu, Share2, Moon, Sun, Github, Star } from 'lucide-svelte';
-  import { onMount } from 'svelte';
+  import { theme } from "../lib/store";
+  import { Menu, Share2, Moon, Sun, Github, Star } from "lucide-svelte";
+  import { onMount } from "svelte";
 
   let starCount: number | null = null;
 
@@ -11,18 +11,20 @@
   export let onShare: () => void;
 
   function toggleTheme() {
-    theme.set($theme === 'light' ? 'dark' : 'light');
+    theme.set($theme === "light" ? "dark" : "light");
   }
 
   async function fetchGitHubStars() {
     try {
-      const response = await fetch('https://api.github.com/repos/thomasahle/trace-taxi');
+      const response = await fetch(
+        "https://api.github.com/repos/thomasahle/trace-taxi",
+      );
       if (response.ok) {
         const data = await response.json();
         starCount = data.stargazers_count;
       }
     } catch (error) {
-      console.error('Failed to fetch GitHub stars:', error);
+      console.error("Failed to fetch GitHub stars:", error);
     }
   }
 
@@ -31,7 +33,12 @@
   });
 </script>
 
-<header class="flex items-center justify-between h-12 px-4 border-b border-border/30 shrink-0 z-10" style="background-color: {$theme === 'dark' ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.3)'}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+<header
+  class="flex items-center justify-between h-12 px-4 border-b border-border/30 shrink-0 z-10"
+  style="background-color: {$theme === 'dark'
+    ? 'rgba(0, 0, 0, 0.8)'
+    : 'rgba(255, 255, 255, 0.3)'}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);"
+>
   <div class="flex items-center gap-3">
     <Button
       variant="outline"
@@ -68,7 +75,7 @@
       on:click={toggleTheme}
       title="Toggle theme"
     >
-      {#if $theme === 'light'}
+      {#if $theme === "light"}
         <Moon size={16} />
       {:else}
         <Sun size={16} />
@@ -84,7 +91,6 @@
       <Github size={14} />
       {#if starCount !== null}
         <div class="flex items-center gap-1">
-          <Star size={12} fill="currentColor" />
           <span class="text-xs font-medium">{starCount}</span>
         </div>
       {/if}
