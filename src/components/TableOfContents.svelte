@@ -3,34 +3,36 @@
   import type { MessageEvent } from '../lib/types';
   import { onMount, onDestroy } from 'svelte';
 
-  // Extract user and assistant messages for TOC
-  $: conversationMessages = $trace?.events?.filter((event: MessageEvent) =>
-    event.kind === 'user' || event.kind === 'assistant'
+  // Extract user and assistant messages for TOC with their original indices
+  $: conversationMessages = $trace?.events?.map((event: MessageEvent, index: number) => ({
+    event,
+    globalIndex: index
+  })).filter(item =>
+    item.event.kind === 'user' || item.event.kind === 'assistant'
   ) || [];
 
   let activeIndex = -1;
+  let isScrollingProgrammatically = false;
+  let scrollTimeout: number | null = null;
 
   function scrollToMessage(message: MessageEvent, globalIndex: number) {
-    // For user messages, use the data-message-index attribute
-    if (message.kind === 'user') {
-      const userIndex = $trace?.events.filter((e, i) => i <= globalIndex && e.kind === 'user').length - 1;
-      const messageElement = document.querySelector(`[data-message-index="${userIndex}"]`);
-      if (messageElement) {
-        messageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        return;
-      }
-    }
+    // Use the data-event-index attribute to find the correct element
+    const messageElement = document.querySelector(`[data-event-index="${globalIndex}"]`);
+    if (messageElement) {
+      isScrollingProgrammatically = true;
 
-    // For assistant messages, find the element by matching content
-    const allMessages = Array.from(document.querySelectorAll('.msg-list > *'));
-    let currentIndex = 0;
-    for (const element of allMessages) {
-      const event = $trace?.events[currentIndex];
-      if (event && currentIndex === globalIndex) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        return;
+      // Clear any existing timeout
+      if (scrollTimeout !== null) {
+        clearTimeout(scrollTimeout);
       }
-      currentIndex++;
+
+      messageElement.scrollIntoView({ behavior: 'instant', block: 'start' });
+
+      // Reset flag after scroll completes (instant scroll completes immediately)
+      scrollTimeout = setTimeout(() => {
+        isScrollingProgrammatically = false;
+        updateActiveMessage(); // Now update based on final position
+      }, 50);
     }
   }
 
@@ -40,29 +42,47 @@
   }
 
   function updateActiveMessage() {
+    // Don't update if we're in the middle of a programmatic scroll
+    if (isScrollingProgrammatically) return;
+
     const contentWrapper = document.querySelector('.content-wrapper');
     if (!contentWrapper) return;
 
-    const scrollTop = contentWrapper.scrollTop;
     const messages = Array.from(document.querySelectorAll('.msg-list > *'));
+    const containerRect = contentWrapper.getBoundingClientRect();
 
-    // Find the first visible message
+    let mostVisibleIndex = -1;
+    let maxVisibleArea = 0;
+
+    // Find the message with the most visible area
     for (let i = 0; i < messages.length; i++) {
       const element = messages[i] as HTMLElement;
       const rect = element.getBoundingClientRect();
-      const containerRect = contentWrapper.getBoundingClientRect();
 
-      // Check if message is in viewport
-      if (rect.top >= containerRect.top && rect.top <= containerRect.bottom) {
-        // Find which conversation message index this corresponds to
-        const eventIndex = Array.from(element.parentElement?.children || []).indexOf(element);
+      // Calculate visible area of this message
+      const visibleTop = Math.max(rect.top, containerRect.top);
+      const visibleBottom = Math.min(rect.bottom, containerRect.bottom);
+      const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+
+      if (visibleHeight > maxVisibleArea) {
+        maxVisibleArea = visibleHeight;
+        mostVisibleIndex = i;
+      }
+    }
+
+    // Update active index based on most visible message
+    if (mostVisibleIndex !== -1) {
+      const element = messages[mostVisibleIndex];
+      const eventIndexStr = element.getAttribute('data-event-index');
+
+      if (eventIndexStr) {
+        const eventIndex = parseInt(eventIndexStr, 10);
         const event = $trace?.events?.[eventIndex];
 
         if (event && (event.kind === 'user' || event.kind === 'assistant')) {
-          const convIndex = conversationMessages.findIndex(m => m === event);
+          const convIndex = conversationMessages.findIndex(item => item.globalIndex === eventIndex);
           if (convIndex !== -1) {
             activeIndex = convIndex;
-            return;
           }
         }
       }
@@ -91,20 +111,22 @@
   </div>
 
   <div class="toc-list">
-    {#each conversationMessages as message, index}
-      {@const globalIndex = $trace?.events.findIndex(e => e === message) ?? index}
-      {@const isUser = message.kind === 'user'}
+    {#each conversationMessages as item, index}
+      {@const isUser = item.event.kind === 'user'}
       {@const isActive = index === activeIndex}
       <button
         class="toc-item"
         class:user={isUser}
         class:assistant={!isUser}
         class:active={isActive}
-        on:click={() => scrollToMessage(message, globalIndex)}
-        title={message.text}
+        on:click={() => {
+          activeIndex = index;
+          scrollToMessage(item.event, item.globalIndex);
+        }}
+        title={item.event.text}
       >
-        <span class="toc-number" class:user={isUser}>{isUser ? 'U' : 'A'}</span>
-        <span class="toc-text">{truncateText(message.text)}</span>
+        <span class="toc-number">{index + 1}</span>
+        <span class="toc-text">{truncateText(item.event.text)}</span>
       </button>
     {/each}
   </div>
@@ -112,6 +134,9 @@
 
 <style>
   .toc-container {
+    position: fixed;
+    top: 0;
+    right: 0;
     width: 280px;
     height: 100vh;
     border-left: 1px solid var(--border-light);
@@ -119,6 +144,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    z-index: 10;
   }
 
   .toc-header {
@@ -136,7 +162,7 @@
   .toc-list {
     flex: 1;
     overflow-y: auto;
-    padding: 4px;
+    padding: 4px 4px 100px 4px;
   }
 
   .toc-item {
@@ -159,33 +185,26 @@
   }
 
   .toc-item.active {
-    background: #e8f4f8;
-    border-left: 3px solid #0969da;
-    padding-left: 5px;
+    background: var(--panel);
   }
 
   .toc-item.active .toc-text {
-    color: #0969da;
+    color: var(--text);
     font-weight: 500;
+  }
+
+  .toc-item.active .toc-number {
+    color: var(--accent);
+    font-weight: 600;
   }
 
   .toc-number {
     flex-shrink: 0;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--chip);
+    min-width: 20px;
     color: var(--muted);
-    font-size: 11px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .toc-number.user {
-    background: #ddf4ff;
-    color: #0969da;
+    font-size: 13px;
+    font-weight: 400;
+    text-align: left;
   }
 
   .toc-item.user {

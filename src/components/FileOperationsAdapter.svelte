@@ -99,7 +99,6 @@
 
 <div class="file-op-container">
   <div class="file-header">
-    <span class="operation-badge {operation}">{operation.toUpperCase()}</span>
     <span class="file-path">{filePath}</span>
   </div>
 
@@ -157,30 +156,6 @@
     align-items: center;
     gap: 12px;
     margin-bottom: 12px;
-  }
-
-  .operation-badge {
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .operation-badge.read {
-    background: #dafbe1;
-    color: #1a7f37;
-  }
-
-  .operation-badge.write {
-    background: #ddf4ff;
-    color: #0969da;
-  }
-
-  .operation-badge.edit {
-    background: #fff8c5;
-    color: #bf8700;
   }
 
   .file-path {

@@ -39,12 +39,18 @@
   });
 </script>
 
-<div class="message-container">
-  <div class="avatar {avatarInfo.class}">
-    {avatarInfo.initial}
-  </div>
+<div class="message-container"
+     class:no-avatar={role.toLowerCase() === 'assistant'}
+     class:user-message={role.toLowerCase() === 'user'}>
+  {#if role.toLowerCase() !== 'assistant'}
+    <div class="avatar {avatarInfo.class}">
+      {avatarInfo.initial}
+    </div>
+  {/if}
   <div class="message-content">
-    <div class="message-role">{role}</div>
+    {#if role.toLowerCase() !== 'assistant'}
+      <div class="message-role">{role}</div>
+    {/if}
     <div class="message-text" on:click|stopPropagation>
       {@html html}
     </div>

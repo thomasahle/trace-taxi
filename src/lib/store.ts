@@ -17,3 +17,29 @@ export async function loadTraceFromFile(file: File) {
   const data = parseJsonl(text);
   trace.set(data);
 }
+
+// Theme store
+export type Theme = 'light' | 'dark';
+
+function createThemeStore() {
+  // Load theme from localStorage or default to 'light'
+  const stored = typeof window !== 'undefined' ? localStorage.getItem('theme') as Theme : null;
+  const initial: Theme = stored || 'light';
+
+  const { subscribe, set, update } = writable<Theme>(initial);
+
+  return {
+    subscribe,
+    toggle: () => {
+      update(current => current === 'light' ? 'dark' : 'light');
+    },
+    set: (value: Theme) => {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('theme', value);
+      }
+      set(value);
+    }
+  };
+}
+
+export const theme = createThemeStore();

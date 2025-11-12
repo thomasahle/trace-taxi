@@ -35,6 +35,22 @@ export function getTool(name: string): ToolRenderer {
   });
 });
 
+// Claude Code: BashOutput - check output of background bash
+['BashOutput'].forEach(n => {
+  registerTool(n, {
+    component: BashAdapter,
+    label: (ctx) => 'BashOutput'
+  });
+});
+
+// Claude Code: KillShell - terminate background process
+['KillShell'].forEach(n => {
+  registerTool(n, {
+    component: BashAdapter,
+    label: (ctx) => 'KillShell'
+  });
+});
+
 // File operations (Read/Write/Edit)
 ['Read', 'read', 'file.read', 'fs.read', 'file_read', 'open_file'].forEach(n => {
   registerTool(n, {
@@ -73,10 +89,64 @@ export function getTool(name: string): ToolRenderer {
 });
 
 // Todo management
-['TodoWrite', 'todowrite', 'todo', 'task', 'checklist'].forEach(n => {
+['TodoWrite', 'todowrite', 'todo', 'checklist'].forEach(n => {
   registerTool(n, {
     component: TodoAdapter,
     label: (ctx) => 'TodoWrite'
+  });
+});
+
+// Claude Code: Task - launch subagent
+['Task'].forEach(n => {
+  registerTool(n, {
+    component: ToolUnknown,
+    label: (ctx) => 'Task'
+  });
+});
+
+// Claude Code: Web operations
+['WebFetch', 'webfetch'].forEach(n => {
+  registerTool(n, {
+    component: ToolUnknown,
+    label: (ctx) => 'WebFetch'
+  });
+});
+
+['WebSearch', 'websearch'].forEach(n => {
+  registerTool(n, {
+    component: ToolUnknown,
+    label: (ctx) => 'WebSearch'
+  });
+});
+
+// Claude Code: Notebook editing
+['NotebookEdit', 'notebookedit'].forEach(n => {
+  registerTool(n, {
+    component: FileOperationsAdapter,
+    label: (ctx) => 'NotebookEdit'
+  });
+});
+
+// Claude Code: User interaction
+['AskUserQuestion', 'askuserquestion'].forEach(n => {
+  registerTool(n, {
+    component: ToolUnknown,
+    label: (ctx) => 'AskUserQuestion'
+  });
+});
+
+// Claude Code: Skills and slash commands
+['Skill', 'skill'].forEach(n => {
+  registerTool(n, {
+    component: ToolUnknown,
+    label: (ctx) => 'Skill'
+  });
+});
+
+['SlashCommand', 'slashcommand'].forEach(n => {
+  registerTool(n, {
+    component: ToolUnknown,
+    label: (ctx) => 'SlashCommand'
   });
 });
 

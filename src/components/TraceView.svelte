@@ -34,18 +34,28 @@
 <div class="main-container">
   <div class="msg-list">
     {#each events as e, i}
-      {#if e.kind === 'user'}
-        <div data-message-index={events.filter((ev, idx) => idx <= i && ev.kind === 'user').length - 1}>
+      {#if e.kind === 'system'}
+        <div data-event-index={i}>
+          <MessageBubble role="System" text={e.text} />
+        </div>
+      {:else if e.kind === 'user'}
+        <div data-event-index={i} data-message-index={events.filter((ev, idx) => idx <= i && ev.kind === 'user').length - 1}>
           <MessageBubble role="User" text={e.text} />
         </div>
       {:else if e.kind === 'assistant'}
-        <MessageBubble role="Assistant" text={e.text} />
+        <div data-event-index={i}>
+          <MessageBubble role="Assistant" text={e.text} />
+        </div>
       {:else if e.kind === 'tool-use'}
-        <ToolBlock ctx={{ event: e, pair: pairFor(e) }} />
+        <div data-event-index={i}>
+          <ToolBlock ctx={{ event: e, pair: pairFor(e) }} />
+        </div>
       {:else if e.kind === 'tool-result'}
         <!-- Results are rendered alongside their tool-use; skip lone results -->
         {#if !pairs.find(p => p.result === e)}
-          <MessageBubble role={"Tool · " + e.name} text={typeof e.output === 'string' ? e.output : JSON.stringify(e.output, null, 2)} />
+          <div data-event-index={i}>
+            <MessageBubble role={"Tool · " + e.name} text={typeof e.output === 'string' ? e.output : JSON.stringify(e.output, null, 2)} />
+          </div>
         {/if}
       {/if}
     {/each}
@@ -55,7 +65,7 @@
 <style>
   .main-container {
     max-width: 800px;
-    margin: 0 auto;
+    margin: 0;
     padding: 20px;
   }
 

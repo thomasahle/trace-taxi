@@ -29,6 +29,13 @@ export function parseJsonl(text: string): TraceData {
 
   // If wrapper objects exist (e.g. {type:'message', message:{...}}) normalize.
   const messages: OpenAIMessage[] = raw.map((r) => {
+    // Claude Code format: {type: 'user'|'assistant', message: {...}}
+    if ((r?.type === 'user' || r?.type === 'assistant') && r?.message) {
+      return r.message;
+    }
+    // Skip file history snapshots and other non-message types
+    if (r?.type === 'file-history-snapshot') return null;
+
     if (r?.type === 'message' && r?.message) return r.message;
     if (r?.object === 'chat.completion.chunk' && r?.choices) return r; // ignore streaming chunks later
     return r;
@@ -105,6 +112,11 @@ export function parseJsonl(text: string): TraceData {
     }
 
     // Plain text messages
+    if (m.role === 'system') {
+      const text = textFromContent(m.content);
+      if (text) events.push({ kind: 'system', text, raw: m, created_at: m.created_at });
+      continue;
+    }
     if (m.role === 'user') {
       const text = textFromContent(m.content);
       if (text) events.push({ kind: 'user', text, raw: m, created_at: m.created_at });
