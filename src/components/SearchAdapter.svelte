@@ -65,7 +65,6 @@
 
 <div class="search-container">
   <div class="search-header">
-    <span class="operation-type">{operation.toUpperCase()}</span>
     <span class="pattern-label">Pattern:</span>
     <code class="pattern">{operation === 'grep' ? formatPattern(pattern) : pattern}</code>
   </div>
@@ -127,18 +126,6 @@
     align-items: center;
     gap: 8px;
     margin-bottom: 8px;
-  }
-
-  .operation-type {
-    background: #ddf4ff;
-    color: #0969da;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    flex-shrink: 0;
   }
 
   .pattern-label {

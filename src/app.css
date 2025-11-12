@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @theme {
   /* Yellow base color theme */
@@ -231,6 +232,91 @@ code {
 pre {
   @apply bg-muted border border-border rounded-md p-3 overflow-x-auto;
   margin: 0;
+}
+
+/* Syntax highlighting overrides for dark mode */
+.dark .hljs {
+  background: var(--code-bg);
+  color: hsl(0 0% 85%);
+}
+
+.dark .hljs-keyword,
+.dark .hljs-selector-tag,
+.dark .hljs-built_in,
+.dark .hljs-name,
+.dark .hljs-tag {
+  color: hsl(330 100% 70%);
+}
+
+.dark .hljs-string,
+.dark .hljs-title,
+.dark .hljs-section,
+.dark .hljs-attribute,
+.dark .hljs-literal,
+.dark .hljs-template-tag,
+.dark .hljs-template-variable,
+.dark .hljs-type {
+  color: hsl(95 38% 62%);
+}
+
+.dark .hljs-comment,
+.dark .hljs-quote {
+  color: hsl(0 0% 50%);
+  font-style: italic;
+}
+
+.dark .hljs-number,
+.dark .hljs-regexp,
+.dark .hljs-variable,
+.dark .hljs-attr {
+  color: hsl(207 82% 66%);
+}
+
+.dark .hljs-function,
+.dark .hljs-class .hljs-title {
+  color: hsl(29 54% 61%);
+}
+
+.dark .hljs-meta {
+  color: hsl(0 0% 60%);
+}
+
+/* Prose typography overrides */
+.prose {
+  color: var(--color-foreground);
+  max-width: none;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  color: var(--color-foreground);
+}
+
+.prose strong {
+  color: var(--color-foreground);
+  font-weight: 600;
+}
+
+.prose code {
+  color: var(--color-foreground);
+}
+
+.prose a {
+  color: var(--color-primary);
+}
+
+.prose blockquote {
+  color: var(--color-muted-foreground);
+  border-left-color: var(--color-border);
+}
+
+.prose ul,
+.prose ol {
+  color: var(--color-foreground);
 }
 
 /* Utilities */

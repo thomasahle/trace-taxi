@@ -80,12 +80,45 @@
       'yml': 'yaml',
       'sh': 'bash',
       'bash': 'bash',
-      'svelte': 'html'
+      'svelte': 'html',
+      'sv': 'verilog',
+      'v': 'verilog',
+      'vh': 'verilog',
+      'toml': 'ini',
+      'ini': 'ini',
+      'cfg': 'ini',
+      'conf': 'ini',
+      'txt': 'plaintext',
+      'log': 'plaintext',
+      'proto': 'protobuf',
+      'graphql': 'graphql',
+      'gql': 'graphql',
+      'dockerfile': 'dockerfile',
+      'tf': 'terraform',
+      'vue': 'xml',
+      'scala': 'scala',
+      'r': 'r',
+      'm': 'objectivec',
+      'pl': 'perl',
+      'lua': 'lua',
+      'dart': 'dart',
+      'elm': 'elm',
+      'ex': 'elixir',
+      'exs': 'elixir',
+      'clj': 'clojure',
+      'cljs': 'clojure',
+      'hs': 'haskell',
+      'erl': 'erlang',
+      'fs': 'fsharp',
+      'fsx': 'fsharp',
+      'groovy': 'groovy',
+      'jl': 'julia'
     };
     return langMap[ext] || 'plaintext';
   }
 
-  onMount(() => {
+  // Apply syntax highlighting reactively
+  $: {
     if (content && operation === 'write') {
       try {
         const lang = getLanguage(filePath);
@@ -93,8 +126,36 @@
       } catch {
         highlightedContent = content;
       }
+    } else if (output && operation === 'read') {
+      // Apply syntax highlighting to Read output
+      try {
+        const lang = getLanguage(filePath);
+        // Parse the output format: "1→content\n2→content\n..."
+        const lines = output.split('\n');
+        const highlightedLines = lines.map(line => {
+          // Match line number prefix (e.g., "   1→" or " 123→")
+          const match = line.match(/^(\s*)(\d+)→(.*)/);
+          if (match) {
+            const indent = match[1];
+            const lineNum = match[2];
+            const content = match[3];
+            try {
+              const highlighted = hljs.highlight(content, { language: lang, ignoreIllegals: true }).value;
+              return `<span class="line-num">${lineNum}</span>${highlighted}`;
+            } catch {
+              return `<span class="line-num">${lineNum}</span>${content}`;
+            }
+          }
+          return line;
+        });
+        highlightedContent = highlightedLines.join('\n');
+      } catch {
+        highlightedContent = output;
+      }
+    } else {
+      highlightedContent = '';
     }
-  });
+  }
 </script>
 
 <div class="file-op-container">
@@ -111,9 +172,7 @@
         <span class="meta-item">📍 Offset: line {offset}</span>
       {/if}
     </div>
-    <div class="output-status" class:success={isSuccess}>
-      {output}
-    </div>
+    <pre class="code-block read-output"><code>{@html highlightedContent || output}</code></pre>
   {/if}
 
   {#if operation === 'write'}
@@ -201,14 +260,43 @@
     overflow-y: auto;
   }
 
+  .code-block.read-output {
+    background: var(--code-bg);
+  }
+
+  .code-block.read-output code {
+    display: block;
+    white-space: pre;
+  }
+
+  .code-block :global(.line-num) {
+    display: inline-block;
+    min-width: 3em;
+    margin-right: 1em;
+    text-align: right;
+    color: var(--muted);
+    user-select: none;
+    font-weight: 400;
+  }
+
   .code-block.old {
-    background: #ffebe9;
-    border-color: #ffcecb;
+    background: hsl(0 100% 96%);
+    border-color: hsl(0 100% 88%);
+  }
+
+  :global(.dark) .code-block.old {
+    background: hsl(0 40% 20%);
+    border-color: hsl(0 40% 30%);
   }
 
   .code-block.new {
-    background: #dafbe1;
-    border-color: #aceebb;
+    background: hsl(140 50% 90%);
+    border-color: hsl(140 50% 75%);
+  }
+
+  :global(.dark) .code-block.new {
+    background: hsl(140 40% 20%);
+    border-color: hsl(140 40% 30%);
   }
 
   .edit-container {
@@ -238,7 +326,10 @@
   }
 
   .output-status.success {
-    background: var(--success);
-    color: var(--green);
+    background: transparent;
+    color: var(--muted);
+    font-size: 11px;
+    padding: 4px 8px;
+    opacity: 0.7;
   }
 </style>

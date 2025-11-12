@@ -73,7 +73,7 @@
   }
 </script>
 
-<div class="w-[280px] h-screen border-r border-border/30 flex flex-col" style="background-color: {$theme === 'dark' ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)'}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+<div class="w-[280px] h-screen border-r border-border/30 flex flex-col" style="background-color: {$theme === 'dark' ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.3)'}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
   <div class="flex items-center justify-between h-12 px-4 border-b border-border">
     <h3 class="m-0 text-sm font-semibold">Traces</h3>
     <Button

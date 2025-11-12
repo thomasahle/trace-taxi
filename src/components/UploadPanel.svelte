@@ -1,6 +1,5 @@
-
 <script lang="ts">
-  import { loadTraceFromFile, errorMessage } from '../lib/store';
+  import { loadTraceFromFile, errorMessage } from "../lib/store";
   import Button from "$lib/components/ui/button.svelte";
   import Card from "$lib/components/ui/card.svelte";
 
@@ -15,9 +14,16 @@
       loadTraceFromFile(f);
     }
   }
-  function onDragOver(e: DragEvent) { e.preventDefault(); dragging = true; }
-  function onDragLeave() { dragging = false; }
-  function pick() { fileInput.click(); }
+  function onDragOver(e: DragEvent) {
+    e.preventDefault();
+    dragging = true;
+  }
+  function onDragLeave() {
+    dragging = false;
+  }
+  function pick() {
+    fileInput.click();
+  }
   async function onPick() {
     const f = fileInput.files?.[0];
     if (f) await loadTraceFromFile(f);
@@ -29,23 +35,74 @@
 </script>
 
 <div
-  class="border-2 border-dashed rounded-xl p-10 text-center bg-muted transition-all {dragging ? 'border-primary bg-primary/10' : 'border-border'}"
+  role="button"
+  class="border-2 border-dashed rounded-xl p-8 text-center bg-muted transition-all {dragging
+    ? 'border-primary bg-primary/10'
+    : 'border-border'}"
   on:dragover={onDragOver}
   on:dragleave={onDragLeave}
   on:drop={onDrop}
 >
-  <input bind:this={fileInput} type="file" accept=".jsonl,.json" on:change={onPick} class="hidden" />
-  <h2 class="text-xl font-semibold mb-2">Drop your <code class="bg-background border border-border px-1.5 py-0.5 rounded">. jsonl</code> trace here</h2>
-  <p class="text-sm text-muted-foreground mb-4">Each line should be a JSON message in the OpenAI format. You can also pass <code class="bg-background border border-border px-1 py-0.5 rounded text-xs">?file=URL</code> to load by URL.</p>
+  <input
+    bind:this={fileInput}
+    type="file"
+    accept=".jsonl,.json"
+    on:change={onPick}
+    class="hidden"
+  />
+  <h2 class="text-xl font-semibold mb-2">
+    Drop your <code
+      class="bg-background border border-border px-1.5 py-0.5 rounded"
+      >. jsonl</code
+    > trace here
+  </h2>
+  <p class="text-sm text-muted-foreground mb-4">
+    Drop a trace file in OpenAI or Claude format. See your <code
+      >~/.clade/projects/*.jsonl</code
+    > folder for examples.
+  </p>
+
+  <div class="mb-6 text-left">
+    <code
+      >{'{"role": "user", "content": "I just landed. Please find me a taxi from Airport Terminal 1 to Rose Street 17; that\'s where he\'s waiting."}'}<br
+      />
+      {`{"role": "assistant", "tool_calls": [{"id": "call_1", "type": "function", "function": {"name": "get_taxi_estimate", "arguments": "{"pickup":"Airport Terminal 1","dropoff":"Rose Street 17","when":"now"}"}}]}`}<br
+      />
+      {`{"role": "tool", "tool_call_id": "call_1", "name": "get_taxi_estimate", "content": "{"eta_minutes":6,"price_usd":24.8,"note":"short ride, heartbeat distance"}"}`}<br
+      />
+      {'{"role": "assistant", "content": "Your taxi will reach Airport Terminal 1 in about 6 minutes. The fare is around $24.80; by the time you reach Rose Street 17, your suitcase won\'t be the only thing that\'s opened."}'}<br
+      />
+      {'{"role": "user", "content": "We\'re together now. Can you call us a taxi from Rose Street 17 to Midnight Bridge? We want the city lights to hear our first real conversation."}'}<br
+      />
+      {`{"role": "assistant", "tool_calls": [{"id": "call_2", "type": "function", "function": {"name": "search_taxis", "arguments": "{"pickup":"Rose Street 17","dropoff":"Midnight Bridge","time":"21:00","seats":2}"}}]}`}<br
+      />
+      {`{"role": "tool", "tool_call_id": "call_2", "name": "search_taxis", "content": "{"options":[{"service":"CityHeart Taxi","eta_minutes":3,"price_usd":11.4,"song_hint":"soft jazz"},{"service":"Starlight Cab","eta_minutes":8,"price_usd":9.9,"song_hint":"old love songs"}]}"}`}<br
+      />
+      {'{"role": "assistant", "content": "Two taxis are listening:\\n- CityHeart Taxi can arrive in about 3 minutes for roughly $11.40, ideal if you can\'t wait another heartbeat.\\n- Starlight Cab is about 8 minutes away for roughly $9.90, slower but perfect if you want the ride to last, with old love songs in the background.\\nTell me which car should witness the beginning of your story."}'}</code
+    >
+  </div>
+
   <Button on:click={pick}>
-    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+    <svg
+      class="w-4 h-4 mr-2"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+      />
     </svg>
     Select file…
   </Button>
 
   {#if $errorMessage}
-    <div class="flex items-center justify-between gap-3 mt-4 px-4 py-3 bg-destructive/10 border border-destructive rounded-md text-destructive text-sm">
+    <div
+      class="flex items-center justify-between gap-3 mt-4 px-4 py-3 bg-destructive/10 border border-destructive rounded-md text-destructive text-sm"
+    >
       <span>⚠️ {$errorMessage}</span>
       <button
         class="bg-transparent border-0 text-destructive text-2xl leading-none cursor-pointer p-0 w-6 h-6 flex items-center justify-center shrink-0 hover:opacity-70"

@@ -106,7 +106,7 @@
   });
 </script>
 
-<div class="fixed top-12 right-0 w-[280px] h-[calc(100vh-3rem)] border-l border-border/30 flex flex-col overflow-hidden z-10" style="background-color: {$theme === 'dark' ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)'}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+<div class="fixed top-12 right-0 w-[280px] h-[calc(100vh-3rem)] flex flex-col overflow-hidden z-10" style="background-color: {$theme === 'dark' ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.3)'}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
   <ScrollArea class="flex-1 p-1 pb-24 pt-3">
     {#each conversationMessages as item, index}
       {@const isUser = item.event.kind === 'user'}
