@@ -49,7 +49,7 @@
     >
       <Menu size={16} />
     </Button>
-    <h1 class="m-0 text-lg font-semibold tracking-tight">Trace Taxi</h1>
+    <h1 class="m-0 text-2xl font-semibold tracking-tight uppercase leading-none pt-1">Trace Taxi</h1>
   </div>
 
   <div class="flex-1">

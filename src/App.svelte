@@ -26,6 +26,7 @@
   let showTOC = true;
   let showShareNotification = false;
   let shareNotificationMessage = "";
+  let mainContent: HTMLElement | null = null;
 
   // Detect mobile viewport
   function checkMobile() {
@@ -237,6 +238,7 @@
     />
 
     <div
+      bind:this={mainContent}
       class="flex-1 flex flex-col min-w-0 overflow-y-scroll main-content {hasData &&
       showTOC && !isMobile
         ? 'pr-[280px]'
@@ -263,7 +265,7 @@
     </div>
 
     {#if hasData && showTOC}
-      <TableOfContents {isMobile} />
+      <TableOfContents {isMobile} {mainContent} />
     {/if}
 
     {#if dragging}

@@ -38,6 +38,11 @@
 }
 
 :root {
+  /* Font families */
+  --font-display: 'Bebas Neue', Impact, 'Arial Black', sans-serif;
+  --font-body: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, "Cascadia Code", monospace;
+
   /* Tool block colors - light mode */
   --tool-header-bg: hsl(45 100% 95%);
   --tool-header-hover-bg: hsl(45 100% 92%);
@@ -110,10 +115,19 @@
   @apply border-border;
 }
 
+/* Custom utilities for active state */
+.bg-active {
+  background-color: var(--color-active);
+}
+
+.text-active-foreground {
+  color: var(--color-active-foreground);
+}
+
 body {
   @apply bg-background text-foreground font-sans;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -130,7 +144,7 @@ body,
   color: hsl(0 0% 20%);
   border-radius: 6px;
   padding: 12px;
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
   line-height: 1.5;
   overflow-x: auto;
@@ -179,7 +193,7 @@ body,
 
 /* Diff styles - keep custom for specialized display */
 .diff {
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
   line-height: 1.5;
   @apply bg-muted border border-border rounded-md overflow-hidden;
@@ -190,7 +204,7 @@ body,
 }
 
 .diff-body {
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
 }
 
@@ -227,7 +241,7 @@ body,
 /* Code blocks */
 pre,
 code {
-  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
 }
 
@@ -300,6 +314,14 @@ pre {
 .prose h5,
 .prose h6 {
   color: var(--color-foreground);
+  font-family: var(--font-body);
+  font-weight: 600;
+}
+
+/* General headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
 }
 
 .prose strong {

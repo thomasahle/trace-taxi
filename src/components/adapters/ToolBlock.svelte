@@ -2,6 +2,7 @@
 <script lang="ts">
   import { getTool } from '../../lib/tool-registry';
   import type { ToolRenderContext } from '../../lib/types';
+  import { ChevronDown, ChevronRight } from 'lucide-svelte';
 
   export let ctx: ToolRenderContext;
 
@@ -133,7 +134,13 @@
         <span class="tool-summary">{summary}</span>
       {/if}
     </div>
-    <span class="tool-chevron" class:open>▸</span>
+    <span class="tool-chevron">
+      {#if open}
+        <ChevronDown size={16} />
+      {:else}
+        <ChevronRight size={16} />
+      {/if}
+    </span>
   </div>
   {#if open}
     <div class="tool-body">
@@ -194,13 +201,10 @@
 
   .tool-chevron {
     color: var(--muted);
-    font-size: 12px;
-    transition: transform 0.15s ease;
+    display: flex;
+    align-items: center;
     flex-shrink: 0;
-  }
-
-  .tool-chevron.open {
-    transform: rotate(90deg);
+    margin-left: 8px;
   }
 
   .tool-body {

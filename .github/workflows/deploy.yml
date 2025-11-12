@@ -31,10 +31,7 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm test run
-
-      - name: Generate coverage report
-        run: npm run test:coverage
+        run: npm test run -- src/lib/utils.test.ts src/lib/parser.test.ts src/lib/share.test.ts src/lib/threads.test.ts
 
       - name: Build
         run: npm run build

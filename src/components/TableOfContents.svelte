@@ -1,10 +1,11 @@
 <script lang="ts">
   import { trace, theme } from '../lib/store';
   import type { MessageEvent } from '../lib/types';
-  import { onMount, onDestroy, afterUpdate } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import ScrollArea from "$lib/components/ui/scroll-area.svelte";
 
   export let isMobile: boolean = false;
+  export let mainContent: HTMLElement | null = null;
 
   // Extract user and assistant messages for TOC with their original indices
   $: conversationMessages = $trace?.events?.map((event: MessageEvent, index: number) => ({
@@ -14,55 +15,67 @@
     item.event.kind === 'user' || item.event.kind === 'assistant'
   ) || [];
 
+  // Precompute a map from globalIndex -> conversation index for O(1) lookups
+  $: indexByGlobalIndex = new Map(
+    conversationMessages.map((item, i) => [item.globalIndex, i] as const)
+  );
+
   let activeIndex = -1;
   let observer: IntersectionObserver | null = null;
   let mounted = false;
 
-  function setupObserver() {
-    if (!mounted) return;
+  // Tracks which message indices are currently visible
+  const visibleGlobalIndices = new Set<number>();
 
-    const mainContent = document.querySelector<HTMLElement>('.main-content');
-    if (!mainContent) return;
+  function setupObserver() {
+    if (!mounted || !mainContent) return;
+    if (typeof IntersectionObserver === 'undefined') return;
+
+    // Reset current visibility state
+    visibleGlobalIndices.clear();
 
     // Disconnect any existing observer
     if (observer) observer.disconnect();
 
     observer = new IntersectionObserver(
       (entries) => {
-        // Find the intersecting entry with the biggest intersection ratio
-        let best: IntersectionObserverEntry | null = null;
-
         for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          if (!best || entry.intersectionRatio > best.intersectionRatio) {
-            best = entry;
+          const target = entry.target as HTMLElement;
+          const eventIndexStr = target.getAttribute('data-event-index');
+          if (!eventIndexStr) continue;
+
+          const eventIndex = parseInt(eventIndexStr, 10);
+          if (Number.isNaN(eventIndex)) continue;
+
+          if (entry.isIntersecting) {
+            visibleGlobalIndices.add(eventIndex);
+          } else {
+            visibleGlobalIndices.delete(eventIndex);
           }
         }
 
-        if (!best) return;
+        // Now pick the *last* visible conversation message
+        let newActive = -1;
+        for (let i = 0; i < conversationMessages.length; i++) {
+          const globalIndex = conversationMessages[i].globalIndex;
+          if (visibleGlobalIndices.has(globalIndex)) {
+            newActive = i; // keep updating so we end up with the last visible
+          }
+        }
 
-        const target = best.target as HTMLElement;
-        const eventIndexStr = target.getAttribute('data-event-index');
-        if (!eventIndexStr) return;
-
-        const eventIndex = parseInt(eventIndexStr, 10);
-        const convIndex = conversationMessages.findIndex(
-          (item) => item.globalIndex === eventIndex
-        );
-
-        if (convIndex !== -1) {
-          activeIndex = convIndex;
+        if (newActive !== -1 && newActive !== activeIndex) {
+          activeIndex = newActive;
         }
       },
       {
         root: mainContent,
-        threshold: [0.25, 0.5, 0.75]
+        threshold: 0.1
       }
     );
 
-    // Only observe elements that correspond to conversation messages
+    // Only observe elements that correspond to conversation messages (scoped to mainContent)
     const conversationIndices = new Set(conversationMessages.map(item => item.globalIndex));
-    const nodes = document.querySelectorAll<HTMLElement>('.msg-list > *[data-event-index]');
+    const nodes = mainContent.querySelectorAll<HTMLElement>('.msg-list > *[data-event-index]');
 
     nodes.forEach((node) => {
       const indexStr = node.getAttribute('data-event-index');
@@ -76,7 +89,7 @@
     const el = document.querySelector<HTMLElement>(`[data-event-index="${globalIndex}"]`);
     if (!el) return;
 
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    el.scrollIntoView({ behavior: 'auto', block: 'start' });
   }
 
   function truncateText(text: string, maxLength: number = 40): string {
@@ -86,13 +99,17 @@
 
   onMount(() => {
     mounted = true;
-    setupObserver();
   });
 
-  // Re-wire the observer when the DOM for messages changes
-  afterUpdate(() => {
-    setupObserver();
-  });
+  // Rerun only when these dependencies change
+  $: {
+    if (mounted && mainContent && conversationMessages.length) {
+      setupObserver();
+    } else if (observer) {
+      observer.disconnect();
+      observer = null;
+    }
+  }
 
   onDestroy(() => {
     observer?.disconnect();
