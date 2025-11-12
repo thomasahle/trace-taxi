@@ -18,7 +18,9 @@
                      toolName.includes('glob') ||
                      toolName.includes('find') ||
                      toolName.includes('search') ||
-                     toolName.includes('ls');
+                     toolName.includes('ls') ||
+                     toolName.includes('webfetch') ||
+                     toolName.includes('websearch');
 
   let open = !isReadOnly;
 
@@ -46,6 +48,64 @@
     } else if (name.includes('notebookedit')) {
       const path = input.notebook_path || '';
       return path.split('/').pop() || path;
+    } else if (name.includes('askuserquestion')) {
+      // Show first question
+      const questions = input.questions || [];
+      if (questions.length > 0 && questions[0].question) {
+        const q = questions[0].question;
+        return q.length > 60 ? q.slice(0, 57) + '...' : q;
+      }
+      return questions.length > 1 ? `${questions.length} questions` : '';
+    } else if (name.includes('exitplanmode')) {
+      // Show first line of plan
+      const plan = input.plan || '';
+      const firstLine = plan.split('\n')[0];
+      return firstLine.length > 60 ? firstLine.slice(0, 57) + '...' : firstLine;
+    } else if (name.includes('task')) {
+      // Show subagent type and description
+      const subagentType = input.subagent_type || '';
+      const desc = input.description || '';
+      if (subagentType && desc) {
+        return `${subagentType}: ${desc}`;
+      }
+      return subagentType || desc;
+    } else if (name.includes('webfetch')) {
+      // Show URL
+      const url = input.url || '';
+      return url.length > 60 ? url.slice(0, 57) + '...' : url;
+    } else if (name.includes('websearch')) {
+      // Show search query
+      const query = input.query || '';
+      return query.length > 60 ? query.slice(0, 57) + '...' : query;
+    } else if (name.includes('todowrite') || name.includes('todo')) {
+      // Show todo count and status
+      const todos = input.todos || [];
+      if (todos.length === 0) return '';
+      const completed = todos.filter((t: any) => t.status === 'completed').length;
+      const inProgress = todos.filter((t: any) => t.status === 'in_progress').length;
+      const pending = todos.filter((t: any) => t.status === 'pending').length;
+
+      const parts = [];
+      if (completed > 0) parts.push(`${completed} done`);
+      if (inProgress > 0) parts.push(`${inProgress} active`);
+      if (pending > 0) parts.push(`${pending} pending`);
+      return parts.join(', ') || `${todos.length} tasks`;
+    } else if (name.includes('taxi_estimate') || name === 'get_taxi_estimate') {
+      // Show route
+      const pickup = input.pickup || '';
+      const dropoff = input.dropoff || '';
+      if (pickup && dropoff) {
+        return `${pickup} → ${dropoff}`;
+      }
+      return pickup || dropoff;
+    } else if (name.includes('taxi_search') || name.includes('search_taxis')) {
+      // Show route
+      const pickup = input.pickup || '';
+      const dropoff = input.dropoff || '';
+      if (pickup && dropoff) {
+        return `${pickup} → ${dropoff}`;
+      }
+      return pickup || dropoff;
     }
 
     // Fallback: show first meaningful value
