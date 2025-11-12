@@ -21,12 +21,35 @@
   import { onMount } from "svelte";
   let dragging = false;
   let dragCounter = 0;
+  let isMobile = false;
   let showThreadsList = true;
   let showTOC = true;
   let showShareNotification = false;
   let shareNotificationMessage = "";
 
+  // Detect mobile viewport
+  function checkMobile() {
+    const wasMobile = isMobile;
+    isMobile = window.innerWidth < 768;
+
+    // When transitioning from desktop to mobile, hide sidebars
+    if (!wasMobile && isMobile) {
+      showThreadsList = false;
+      showTOC = false;
+    }
+    // When transitioning from mobile to desktop, show sidebars
+    else if (wasMobile && !isMobile) {
+      showThreadsList = true;
+      showTOC = true;
+    }
+  }
+
   onMount(async () => {
+    // Check if mobile on mount
+    checkMobile();
+
+    // Listen for resize events
+    window.addEventListener('resize', checkMobile);
     // First, check for hash-based compressed trace
     const hashText = decompressFromHash(window.location.hash);
     if (hashText) {
@@ -178,8 +201,20 @@
     ? 'black-taxi.png'
     : 'white-taxi.png'}'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;"
 >
+  <!-- Backdrop for mobile overlays -->
+  {#if isMobile && (showThreadsList || showTOC)}
+    <div
+      class="fixed inset-0 bg-black/50 z-40"
+      on:click={() => {
+        showThreadsList = false;
+        showTOC = false;
+      }}
+    ></div>
+  {/if}
+
   {#if showThreadsList}
     <ThreadsList
+      {isMobile}
       onSelectThread={handleSelectThread}
       onNewThread={handleNewThread}
     />
@@ -200,7 +235,7 @@
 
     <div
       class="flex-1 flex flex-col min-w-0 overflow-y-scroll main-content {hasData &&
-      showTOC
+      showTOC && !isMobile
         ? 'pr-[280px]'
         : ''}"
       style="background-color: {$theme === 'dark'
@@ -225,7 +260,7 @@
     </div>
 
     {#if hasData && showTOC}
-      <TableOfContents />
+      <TableOfContents {isMobile} />
     {/if}
 
     {#if dragging}
