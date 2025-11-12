@@ -26,7 +26,7 @@
   let showShareNotification = false;
   let shareNotificationMessage = "";
 
-  onMount(() => {
+  onMount(async () => {
     // First, check for hash-based compressed trace
     const hashText = decompressFromHash(window.location.hash);
     if (hashText) {
@@ -44,6 +44,20 @@
     const urlParam = params.get("file");
     if (urlParam) {
       loadTraceFromUrl(urlParam);
+      return;
+    }
+
+    // If no threads exist, load the example love story trace
+    if ($threads.length === 0) {
+      try {
+        const response = await fetch('/example-love-story.jsonl');
+        const text = await response.text();
+        const data = parseJsonl(text);
+        data.title = "Love Story: Airport to Midnight Bridge";
+        trace.set(data);
+      } catch (error) {
+        console.error("Failed to load example trace:", error);
+      }
     }
   });
 

@@ -8,6 +8,8 @@ import BashAdapter from '../components/BashAdapter.svelte';
 import FileOperationsAdapter from '../components/FileOperationsAdapter.svelte';
 import SearchAdapter from '../components/SearchAdapter.svelte';
 import TodoAdapter from '../components/TodoAdapter.svelte';
+import TaxiEstimateAdapter from '../components/TaxiEstimateAdapter.svelte';
+import TaxiSearchAdapter from '../components/TaxiSearchAdapter.svelte';
 
 export type ToolRenderer = {
   label?: (ctx: ToolRenderContext) => string;
@@ -168,6 +170,21 @@ export function getTool(name: string): ToolRenderer {
 ['file.diff', 'git.diff', 'patch.apply', 'code_diff'].forEach(n => {
   registerTool(n, {
     component: DiffBlock
+  });
+});
+
+// Taxi tools
+['get_taxi_estimate', 'getTaxiEstimate', 'taxi_estimate'].forEach(n => {
+  registerTool(n, {
+    component: TaxiEstimateAdapter,
+    label: (ctx) => 'Get Taxi Estimate'
+  });
+});
+
+['search_taxis', 'searchTaxis', 'find_taxis', 'taxi_search'].forEach(n => {
+  registerTool(n, {
+    component: TaxiSearchAdapter,
+    label: (ctx) => 'Search Taxis'
   });
 });
 

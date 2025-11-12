@@ -36,7 +36,7 @@
 
 <div
   role="button"
-  class="border-2 border-dashed rounded-xl p-8 text-center bg-muted transition-all {dragging
+  class="border-2 border-dashed rounded-xl p-12 text-center bg-muted transition-all bg-opacity-50 hover:opacity-100 {dragging
     ? 'border-primary bg-primary/10'
     : 'border-border'}"
   on:dragover={onDragOver}
@@ -50,39 +50,14 @@
     on:change={onPick}
     class="hidden"
   />
-  <h2 class="text-xl font-semibold mb-2">
-    Drop your <code
-      class="bg-background border border-border px-1.5 py-0.5 rounded"
-      >. jsonl</code
-    > trace here
-  </h2>
-  <p class="text-sm text-muted-foreground mb-4">
+  <h2 class="text-xl font-semibold mb-2">Drop your trace.jsonl here</h2>
+  <p class="text-sm text-muted-foreground mb-7">
     Drop a trace file in OpenAI or Claude format. See your <code
       >~/.clade/projects/*.jsonl</code
     > folder for examples.
   </p>
 
-  <div class="mb-6 text-left">
-    <code
-      >{'{"role": "user", "content": "I just landed. Please find me a taxi from Airport Terminal 1 to Rose Street 17; that\'s where he\'s waiting."}'}<br
-      />
-      {`{"role": "assistant", "tool_calls": [{"id": "call_1", "type": "function", "function": {"name": "get_taxi_estimate", "arguments": "{"pickup":"Airport Terminal 1","dropoff":"Rose Street 17","when":"now"}"}}]}`}<br
-      />
-      {`{"role": "tool", "tool_call_id": "call_1", "name": "get_taxi_estimate", "content": "{"eta_minutes":6,"price_usd":24.8,"note":"short ride, heartbeat distance"}"}`}<br
-      />
-      {'{"role": "assistant", "content": "Your taxi will reach Airport Terminal 1 in about 6 minutes. The fare is around $24.80; by the time you reach Rose Street 17, your suitcase won\'t be the only thing that\'s opened."}'}<br
-      />
-      {'{"role": "user", "content": "We\'re together now. Can you call us a taxi from Rose Street 17 to Midnight Bridge? We want the city lights to hear our first real conversation."}'}<br
-      />
-      {`{"role": "assistant", "tool_calls": [{"id": "call_2", "type": "function", "function": {"name": "search_taxis", "arguments": "{"pickup":"Rose Street 17","dropoff":"Midnight Bridge","time":"21:00","seats":2}"}}]}`}<br
-      />
-      {`{"role": "tool", "tool_call_id": "call_2", "name": "search_taxis", "content": "{"options":[{"service":"CityHeart Taxi","eta_minutes":3,"price_usd":11.4,"song_hint":"soft jazz"},{"service":"Starlight Cab","eta_minutes":8,"price_usd":9.9,"song_hint":"old love songs"}]}"}`}<br
-      />
-      {'{"role": "assistant", "content": "Two taxis are listening:\\n- CityHeart Taxi can arrive in about 3 minutes for roughly $11.40, ideal if you can\'t wait another heartbeat.\\n- Starlight Cab is about 8 minutes away for roughly $9.90, slower but perfect if you want the ride to last, with old love songs in the background.\\nTell me which car should witness the beginning of your story."}'}</code
-    >
-  </div>
-
-  <Button on:click={pick}>
+  <Button on:click={pick} class="m-10">
     <svg
       class="w-4 h-4 mr-2"
       fill="none"
