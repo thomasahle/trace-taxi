@@ -1,7 +1,7 @@
 
 <script lang="ts">
-  import { getTool } from '../lib/tool-registry';
-  import type { ToolRenderContext } from '../lib/types';
+  import { getTool } from '../../lib/tool-registry';
+  import type { ToolRenderContext } from '../../lib/types';
 
   export let ctx: ToolRenderContext;
 

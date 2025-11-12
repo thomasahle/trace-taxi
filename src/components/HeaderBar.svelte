@@ -1,7 +1,10 @@
 <script lang="ts">
   import Button from "$lib/components/ui/button.svelte";
   import { theme } from '../lib/store';
-  import { Menu, Upload, Moon, Sun, Github } from 'lucide-svelte';
+  import { Menu, Share2, Moon, Sun, Github, Star } from 'lucide-svelte';
+  import { onMount } from 'svelte';
+
+  let starCount: number | null = null;
 
   export let hasData: boolean;
   export let onToggleSidebar: () => void;
@@ -10,6 +13,22 @@
   function toggleTheme() {
     theme.set($theme === 'light' ? 'dark' : 'light');
   }
+
+  async function fetchGitHubStars() {
+    try {
+      const response = await fetch('https://api.github.com/repos/thomasahle/trace-taxi');
+      if (response.ok) {
+        const data = await response.json();
+        starCount = data.stargazers_count;
+      }
+    } catch (error) {
+      console.error('Failed to fetch GitHub stars:', error);
+    }
+  }
+
+  onMount(() => {
+    fetchGitHubStars();
+  });
 </script>
 
 <header class="flex items-center justify-between h-12 px-4 border-b border-border/30 shrink-0 z-10" style="background-color: {$theme === 'dark' ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.3)'}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
@@ -39,7 +58,7 @@
         on:click={onShare}
         title="Share trace"
       >
-        <Upload size={16} />
+        <Share2 size={16} />
       </Button>
     {/if}
     <Button
@@ -59,10 +78,16 @@
       href="https://github.com/thomasahle/trace-taxi"
       target="_blank"
       rel="noopener noreferrer"
-      class="flex items-center justify-center w-8 h-8 rounded-md hover:bg-accent/50 transition-colors"
-      title="View on GitHub"
+      class="flex items-center gap-1.5 px-2.5 h-8 rounded-md hover:bg-accent/50 transition-colors border border-border/30"
+      title="View on GitHub - {starCount ? `${starCount} stars` : 'Loading...'}"
     >
-      <Github size={16} />
+      <Github size={14} />
+      {#if starCount !== null}
+        <div class="flex items-center gap-1">
+          <Star size={12} fill="currentColor" />
+          <span class="text-xs font-medium">{starCount}</span>
+        </div>
+      {/if}
     </a>
   </div>
 </header>

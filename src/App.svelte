@@ -99,8 +99,11 @@
 
   // Watch for trace changes and save to threads
   $: if (hasData && $trace) {
-    // Check if this is a new trace (not already in threads with the same title)
-    const existingThread = $threads.find((t) => t.title === $trace.title);
+    // If there's an active thread, check by ID; otherwise check by title
+    const existingThread = $activeThreadId
+      ? $threads.find((t) => t.id === $activeThreadId)
+      : $threads.find((t) => t.title === $trace.title);
+
     if (!existingThread) {
       threads.add($trace);
     }

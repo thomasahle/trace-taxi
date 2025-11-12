@@ -3,13 +3,18 @@ import type { ToolRenderContext } from './types';
 import TerminalBlock from '../components/TerminalBlock.svelte';
 import DiffBlock from '../components/DiffBlock.svelte';
 import FileCard from '../components/FileCard.svelte';
-import ToolUnknown from '../components/ToolUnknown.svelte';
-import BashAdapter from '../components/BashAdapter.svelte';
-import FileOperationsAdapter from '../components/FileOperationsAdapter.svelte';
-import SearchAdapter from '../components/SearchAdapter.svelte';
-import TodoAdapter from '../components/TodoAdapter.svelte';
-import TaxiEstimateAdapter from '../components/TaxiEstimateAdapter.svelte';
-import TaxiSearchAdapter from '../components/TaxiSearchAdapter.svelte';
+import ToolUnknown from '../components/adapters/ToolUnknown.svelte';
+import BashAdapter from '../components/adapters/BashAdapter.svelte';
+import FileOperationsAdapter from '../components/adapters/FileOperationsAdapter.svelte';
+import SearchAdapter from '../components/adapters/SearchAdapter.svelte';
+import TodoAdapter from '../components/adapters/TodoAdapter.svelte';
+import TaxiEstimateAdapter from '../components/adapters/TaxiEstimateAdapter.svelte';
+import TaxiSearchAdapter from '../components/adapters/TaxiSearchAdapter.svelte';
+import AskUserQuestionAdapter from '../components/adapters/AskUserQuestionAdapter.svelte';
+import ExitPlanModeAdapter from '../components/adapters/ExitPlanModeAdapter.svelte';
+import TaskAdapter from '../components/adapters/TaskAdapter.svelte';
+import WebFetchAdapter from '../components/adapters/WebFetchAdapter.svelte';
+import WebSearchAdapter from '../components/adapters/WebSearchAdapter.svelte';
 
 export type ToolRenderer = {
   label?: (ctx: ToolRenderContext) => string;
@@ -101,7 +106,7 @@ export function getTool(name: string): ToolRenderer {
 // Claude Code: Task - launch subagent
 ['Task'].forEach(n => {
   registerTool(n, {
-    component: ToolUnknown,
+    component: TaskAdapter,
     label: (ctx) => 'Task'
   });
 });
@@ -109,14 +114,14 @@ export function getTool(name: string): ToolRenderer {
 // Claude Code: Web operations
 ['WebFetch', 'webfetch'].forEach(n => {
   registerTool(n, {
-    component: ToolUnknown,
+    component: WebFetchAdapter,
     label: (ctx) => 'WebFetch'
   });
 });
 
 ['WebSearch', 'websearch'].forEach(n => {
   registerTool(n, {
-    component: ToolUnknown,
+    component: WebSearchAdapter,
     label: (ctx) => 'WebSearch'
   });
 });
@@ -132,8 +137,16 @@ export function getTool(name: string): ToolRenderer {
 // Claude Code: User interaction
 ['AskUserQuestion', 'askuserquestion'].forEach(n => {
   registerTool(n, {
-    component: ToolUnknown,
+    component: AskUserQuestionAdapter,
     label: (ctx) => 'AskUserQuestion'
+  });
+});
+
+// Claude Code: Plan mode
+['ExitPlanMode', 'exitplanmode'].forEach(n => {
+  registerTool(n, {
+    component: ExitPlanModeAdapter,
+    label: (ctx) => 'ExitPlanMode'
   });
 });
 

@@ -2,7 +2,7 @@
 <script lang="ts">
   import { trace } from '../lib/store';
   import MessageBubble from './MessageBubble.svelte';
-  import ToolBlock from './ToolBlock.svelte';
+  import ToolBlock from './adapters/ToolBlock.svelte';
   import type { TraceEvent } from '../lib/types';
   import { groupToolPairs } from '../lib/utils';
 
