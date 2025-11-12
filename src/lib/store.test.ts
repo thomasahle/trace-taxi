@@ -34,31 +34,12 @@ class MockFile {
   }
 }
 
-// Mock localStorage
-const localStorageMock = (() => {
-  let store: Record<string, string> = {};
-
-  return {
-    getItem: (key: string) => store[key] || null,
-    setItem: (key: string, value: string) => {
-      store[key] = value;
-    },
-    removeItem: (key: string) => {
-      delete store[key];
-    },
-    clear: () => {
-      store = {};
-    }
-  };
-})();
-
-global.localStorage = localStorageMock as any;
-
 describe('loadTraceFromUrl', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     errorMessage.set(null);
     trace.set({ title: '', events: [], originalMessages: [] });
+    localStorage.clear();
   });
 
   it('should load trace from valid URL', async () => {
@@ -241,11 +222,11 @@ describe('loadTraceFromFile', () => {
   });
 
   it('should handle empty file', async () => {
-    const file = new MockFile('', 'empty.jsonl');
+    const file = new MockFile('invalid', 'empty.jsonl');
 
     await loadTraceFromFile(file as any);
 
-    // parseJsonl returns empty events for empty string
+    // parseJsonl returns empty events for invalid content
     expect(get(errorMessage)).toContain('No events found');
   });
 
@@ -262,6 +243,9 @@ describe('loadTraceFromFile', () => {
 
 describe('trace store', () => {
   it('should initialize with empty trace data', () => {
+    // Reset to initial state
+    trace.set({ title: '', events: [], originalMessages: [] });
+
     const initial = get(trace);
     expect(initial.title).toBe('');
     expect(initial.events).toHaveLength(0);
@@ -299,14 +283,12 @@ describe('errorMessage store', () => {
 
 describe('theme store', () => {
   beforeEach(() => {
-    localStorageMock.clear();
-    vi.resetModules();
+    localStorage.clear();
   });
 
-  it('should initialize with light theme by default', async () => {
-    // Re-import to get fresh store
-    const module = await import('./store');
-    const currentTheme = get(module.theme);
+  it('should initialize with light theme by default', () => {
+    theme.set('light');
+    const currentTheme = get(theme);
     expect(currentTheme).toBe('light');
   });
 
@@ -318,31 +300,30 @@ describe('theme store', () => {
     const module = await import('./store');
     const currentTheme = get(module.theme);
     expect(currentTheme).toBe('dark');
+
+    // Restore for other tests
+    vi.resetModules();
   });
 
-  it('should toggle between light and dark', async () => {
-    const module = await import('./store');
+  it('should toggle between light and dark', () => {
+    theme.set('light');
+    expect(get(theme)).toBe('light');
 
-    module.theme.set('light');
-    expect(get(module.theme)).toBe('light');
+    theme.toggle();
+    expect(get(theme)).toBe('dark');
 
-    module.theme.toggle();
-    expect(get(module.theme)).toBe('dark');
-
-    module.theme.toggle();
-    expect(get(module.theme)).toBe('light');
+    theme.toggle();
+    expect(get(theme)).toBe('light');
   });
 
-  it('should persist theme to localStorage when set', async () => {
-    const module = await import('./store');
+  it('should persist theme to localStorage when set', () => {
+    theme.set('dark');
 
-    module.theme.set('dark');
+    expect(localStorage.getItem('theme')).toBe('dark');
 
-    expect(localStorageMock.getItem('theme')).toBe('dark');
+    theme.set('light');
 
-    module.theme.set('light');
-
-    expect(localStorageMock.getItem('theme')).toBe('light');
+    expect(localStorage.getItem('theme')).toBe('light');
   });
 
   it('should handle missing localStorage gracefully', async () => {

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { trace, theme } from '../lib/store';
   import type { MessageEvent } from '../lib/types';
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount, onDestroy, afterUpdate } from 'svelte';
   import ScrollArea from "$lib/components/ui/scroll-area.svelte";
 
   export let isMobile: boolean = false;
@@ -15,28 +15,68 @@
   ) || [];
 
   let activeIndex = -1;
-  let isScrollingProgrammatically = false;
-  let scrollTimeout: number | null = null;
+  let observer: IntersectionObserver | null = null;
+  let mounted = false;
 
-  function scrollToMessage(message: MessageEvent, globalIndex: number) {
-    // Use the data-event-index attribute to find the correct element
-    const messageElement = document.querySelector(`[data-event-index="${globalIndex}"]`);
-    if (messageElement) {
-      isScrollingProgrammatically = true;
+  function setupObserver() {
+    if (!mounted) return;
 
-      // Clear any existing timeout
-      if (scrollTimeout !== null) {
-        clearTimeout(scrollTimeout);
+    const mainContent = document.querySelector<HTMLElement>('.main-content');
+    if (!mainContent) return;
+
+    // Disconnect any existing observer
+    if (observer) observer.disconnect();
+
+    observer = new IntersectionObserver(
+      (entries) => {
+        // Find the intersecting entry with the biggest intersection ratio
+        let best: IntersectionObserverEntry | null = null;
+
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          if (!best || entry.intersectionRatio > best.intersectionRatio) {
+            best = entry;
+          }
+        }
+
+        if (!best) return;
+
+        const target = best.target as HTMLElement;
+        const eventIndexStr = target.getAttribute('data-event-index');
+        if (!eventIndexStr) return;
+
+        const eventIndex = parseInt(eventIndexStr, 10);
+        const convIndex = conversationMessages.findIndex(
+          (item) => item.globalIndex === eventIndex
+        );
+
+        if (convIndex !== -1) {
+          activeIndex = convIndex;
+        }
+      },
+      {
+        root: mainContent,
+        threshold: [0.25, 0.5, 0.75]
       }
+    );
 
-      messageElement.scrollIntoView({ behavior: 'instant', block: 'start' });
+    // Only observe elements that correspond to conversation messages
+    const conversationIndices = new Set(conversationMessages.map(item => item.globalIndex));
+    const nodes = document.querySelectorAll<HTMLElement>('.msg-list > *[data-event-index]');
 
-      // Reset flag after scroll completes (instant scroll completes immediately)
-      scrollTimeout = setTimeout(() => {
-        isScrollingProgrammatically = false;
-        updateActiveMessage(); // Now update based on final position
-      }, 50);
-    }
+    nodes.forEach((node) => {
+      const indexStr = node.getAttribute('data-event-index');
+      if (indexStr && conversationIndices.has(parseInt(indexStr, 10))) {
+        observer!.observe(node);
+      }
+    });
+  }
+
+  function scrollToMessage(globalIndex: number) {
+    const el = document.querySelector<HTMLElement>(`[data-event-index="${globalIndex}"]`);
+    if (!el) return;
+
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   function truncateText(text: string, maxLength: number = 40): string {
@@ -44,67 +84,18 @@
     return text.substring(0, maxLength) + '...';
   }
 
-  function updateActiveMessage() {
-    // Don't update if we're in the middle of a programmatic scroll
-    if (isScrollingProgrammatically) return;
-
-    const mainContent = document.querySelector('.main-content');
-    if (!mainContent) return;
-
-    const messages = Array.from(document.querySelectorAll('.msg-list > *'));
-    const containerRect = mainContent.getBoundingClientRect();
-
-    let mostVisibleIndex = -1;
-    let maxVisibleArea = 0;
-
-    // Find the message with the most visible area
-    for (let i = 0; i < messages.length; i++) {
-      const element = messages[i] as HTMLElement;
-      const rect = element.getBoundingClientRect();
-
-      // Calculate visible area of this message
-      const visibleTop = Math.max(rect.top, containerRect.top);
-      const visibleBottom = Math.min(rect.bottom, containerRect.bottom);
-      const visibleHeight = Math.max(0, visibleBottom - visibleTop);
-
-      if (visibleHeight > maxVisibleArea) {
-        maxVisibleArea = visibleHeight;
-        mostVisibleIndex = i;
-      }
-    }
-
-    // Update active index based on most visible message
-    if (mostVisibleIndex !== -1) {
-      const element = messages[mostVisibleIndex];
-      const eventIndexStr = element.getAttribute('data-event-index');
-
-      if (eventIndexStr) {
-        const eventIndex = parseInt(eventIndexStr, 10);
-        const event = $trace?.events?.[eventIndex];
-
-        if (event && (event.kind === 'user' || event.kind === 'assistant')) {
-          const convIndex = conversationMessages.findIndex(item => item.globalIndex === eventIndex);
-          if (convIndex !== -1) {
-            activeIndex = convIndex;
-          }
-        }
-      }
-    }
-  }
-
   onMount(() => {
-    const mainContent = document.querySelector('.main-content');
-    if (mainContent) {
-      mainContent.addEventListener('scroll', updateActiveMessage);
-      updateActiveMessage();
-    }
+    mounted = true;
+    setupObserver();
+  });
+
+  // Re-wire the observer when the DOM for messages changes
+  afterUpdate(() => {
+    setupObserver();
   });
 
   onDestroy(() => {
-    const mainContent = document.querySelector('.main-content');
-    if (mainContent) {
-      mainContent.removeEventListener('scroll', updateActiveMessage);
-    }
+    observer?.disconnect();
   });
 </script>
 
@@ -114,10 +105,10 @@
       {@const isUser = item.event.kind === 'user'}
       {@const isActive = index === activeIndex}
       <button
-        class="flex items-center gap-2 w-full px-2 py-1.5 mb-px rounded border-0 bg-background cursor-pointer text-left transition-colors hover:bg-accent/50 {isActive ? 'bg-muted' : ''}"
+        class="flex items-center gap-2 w-full px-2 py-1.5 mb-px rounded border-0 bg-background cursor-pointer text-left transition-colors {isActive ? 'bg-active' : 'hover:bg-accent/50'}"
         on:click={() => {
           activeIndex = index;
-          scrollToMessage(item.event, item.globalIndex);
+          scrollToMessage(item.globalIndex);
         }}
         title={item.event.text}
       >

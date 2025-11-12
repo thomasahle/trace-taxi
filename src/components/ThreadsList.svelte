@@ -97,7 +97,7 @@
     {:else}
       {#each $threads as thread (thread.id)}
         <div
-          class="flex items-center gap-2 px-3 py-3 mb-1 rounded-md cursor-pointer transition-colors border border-transparent hover:bg-accent/50 {$activeThreadId === thread.id ? 'bg-muted border-primary' : ''}"
+          class="flex items-center gap-2 px-3 py-3 mb-1 rounded-md cursor-pointer transition-colors border border-transparent {$activeThreadId === thread.id ? 'bg-active border-primary' : 'hover:bg-accent/50'}"
           on:click={() => selectThread(thread)}
         >
           <div class="flex-1 min-w-0">
@@ -123,7 +123,7 @@
               <Button
                 variant="ghost"
                 size="icon"
-                class="w-6 h-6 hover:bg-muted"
+                class="w-6 h-6 hover:bg-accent"
                 on:click={(e) => startEdit(thread, e)}
                 title="Rename"
               >

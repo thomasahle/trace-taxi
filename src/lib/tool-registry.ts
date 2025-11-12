@@ -99,7 +99,22 @@ export function getTool(name: string): ToolRenderer {
 ['TodoWrite', 'todowrite', 'todo', 'checklist'].forEach(n => {
   registerTool(n, {
     component: TodoAdapter,
-    label: (ctx) => 'TodoWrite'
+    label: (ctx) => {
+      const todos = ctx.event?.input?.todos || [];
+      if (todos.length === 0) return 'Todo List';
+
+      const completed = todos.filter((t: any) => t.status === 'completed').length;
+      const inProgress = todos.filter((t: any) => t.status === 'in_progress').length;
+      const pending = todos.filter((t: any) => t.status === 'pending').length;
+
+      const parts = [];
+      if (completed > 0) parts.push(`${completed} done`);
+      if (inProgress > 0) parts.push(`${inProgress} active`);
+      if (pending > 0) parts.push(`${pending} pending`);
+
+      const status = parts.join(', ') || `${todos.length} tasks`;
+      return `Todo List (${status})`;
+    }
   });
 });
 

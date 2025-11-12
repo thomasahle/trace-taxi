@@ -12,6 +12,7 @@
   // Determine if tool should be open by default
   // Read-only tools (Read, Grep, Glob, etc.) are collapsed by default
   // Modifying tools (Write, Edit, Bash, etc.) are open by default
+  // TodoWrite is collapsed by default to save vertical space
   const toolName = ctx.event?.name?.toLowerCase() || '';
   const isReadOnly = toolName.includes('read') ||
                      toolName.includes('grep') ||
@@ -21,8 +22,11 @@
                      toolName.includes('ls') ||
                      toolName.includes('webfetch') ||
                      toolName.includes('websearch');
+  const isCollapsedByDefault = isReadOnly ||
+                               toolName.includes('todo') ||
+                               toolName === 'todowrite';
 
-  let open = !isReadOnly;
+  let open = !isCollapsedByDefault;
 
   function getSummary(ctx: ToolRenderContext): string {
     const input = ctx.event?.input || {};

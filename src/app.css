@@ -24,6 +24,9 @@
   --color-accent: hsl(60 4.8% 95.9%);
   --color-accent-foreground: hsl(24 9.8% 10%);
 
+  --color-active: hsl(0 0% 88%);
+  --color-active-foreground: hsl(24 9.8% 10%);
+
   --color-destructive: hsl(0 84.2% 60.2%);
   --color-destructive-foreground: hsl(60 9.1% 97.8%);
 
@@ -74,6 +77,9 @@
 
   --color-accent: hsl(0 0% 18%);
   --color-accent-foreground: hsl(0 0% 95%);
+
+  --color-active: hsl(0 0% 22%);
+  --color-active-foreground: hsl(0 0% 95%);
 
   --color-destructive: hsl(0 62.8% 50.6%);
   --color-destructive-foreground: hsl(0 0% 98%);
@@ -226,7 +232,7 @@ code {
 }
 
 code {
-  @apply bg-muted px-1 py-0.5 rounded;
+  @apply px-1 py-0.5 rounded;
 }
 
 pre {

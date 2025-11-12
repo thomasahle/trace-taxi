@@ -30,6 +30,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run tests
+        run: npm test run
+
+      - name: Generate coverage report
+        run: npm run test:coverage
+
       - name: Build
         run: npm run build
         env:

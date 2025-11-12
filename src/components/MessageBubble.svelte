@@ -44,7 +44,7 @@
   $: html = marked.parse(text || '');
 </script>
 
-<div class="flex gap-3 items-start {isUser ? 'bg-muted px-4 py-3 rounded-lg' : ''} {isAssistant ? 'gap-0' : ''}">
+<div class="flex gap-3 items-start {isUser ? 'bg-accent/50 px-4 py-3 rounded-lg' : ''} {isAssistant ? 'gap-0' : ''}">
   {#if !isAssistant}
     <div class="w-8 h-8 rounded-full {avatarInfo.bgClass} text-white flex items-center justify-center font-semibold text-sm shrink-0">
       {avatarInfo.initial}
