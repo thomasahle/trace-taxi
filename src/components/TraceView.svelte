@@ -27,11 +27,11 @@
   }
 </script>
 
-<div class="main-container">
-  <div class="msg-list">
+<div class="max-w-[800px] m-0 p-5">
+  <div class="flex flex-col gap-4">
     {#each events as e, i}
       {#if e.kind === "system"}
-        <div data-event-index={i} class="hoverable-block">
+        <div data-event-index={i} class="hoverable-block group relative">
           <MessageBubble role="System" text={e.text} />
           <CopyRawButton rawData={e.raw} />
         </div>
@@ -39,30 +39,30 @@
         <div
           data-event-index={i}
           data-message-index={userMessageIndices.get(i)}
-          class="hoverable-block"
+          class="hoverable-block group relative"
         >
           <MessageBubble role="User" text={e.text} content={e.content} />
           <CopyRawButton rawData={e.raw} />
         </div>
       {:else if e.kind === "assistant"}
-        <div data-event-index={i} class="hoverable-block">
+        <div data-event-index={i} class="hoverable-block group relative">
           <MessageBubble role="Assistant" text={e.text} />
           <CopyRawButton rawData={e.raw} />
         </div>
       {:else if e.kind === "thinking"}
-        <div data-event-index={i} class="hoverable-block">
+        <div data-event-index={i} class="hoverable-block group relative">
           <ThinkingBlock text={e.text} />
           <CopyRawButton rawData={e.raw} />
         </div>
       {:else if e.kind === "tool-use"}
-        <div data-event-index={i} class="hoverable-block">
+        <div data-event-index={i} class="hoverable-block group relative">
           <ToolBlock ctx={{ event: e, pair: pairFor(e) }} />
           <CopyRawButton rawData={e.raw} />
         </div>
       {:else if e.kind === "tool-result"}
         <!-- Results are rendered alongside their tool-use; skip paired results -->
         {#if !pairs.find((p) => p.result === e)}
-          <div data-event-index={i} class="hoverable-block">
+          <div data-event-index={i} class="hoverable-block group relative">
             <MessageBubble
               role={"Tool · " + e.name}
               text={typeof e.output === "string"
@@ -76,21 +76,3 @@
     {/each}
   </div>
 </div>
-
-<style>
-  .main-container {
-    max-width: 800px;
-    margin: 0;
-    padding: 20px;
-  }
-
-  .msg-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .hoverable-block {
-    position: relative;
-  }
-</style>

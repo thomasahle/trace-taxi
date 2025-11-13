@@ -157,15 +157,29 @@
   }
 </script>
 
-<div class="tool-container" class:collapsed={!open}>
-  <div class="tool-header" on:click={() => (open = !open)}>
-    <div class="tool-title">
-      <span class="tool-name">{label}</span>
+<div
+  class="border rounded-md overflow-hidden {!open
+    ? 'inline-block max-w-fit'
+    : ''}"
+  style="border-color: var(--border-light);"
+>
+  <div
+    class="tool-header flex justify-between items-center px-3 py-2 cursor-pointer select-none"
+    style="background: var(--tool-header-bg);"
+    on:click={() => (open = !open)}
+  >
+    <div class="flex items-center gap-1.5 flex-1 min-w-0">
+      <span class="font-medium text-[13px]" style="color: var(--text);"
+        >{label}</span
+      >
       {#if summary}
-        <span class="tool-summary">{summary}</span>
+        <span
+          class="font-mono text-xs whitespace-nowrap overflow-hidden text-ellipsis max-w-[400px]"
+          style="color: var(--muted);">{summary}</span
+        >
       {/if}
     </div>
-    <span class="tool-chevron">
+    <span class="flex items-center shrink-0 ml-2" style="color: var(--muted);">
       {#if open}
         <ChevronDown size={16} />
       {:else}
@@ -174,74 +188,14 @@
     </span>
   </div>
   {#if open}
-    <div class="tool-body">
+    <div class="p-3.5" style="background: var(--bg);">
       <svelte:component this={renderer.component} {ctx} />
     </div>
   {/if}
 </div>
 
 <style>
-  .tool-container {
-    border: 1px solid var(--border-light);
-    border-radius: 6px;
-    overflow: hidden;
-  }
-
-  .tool-container.collapsed {
-    display: inline-block;
-    max-width: fit-content;
-  }
-
-  .tool-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 12px;
-    background: var(--tool-header-bg);
-    cursor: pointer;
-    user-select: none;
-  }
-
   .tool-header:hover {
-    background: var(--tool-header-hover-bg);
-  }
-
-  .tool-title {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex: 1;
-    min-width: 0;
-  }
-
-  .tool-name {
-    font-weight: 500;
-    font-size: 13px;
-    color: var(--text);
-  }
-
-  .tool-summary {
-    color: var(--muted);
-    font-size: 12px;
-    font-family:
-      "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
-      "Courier New", monospace;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 400px;
-  }
-
-  .tool-chevron {
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
-    margin-left: 8px;
-  }
-
-  .tool-body {
-    padding: 14px;
-    background: var(--bg);
+    background: var(--tool-header-hover-bg) !important;
   }
 </style>
