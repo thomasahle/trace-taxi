@@ -1,11 +1,11 @@
 <script lang="ts">
   export let ctx: any;
 
-  let operation = '';
-  let pattern = '';
-  let path = '';
-  let glob = '';
-  let outputMode = '';
+  let operation = "";
+  let pattern = "";
+  let path = "";
+  let glob = "";
+  let outputMode = "";
   let results: string[] = [];
   let matchCount = 0;
   let caseInsensitive = false;
@@ -16,41 +16,41 @@
   let contextAfter = null;
 
   // Detect operation type
-  const toolName = ctx?.event?.name?.toLowerCase() || '';
-  if (toolName.includes('grep')) {
-    operation = 'grep';
-  } else if (toolName.includes('glob') || toolName.includes('find')) {
-    operation = 'glob';
+  const toolName = ctx?.event?.name?.toLowerCase() || "";
+  if (toolName.includes("grep")) {
+    operation = "grep";
+  } else if (toolName.includes("glob") || toolName.includes("find")) {
+    operation = "glob";
   }
 
   // Extract input parameters
   if (ctx?.event?.input) {
     const input = ctx.event.input;
-    pattern = input.pattern || input.regex || input.search || '';
-    path = input.path || input.directory || input.dir || '.';
-    glob = input.glob || input.include || '';
-    outputMode = input.output_mode || input.outputMode || 'files_with_matches';
+    pattern = input.pattern || input.regex || input.search || "";
+    path = input.path || input.directory || input.dir || ".";
+    glob = input.glob || input.include || "";
+    outputMode = input.output_mode || input.outputMode || "files_with_matches";
 
     // Grep specific options
-    caseInsensitive = input['-i'] || input.ignoreCase || false;
-    showLineNumbers = input['-n'] !== false;
+    caseInsensitive = input["-i"] || input.ignoreCase || false;
+    showLineNumbers = input["-n"] !== false;
     multiline = input.multiline || false;
     headLimit = input.head_limit || input.headLimit || null;
-    contextBefore = input['-B'] || null;
-    contextAfter = input['-A'] || null;
+    contextBefore = input["-B"] || null;
+    contextAfter = input["-A"] || null;
   }
 
   // Extract output
   if (ctx?.pair?.output) {
     const out = ctx.pair.output;
-    if (typeof out === 'string') {
+    if (typeof out === "string") {
       // Parse output as list of file paths or matches
-      results = out.split('\n').filter(line => line.trim());
+      results = out.split("\n").filter((line) => line.trim());
       matchCount = results.length;
     } else if (Array.isArray(out)) {
       results = out;
       matchCount = out.length;
-    } else if (out && typeof out === 'object') {
+    } else if (out && typeof out === "object") {
       results = out.results || out.files || out.matches || [];
       matchCount = out.count || results.length;
     }
@@ -59,14 +59,16 @@
   // Format pattern for display
   function formatPattern(p: string): string {
     // Escape HTML but preserve regex structure
-    return p.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return p.replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 </script>
 
 <div class="search-container">
   <div class="search-header">
     <span class="pattern-label">Pattern:</span>
-    <code class="pattern">{operation === 'grep' ? formatPattern(pattern) : pattern}</code>
+    <code class="pattern"
+      >{operation === "grep" ? formatPattern(pattern) : pattern}</code
+    >
   </div>
 
   <div class="search-meta">
@@ -74,7 +76,7 @@
     {#if glob}
       <span class="param">· Files: {glob}</span>
     {/if}
-    {#if operation === 'grep'}
+    {#if operation === "grep"}
       {#if caseInsensitive}<span class="flag">-i</span>{/if}
       {#if multiline}<span class="flag">multiline</span>{/if}
       {#if contextBefore}<span class="flag">-B {contextBefore}</span>{/if}
@@ -83,17 +85,17 @@
   </div>
 
   <div class="results-summary">
-    {#if operation === 'grep'}
-      {matchCount} {matchCount === 1 ? 'match' : 'matches'} found
+    {#if operation === "grep"}
+      {matchCount} {matchCount === 1 ? "match" : "matches"} found
     {:else}
-      {matchCount} {matchCount === 1 ? 'file' : 'files'} found
+      {matchCount} {matchCount === 1 ? "file" : "files"} found
     {/if}
   </div>
 
   {#if results.length > 0}
     <div class="results-list">
       {#each results as result}
-        {#if operation === 'grep' && outputMode === 'content'}
+        {#if operation === "grep" && outputMode === "content"}
           <div class="match-line">
             <code>{result}</code>
           </div>
@@ -112,7 +114,9 @@
 
 <style>
   .search-container {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+      sans-serif;
     font-size: 13px;
   }
 
@@ -175,7 +179,8 @@
     overflow-y: auto;
   }
 
-  .file-result, .match-line {
+  .file-result,
+  .match-line {
     padding: 4px 0;
     font-size: 12px;
   }

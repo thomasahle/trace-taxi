@@ -1,17 +1,17 @@
 <script lang="ts">
-  import { threads, activeThreadId, type Thread } from '../lib/threads';
-  import { trace, theme } from '../lib/store';
+  import { threads, activeThreadId, type Thread } from "../lib/threads";
+  import { trace, theme } from "../lib/store";
   import Button from "$lib/components/ui/button.svelte";
   import Input from "$lib/components/ui/input.svelte";
   import ScrollArea from "$lib/components/ui/scroll-area.svelte";
-  import { Plus, Pencil, Trash2 } from 'lucide-svelte';
+  import { Plus, Pencil, Trash2 } from "lucide-svelte";
 
   export let onSelectThread: (thread: Thread) => void;
   export let onNewThread: () => void;
   export let isMobile: boolean = false;
 
   let editingId: string | null = null;
-  let editingTitle: string = '';
+  let editingTitle: string = "";
 
   function selectThread(thread: Thread) {
     activeThreadId.set(thread.id);
@@ -29,12 +29,12 @@
       threads.rename(thread.id, editingTitle.trim());
     }
     editingId = null;
-    editingTitle = '';
+    editingTitle = "";
   }
 
   function cancelEdit() {
     editingId = null;
-    editingTitle = '';
+    editingTitle = "";
   }
 
   function deleteThread(thread: Thread, event: MouseEvent) {
@@ -54,7 +54,7 @@
     const diff = now.getTime() - date.getTime();
 
     // Less than 1 minute
-    if (diff < 60000) return 'Just now';
+    if (diff < 60000) return "Just now";
     // Less than 1 hour
     if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
     // Less than 24 hours
@@ -67,17 +67,30 @@
   }
 
   function handleKeydown(event: KeyboardEvent, thread: Thread) {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       saveEdit(thread);
-    } else if (event.key === 'Escape') {
+    } else if (event.key === "Escape") {
       cancelEdit();
     }
   }
 </script>
 
-<div class="w-[280px] h-screen border-r border-border/30 flex flex-col {isMobile ? 'fixed top-0 left-0 z-50' : ''}" style="background-color: {$theme === 'dark' ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.3)'}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
-  <div class="flex items-center justify-between h-12 px-4 border-b border-border">
-    <h1 class="m-0 text-2xl font-semibold tracking-tight uppercase leading-none pt-1">Traces</h1>
+<div
+  class="w-[280px] h-screen border-r border-border/30 flex flex-col {isMobile
+    ? 'fixed top-0 left-0 z-50'
+    : ''}"
+  style="background-color: {$theme === 'dark'
+    ? 'rgba(0, 0, 0, 0.5)'
+    : 'rgba(255, 255, 255, 0.3)'}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);"
+>
+  <div
+    class="flex items-center justify-between h-12 px-4 border-b border-border"
+  >
+    <h1
+      class="m-0 text-2xl font-semibold tracking-tight uppercase leading-none pt-1"
+    >
+      Traces
+    </h1>
     <Button
       size="icon"
       class="w-8 h-8"
@@ -97,7 +110,10 @@
     {:else}
       {#each $threads as thread (thread.id)}
         <div
-          class="flex items-center gap-2 px-3 py-3 mb-1 rounded-md cursor-pointer transition-colors border border-transparent {$activeThreadId === thread.id ? 'bg-active border-primary' : 'hover:bg-accent/50'}"
+          class="flex items-center gap-2 px-3 py-3 mb-1 rounded-md cursor-pointer transition-colors border border-transparent {$activeThreadId ===
+          thread.id
+            ? 'bg-active border-primary'
+            : 'hover:bg-accent/50'}"
           on:click={() => selectThread(thread)}
         >
           <div class="flex-1 min-w-0">
@@ -110,10 +126,15 @@
                 autofocus
               />
             {:else}
-              <div class="text-sm font-medium truncate mb-1">{thread.title}</div>
+              <div class="text-sm font-medium truncate mb-1">
+                {thread.title}
+              </div>
               <div class="flex gap-3 text-xs text-muted-foreground">
-                <span class="whitespace-nowrap">{thread.eventCount} events</span>
-                <span class="whitespace-nowrap">{formatTimestamp(thread.timestamp)}</span>
+                <span class="whitespace-nowrap">{thread.eventCount} events</span
+                >
+                <span class="whitespace-nowrap"
+                  >{formatTimestamp(thread.timestamp)}</span
+                >
               </div>
             {/if}
           </div>

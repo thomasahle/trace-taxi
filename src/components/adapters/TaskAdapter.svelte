@@ -1,27 +1,27 @@
 <script lang="ts">
   export let ctx: any;
 
-  let description = '';
-  let prompt = '';
-  let subagentType = '';
-  let model = '';
-  let result = '';
+  let description = "";
+  let prompt = "";
+  let subagentType = "";
+  let model = "";
+  let result = "";
 
   // Extract input
   if (ctx?.event?.input) {
     const input = ctx.event.input;
-    description = input.description || '';
-    prompt = input.prompt || '';
-    subagentType = input.subagent_type || input.subagentType || '';
-    model = input.model || '';
+    description = input.description || "";
+    prompt = input.prompt || "";
+    subagentType = input.subagent_type || input.subagentType || "";
+    model = input.model || "";
   }
 
   // Extract output
   if (ctx?.pair?.output) {
     const out = ctx.pair.output;
-    if (typeof out === 'string') {
+    if (typeof out === "string") {
       result = out;
-    } else if (out && typeof out === 'object') {
+    } else if (out && typeof out === "object") {
       result = out.result || out.output || JSON.stringify(out, null, 2);
     }
   }
@@ -69,7 +69,9 @@
 
 <style>
   .task-container {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+      sans-serif;
     font-size: 13px;
   }
 

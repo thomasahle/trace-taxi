@@ -1,5 +1,5 @@
-import { marked } from 'marked';
-import hljs from 'highlight.js';
+import { marked } from "marked";
+import hljs from "highlight.js";
 
 // Configure marked once with safe defaults
 marked.setOptions({
@@ -15,7 +15,7 @@ marked.setOptions({
       }
     } catch {}
     return hljs.highlightAuto(code).value;
-  }
+  },
 });
 
 // Create a custom renderer that sanitizes HTML
@@ -26,11 +26,11 @@ const originalHtml = renderer.html.bind(renderer);
 renderer.html = (html: string) => {
   // Escape HTML to prevent XSS
   return html
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 };
 
 marked.use({ renderer });

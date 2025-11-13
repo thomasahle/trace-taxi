@@ -1,32 +1,32 @@
 <script lang="ts">
   export let ctx: any;
 
-  let pickup = '';
-  let dropoff = '';
-  let time = '';
+  let pickup = "";
+  let dropoff = "";
+  let time = "";
   let seats = 1;
   let options: any[] = [];
 
   // Extract input parameters
   if (ctx?.event?.input) {
     const input = ctx.event.input;
-    pickup = input.pickup || '';
-    dropoff = input.dropoff || '';
-    time = input.time || 'now';
+    pickup = input.pickup || "";
+    dropoff = input.dropoff || "";
+    time = input.time || "now";
     seats = input.seats || 1;
   }
 
   // Extract output
   if (ctx?.pair?.output) {
     const out = ctx.pair.output;
-    if (typeof out === 'string') {
+    if (typeof out === "string") {
       try {
         const parsed = JSON.parse(out);
         options = parsed.options || [];
       } catch (e) {
-        console.error('Failed to parse taxi search output:', e);
+        console.error("Failed to parse taxi search output:", e);
       }
-    } else if (out && typeof out === 'object') {
+    } else if (out && typeof out === "object") {
       options = out.options || [];
     }
   }
@@ -45,14 +45,17 @@
         <span class="location">{dropoff}</span>
       </div>
       <div class="route-meta">
-        {#if time && time !== 'now'}⏰ {time}{/if}
+        {#if time && time !== "now"}⏰ {time}{/if}
         {#if seats > 1}· {seats} seats{/if}
       </div>
     </div>
   </div>
 
   {#if options.length > 0}
-    <div class="options-title">{options.length} {options.length === 1 ? 'option' : 'options'} available:</div>
+    <div class="options-title">
+      {options.length}
+      {options.length === 1 ? "option" : "options"} available:
+    </div>
     <div class="options-list">
       {#each options as option, i}
         <div class="option-card">
@@ -83,7 +86,9 @@
 
 <style>
   .taxi-search-container {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+      sans-serif;
     font-size: 13px;
   }
 

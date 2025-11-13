@@ -156,7 +156,9 @@
       >
         <div class="shrink-0 w-6 flex items-center justify-end">
           {#if isUser}
-            <div class="w-5 h-5 rounded-full bg-green-600 text-white flex items-center justify-center text-[10px] font-semibold">
+            <div
+              class="w-5 h-5 rounded-full bg-green-600 text-white flex items-center justify-center text-[10px] font-semibold"
+            >
               {index + 1}
             </div>
           {:else}

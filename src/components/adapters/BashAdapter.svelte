@@ -1,45 +1,45 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import hljs from 'highlight.js';
+  import { onMount } from "svelte";
+  import hljs from "highlight.js";
 
   export let ctx: any;
 
-  let cmd = '';
-  let description = '';
+  let cmd = "";
+  let description = "";
   let timeout = null;
-  let stdout = '';
-  let stderr = '';
+  let stdout = "";
+  let stderr = "";
   let exitCode: number | null = null;
-  let duration = '';
+  let duration = "";
 
   // Extract input parameters
   if (ctx?.event?.input) {
     const input = ctx.event.input;
-    cmd = input.command || input.cmd || '';
-    description = input.description || '';
+    cmd = input.command || input.cmd || "";
+    description = input.description || "";
     timeout = input.timeout || null;
   }
 
   // Extract output
   if (ctx?.pair?.output) {
     const out = ctx.pair.output;
-    if (typeof out === 'string') {
+    if (typeof out === "string") {
       // Simple string output
       stdout = out;
-    } else if (out && typeof out === 'object') {
+    } else if (out && typeof out === "object") {
       // Structured output
-      stdout = out.stdout || out.output || '';
-      stderr = out.stderr || '';
+      stdout = out.stdout || out.output || "";
+      stderr = out.stderr || "";
       exitCode = out.exit_code ?? out.exitCode ?? out.code ?? null;
-      duration = out.duration || '';
+      duration = out.duration || "";
     }
   }
 
   // Syntax highlighting for shell commands
-  let highlightedCmd = '';
+  let highlightedCmd = "";
   onMount(() => {
     if (cmd) {
-      highlightedCmd = hljs.highlight(cmd, { language: 'bash' }).value;
+      highlightedCmd = hljs.highlight(cmd, { language: "bash" }).value;
     }
   });
 </script>
@@ -67,7 +67,11 @@
 
     <div class="metadata">
       {#if exitCode !== null}
-        <span class="exit-code" class:success={exitCode === 0} class:error={exitCode !== 0}>
+        <span
+          class="exit-code"
+          class:success={exitCode === 0}
+          class:error={exitCode !== 0}
+        >
           exit {exitCode}
         </span>
       {/if}
@@ -83,7 +87,9 @@
 
 <style>
   .bash-container {
-    font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
+    font-family:
+      ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas,
+      monospace;
     font-size: 13px;
   }
 
@@ -95,11 +101,18 @@
   }
 
   .terminal {
-    background: #1c2128;
-    color: #adbac7;
+    background: hsl(0 0% 98%);
+    color: hsl(0 0% 25%);
+    border: 1px solid hsl(0 0% 90%);
     border-radius: 6px;
     padding: 12px;
     overflow-x: auto;
+  }
+
+  :global(.dark) .terminal {
+    background: #1c2128;
+    color: #adbac7;
+    border: 1px solid hsl(0 0% 20%);
   }
 
   .command-line {
@@ -110,28 +123,46 @@
   }
 
   .prompt {
-    color: #96d0ff;
+    color: hsl(207 85% 40%);
     font-weight: 600;
     user-select: none;
   }
 
-  .command {
+  :global(.dark) .prompt {
     color: #96d0ff;
+  }
+
+  .command {
+    color: hsl(207 85% 40%);
+    font-weight: 500;
     flex: 1;
+  }
+
+  :global(.dark) .command {
+    color: #96d0ff;
+    font-weight: normal;
   }
 
   .output {
     white-space: pre-wrap;
     word-break: break-all;
-    color: #adbac7;
+    color: hsl(0 0% 30%);
     line-height: 1.5;
+  }
+
+  :global(.dark) .output {
+    color: #adbac7;
   }
 
   .stderr {
     white-space: pre-wrap;
     word-break: break-all;
-    color: #ff938a;
+    color: hsl(0 85% 50%);
     margin-top: 8px;
+  }
+
+  :global(.dark) .stderr {
+    color: #ff938a;
   }
 
   .metadata {
@@ -146,26 +177,53 @@
   }
 
   .exit-code.success {
+    color: hsl(140 65% 42%);
+  }
+
+  :global(.dark) .exit-code.success {
     color: #46c876;
   }
 
   .exit-code.error {
+    color: hsl(0 85% 50%);
+  }
+
+  :global(.dark) .exit-code.error {
     color: #ff938a;
   }
 
-  .duration, .timeout {
+  .duration,
+  .timeout {
+    color: hsl(0 0% 45%);
+  }
+
+  :global(.dark) .duration,
+  :global(.dark) .timeout {
     color: #768390;
   }
 
+  /* Light mode syntax highlighting */
   :global(.bash-container .hljs-keyword) {
+    color: hsl(340 85% 45%);
+  }
+
+  :global(.dark .bash-container .hljs-keyword) {
     color: #f47067;
   }
 
   :global(.bash-container .hljs-string) {
+    color: hsl(207 85% 40%);
+  }
+
+  :global(.dark .bash-container .hljs-string) {
     color: #96d0ff;
   }
 
   :global(.bash-container .hljs-variable) {
+    color: hsl(270 70% 50%);
+  }
+
+  :global(.dark .bash-container .hljs-variable) {
     color: #dcbdfb;
   }
 </style>

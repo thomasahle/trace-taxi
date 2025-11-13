@@ -8,10 +8,7 @@
 </script>
 
 <div
-  class={cn(
-    "border border-border rounded-lg overflow-hidden",
-    className
-  )}
+  class={cn("border border-border rounded-lg overflow-hidden", className)}
   {...$$restProps}
 >
   <button

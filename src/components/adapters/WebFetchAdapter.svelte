@@ -1,23 +1,23 @@
 <script lang="ts">
   export let ctx: any;
 
-  let url = '';
-  let prompt = '';
-  let content = '';
+  let url = "";
+  let prompt = "";
+  let content = "";
 
   // Extract input
   if (ctx?.event?.input) {
     const input = ctx.event.input;
-    url = input.url || '';
-    prompt = input.prompt || '';
+    url = input.url || "";
+    prompt = input.prompt || "";
   }
 
   // Extract output
   if (ctx?.pair?.output) {
     const out = ctx.pair.output;
-    if (typeof out === 'string') {
+    if (typeof out === "string") {
       content = out;
-    } else if (out && typeof out === 'object') {
+    } else if (out && typeof out === "object") {
       content = out.content || out.text || JSON.stringify(out, null, 2);
     }
   }
@@ -25,7 +25,7 @@
   // Truncate long content for display
   function truncate(text: string, maxLength: number = 500): string {
     if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
+    return text.substring(0, maxLength) + "...";
   }
 </script>
 
@@ -68,7 +68,9 @@
 
 <style>
   .webfetch-container {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+      sans-serif;
     font-size: 13px;
   }
 

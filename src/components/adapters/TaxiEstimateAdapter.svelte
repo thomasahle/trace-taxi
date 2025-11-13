@@ -1,38 +1,38 @@
 <script lang="ts">
   export let ctx: any;
 
-  let pickup = '';
-  let dropoff = '';
-  let when = '';
+  let pickup = "";
+  let dropoff = "";
+  let when = "";
   let etaMinutes = 0;
   let priceUsd = 0;
-  let note = '';
+  let note = "";
 
   // Extract input parameters
   if (ctx?.event?.input) {
     const input = ctx.event.input;
-    pickup = input.pickup || '';
-    dropoff = input.dropoff || '';
-    when = input.when || 'now';
+    pickup = input.pickup || "";
+    dropoff = input.dropoff || "";
+    when = input.when || "now";
   }
 
   // Extract output
   if (ctx?.pair?.output) {
     const out = ctx.pair.output;
-    if (typeof out === 'string') {
+    if (typeof out === "string") {
       try {
         const parsed = JSON.parse(out);
         etaMinutes = parsed.eta_minutes || 0;
         priceUsd = parsed.price_usd || 0;
-        note = parsed.note || '';
+        note = parsed.note || "";
       } catch (e) {
         // If parsing fails, try to extract values from string
-        console.error('Failed to parse taxi estimate output:', e);
+        console.error("Failed to parse taxi estimate output:", e);
       }
-    } else if (out && typeof out === 'object') {
+    } else if (out && typeof out === "object") {
       etaMinutes = out.eta_minutes || 0;
       priceUsd = out.price_usd || 0;
-      note = out.note || '';
+      note = out.note || "";
     }
   }
 </script>
@@ -49,7 +49,7 @@
         <span class="location-label">To:</span>
         <span class="location">{dropoff}</span>
       </div>
-      {#if when && when !== 'now'}
+      {#if when && when !== "now"}
         <div class="route-meta">⏰ {when}</div>
       {/if}
     </div>
@@ -73,7 +73,9 @@
 
 <style>
   .taxi-estimate-container {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+      sans-serif;
     font-size: 13px;
   }
 

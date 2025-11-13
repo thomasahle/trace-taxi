@@ -1,10 +1,9 @@
-
 export type AnyRecord = Record<string, any>;
 
 export type OpenAIMessage = {
   id?: string;
   type?: string; // for response/message streams
-  role: 'system' | 'user' | 'assistant' | 'tool' | string;
+  role: "system" | "user" | "assistant" | "tool" | string;
   content: any; // text or array of content blocks
   name?: string; // tool name when role === 'tool' (older formats)
   tool_name?: string; // newer format
@@ -14,12 +13,32 @@ export type OpenAIMessage = {
 };
 
 export type TraceEvent =
-  | { kind: 'system'; text: string; raw: AnyRecord; created_at?: number }
-  | { kind: 'user'; text: string; content?: any; raw: AnyRecord; created_at?: number }
-  | { kind: 'assistant'; text: string; raw: AnyRecord; created_at?: number }
-  | { kind: 'thinking'; text: string; raw: AnyRecord; created_at?: number }
-  | { kind: 'tool-use'; id: string; name: string; input: AnyRecord; raw: AnyRecord; created_at?: number }
-  | { kind: 'tool-result'; tool_call_id: string; name: string; output: AnyRecord; raw: AnyRecord; created_at?: number };
+  | { kind: "system"; text: string; raw: AnyRecord; created_at?: number }
+  | {
+      kind: "user";
+      text: string;
+      content?: any;
+      raw: AnyRecord;
+      created_at?: number;
+    }
+  | { kind: "assistant"; text: string; raw: AnyRecord; created_at?: number }
+  | { kind: "thinking"; text: string; raw: AnyRecord; created_at?: number }
+  | {
+      kind: "tool-use";
+      id: string;
+      name: string;
+      input: AnyRecord;
+      raw: AnyRecord;
+      created_at?: number;
+    }
+  | {
+      kind: "tool-result";
+      tool_call_id: string;
+      name: string;
+      output: AnyRecord;
+      raw: AnyRecord;
+      created_at?: number;
+    };
 
 export type TraceData = {
   title: string;

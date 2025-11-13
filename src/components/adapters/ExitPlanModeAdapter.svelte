@@ -1,7 +1,7 @@
 <script lang="ts">
   export let ctx: any;
 
-  let plan = '';
+  let plan = "";
 
   // Extract the plan from input
   if (ctx?.event?.input?.plan) {
@@ -17,7 +17,7 @@
 
   {#if plan}
     <div class="plan-content">
-      {@html plan.replace(/\n/g, '<br>')}
+      {@html plan.replace(/\n/g, "<br>")}
     </div>
   {/if}
 
@@ -29,7 +29,9 @@
 
 <style>
   .exit-plan-container {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+      sans-serif;
     font-size: 13px;
     padding: 12px;
     background: var(--panel-hover);

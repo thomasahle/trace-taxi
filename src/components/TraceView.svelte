@@ -61,7 +61,7 @@
         </div>
       {:else if e.kind === "tool-result"}
         <!-- Results are rendered alongside their tool-use; skip paired results -->
-        {#if !pairs.find(p => p.result === e)}
+        {#if !pairs.find((p) => p.result === e)}
           <div data-event-index={i} class="hoverable-block">
             <MessageBubble
               role={"Tool · " + e.name}

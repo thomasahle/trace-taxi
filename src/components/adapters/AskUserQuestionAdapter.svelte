@@ -12,7 +12,7 @@
   // Extract output (answers)
   if (ctx?.pair?.output) {
     const out = ctx.pair.output;
-    if (typeof out === 'string') {
+    if (typeof out === "string") {
       try {
         const parsed = JSON.parse(out);
         answers = parsed.answers || parsed;
@@ -20,7 +20,7 @@
         // If not JSON, treat as simple answer
         answers = { response: out };
       }
-    } else if (out && typeof out === 'object') {
+    } else if (out && typeof out === "object") {
       answers = out.answers || out;
     }
   }
@@ -46,7 +46,11 @@
           {#if q.options && q.options.length > 0}
             <div class="options-list">
               {#each q.options as option}
-                <div class="option-item {answers[q.header] === option.label ? 'selected' : ''}">
+                <div
+                  class="option-item {answers[q.header] === option.label
+                    ? 'selected'
+                    : ''}"
+                >
                   <span class="option-label">{option.label}</span>
                   {#if option.description}
                     <span class="option-desc">{option.description}</span>
@@ -59,7 +63,8 @@
           {#if answers[q.header] || answers[i]}
             <div class="answer">
               <span class="answer-label">Answer:</span>
-              <span class="answer-value">{answers[q.header] || answers[i]}</span>
+              <span class="answer-value">{answers[q.header] || answers[i]}</span
+              >
             </div>
           {/if}
         </div>
@@ -79,7 +84,9 @@
 
 <style>
   .ask-question-container {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+      sans-serif;
     font-size: 13px;
   }
 

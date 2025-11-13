@@ -1,19 +1,26 @@
 <script lang="ts">
-  import type { ToolRenderContext } from '../../lib/types';
-  import { Camera, Globe, MousePointer, Monitor, FileText, AlertCircle } from 'lucide-svelte';
+  import type { ToolRenderContext } from "../../lib/types";
+  import {
+    Camera,
+    Globe,
+    MousePointer,
+    Monitor,
+    FileText,
+    AlertCircle,
+  } from "lucide-svelte";
 
   export let ctx: ToolRenderContext;
 
   $: input = ctx.event?.input || {};
-  $: rawOutput = ctx.pair?.output || '';
-  $: toolName = ctx.event?.name || '';
+  $: rawOutput = ctx.pair?.output || "";
+  $: toolName = ctx.event?.name || "";
 
   // Parse output if it's a JSON string
   $: output = (() => {
-    if (!rawOutput) return '';
+    if (!rawOutput) return "";
 
     // If it's already an array or object, use it as-is
-    if (typeof rawOutput !== 'string') return rawOutput;
+    if (typeof rawOutput !== "string") return rawOutput;
 
     // Check if output contains stringified JSON with image data
     if (rawOutput.includes('{"type":"image"')) {
@@ -40,18 +47,17 @@
   // Helper to detect if output contains image data
   function hasImageContent(output: any): boolean {
     if (!output) return false;
-    if (typeof output === 'string') return false;
+    if (typeof output === "string") return false;
 
     // Check if it's an array with image blocks
     if (Array.isArray(output)) {
-      return output.some(item =>
-        item?.type === 'image' &&
-        item?.source?.type === 'base64'
+      return output.some(
+        (item) => item?.type === "image" && item?.source?.type === "base64",
       );
     }
 
     // Check if it's an object with image data
-    if (output?.type === 'image' && output?.source?.type === 'base64') {
+    if (output?.type === "image" && output?.source?.type === "base64") {
       return true;
     }
 
@@ -59,22 +65,24 @@
   }
 
   // Extract image data from output
-  function extractImages(output: any): Array<{mediaType: string, data: string}> {
-    const images: Array<{mediaType: string, data: string}> = [];
+  function extractImages(
+    output: any,
+  ): Array<{ mediaType: string; data: string }> {
+    const images: Array<{ mediaType: string; data: string }> = [];
 
     if (Array.isArray(output)) {
       for (const item of output) {
-        if (item?.type === 'image' && item?.source?.type === 'base64') {
+        if (item?.type === "image" && item?.source?.type === "base64") {
           images.push({
-            mediaType: item.source.media_type || 'image/png',
-            data: item.source.data
+            mediaType: item.source.media_type || "image/png",
+            data: item.source.data,
           });
         }
       }
-    } else if (output?.type === 'image' && output?.source?.type === 'base64') {
+    } else if (output?.type === "image" && output?.source?.type === "base64") {
       images.push({
-        mediaType: output.source.media_type || 'image/png',
-        data: output.source.data
+        mediaType: output.source.media_type || "image/png",
+        data: output.source.data,
       });
     }
 
@@ -83,30 +91,30 @@
 
   // Extract text content from output
   function extractText(output: any): string {
-    if (typeof output === 'string') {
+    if (typeof output === "string") {
       // Check if it's a JSON string that needs parsing
       if (output.includes('{"type":"image"')) {
-        return ''; // Don't show stringified image data as text
+        return ""; // Don't show stringified image data as text
       }
       return output;
     }
 
     if (Array.isArray(output)) {
       const textParts = output
-        .filter(item => item?.type === 'text')
-        .map(item => item.text || '');
-      return textParts.join('\n');
+        .filter((item) => item?.type === "text")
+        .map((item) => item.text || "");
+      return textParts.join("\n");
     }
 
-    return '';
+    return "";
   }
 
   // Get icon based on tool name
   function getIcon(name: string) {
-    if (name.includes('screenshot')) return Camera;
-    if (name.includes('navigate')) return Globe;
-    if (name.includes('click')) return MousePointer;
-    if (name.includes('snapshot')) return FileText;
+    if (name.includes("screenshot")) return Camera;
+    if (name.includes("navigate")) return Globe;
+    if (name.includes("click")) return MousePointer;
+    if (name.includes("snapshot")) return FileText;
     return Monitor;
   }
 
@@ -121,7 +129,7 @@
     if (input.url) parts.push(`URL: ${input.url}`);
     if (input.uid) parts.push(`Element: ${input.uid}`);
     if (input.selector) parts.push(`Selector: ${input.selector}`);
-    if (input.fullPage) parts.push('Full page');
+    if (input.fullPage) parts.push("Full page");
     if (input.format) parts.push(`Format: ${input.format}`);
     if (input.quality) parts.push(`Quality: ${input.quality}`);
     if (input.text) parts.push(`Text: "${input.text}"`);
@@ -129,14 +137,16 @@
     if (input.key) parts.push(`Key: ${input.key}`);
     if (input.pageIdx !== undefined) parts.push(`Page: ${input.pageIdx}`);
 
-    return parts.join(' • ') || JSON.stringify(input, null, 2);
+    return parts.join(" • ") || JSON.stringify(input, null, 2);
   }
 </script>
 
 <div class="chrome-devtools-adapter">
   <div class="tool-header">
     <Icon size={14} class="tool-icon" />
-    <span class="tool-name">{toolName.replace('mcp__chrome-devtools__', '').replace(/_/g, ' ')}</span>
+    <span class="tool-name"
+      >{toolName.replace("mcp__chrome-devtools__", "").replace(/_/g, " ")}</span
+    >
   </div>
 
   {#if Object.keys(input).length > 0}
@@ -212,7 +222,9 @@
   }
 
   .content {
-    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-family:
+      "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
+      "Courier New", monospace;
     font-size: 12px;
     color: var(--text);
     white-space: pre-wrap;

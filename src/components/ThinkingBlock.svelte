@@ -123,7 +123,8 @@
     word-wrap: break-word;
     line-height: 1.5;
     font-size: 13px;
-    font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
+    font-family:
+      "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
       "Courier New", monospace;
     color: var(--text);
     max-height: 400px;

@@ -98,6 +98,16 @@
       >
         ×
       </button>
+      <span>
+        If this is a bug, please report it on
+        <a
+          href="https://github.com/thomasahle/trace-taxi/issues"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          GitHub
+        </a>.
+      </span>
     </div>
   {/if}
 </div>

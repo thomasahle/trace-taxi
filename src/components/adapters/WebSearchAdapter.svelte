@@ -1,7 +1,7 @@
 <script lang="ts">
   export let ctx: any;
 
-  let query = '';
+  let query = "";
   let allowedDomains: string[] = [];
   let blockedDomains: string[] = [];
   let results: any[] = [];
@@ -9,18 +9,18 @@
   // Extract input
   if (ctx?.event?.input) {
     const input = ctx.event.input;
-    query = input.query || '';
+    query = input.query || "";
     allowedDomains = input.allowed_domains || input.allowedDomains || [];
     blockedDomains = input.blocked_domains || input.blockedDomains || [];
   }
 
   // Extract output
   let isPlainText = false;
-  let plainTextContent = '';
+  let plainTextContent = "";
 
   if (ctx?.pair?.output) {
     const out = ctx.pair.output;
-    if (typeof out === 'string') {
+    if (typeof out === "string") {
       try {
         const parsed = JSON.parse(out);
         results = parsed.results || parsed.items || [parsed];
@@ -29,7 +29,7 @@
         isPlainText = true;
         plainTextContent = out;
       }
-    } else if (out && typeof out === 'object') {
+    } else if (out && typeof out === "object") {
       results = out.results || out.items || [out];
     }
   }
@@ -53,13 +53,13 @@
       {#if allowedDomains.length > 0}
         <div class="filter-item">
           <span class="filter-label">Allowed:</span>
-          <span class="filter-value">{allowedDomains.join(', ')}</span>
+          <span class="filter-value">{allowedDomains.join(", ")}</span>
         </div>
       {/if}
       {#if blockedDomains.length > 0}
         <div class="filter-item">
           <span class="filter-label">Blocked:</span>
-          <span class="filter-value">{blockedDomains.join(', ')}</span>
+          <span class="filter-value">{blockedDomains.join(", ")}</span>
         </div>
       {/if}
     </div>
@@ -71,7 +71,10 @@
     </div>
   {:else if results.length > 0}
     <div class="results-section">
-      <div class="results-count">{results.length} {results.length === 1 ? 'result' : 'results'} found</div>
+      <div class="results-count">
+        {results.length}
+        {results.length === 1 ? "result" : "results"} found
+      </div>
       <div class="results-list">
         {#each results as result, i}
           <div class="result-item">
@@ -82,7 +85,12 @@
               {/if}
             </div>
             {#if result.url}
-              <a href={result.url} target="_blank" rel="noopener noreferrer" class="result-url">
+              <a
+                href={result.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="result-url"
+              >
                 {result.url}
               </a>
             {/if}
@@ -102,7 +110,9 @@
 
 <style>
   .websearch-container {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+      sans-serif;
     font-size: 13px;
   }
 

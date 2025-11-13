@@ -50,7 +50,12 @@
     >
       <Menu size={16} />
     </Button>
-    <h1 class="m-0 text-2xl font-semibold tracking-tight uppercase leading-none pt-1 cursor-pointer hover:opacity-80 transition-opacity" on:click={onHeaderClick}>Trace Taxi</h1>
+    <h1
+      class="m-0 text-2xl font-semibold tracking-tight uppercase leading-none pt-1 cursor-pointer hover:opacity-80 transition-opacity"
+      on:click={onHeaderClick}
+    >
+      Trace Taxi
+    </h1>
   </div>
 
   <div class="flex-1">
@@ -87,7 +92,9 @@
       target="_blank"
       rel="noopener noreferrer"
       class="flex items-center gap-1.5 px-2.5 h-8 rounded-md hover:bg-accent/50 transition-colors border border-border/30"
-      title={starCount ? `View on GitHub - ${starCount} stars` : 'View on GitHub - Loading...'}
+      title={starCount
+        ? `View on GitHub - ${starCount} stars`
+        : "View on GitHub - Loading..."}
     >
       <Github size={14} />
       {#if starCount !== null}

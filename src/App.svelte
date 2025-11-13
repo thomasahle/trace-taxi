@@ -4,12 +4,13 @@
   import ThreadsList from "./components/ThreadsList.svelte";
   import TableOfContents from "./components/TableOfContents.svelte";
   import HeaderBar from "./components/HeaderBar.svelte";
+  import { loadTraceFromUrl, loadTraceFromFile, theme } from "./lib/store";
   import {
-    loadTraceFromUrl,
-    loadTraceFromFile,
-    theme,
-  } from "./lib/store";
-  import { threads, activeThreadId, activeThread, type Thread } from "./lib/threads";
+    threads,
+    activeThreadId,
+    activeThread,
+    type Thread,
+  } from "./lib/threads";
   import {
     decompressFromHash,
     createShareLink,
@@ -49,7 +50,7 @@
     checkMobile();
 
     // Listen for resize events
-    window.addEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
 
     // First, check for hash-based compressed trace
     const hashText = decompressFromHash(window.location.hash);
@@ -76,7 +77,7 @@
     // If no threads exist, add the example trace to the threads list but don't activate it
     if ($threads.length === 0) {
       try {
-        const response = await fetch('/example-love-story.jsonl');
+        const response = await fetch("/example-love-story.jsonl");
         const text = await response.text();
         const data = parseJsonl(text);
         data.title = "Love Story - Airport to Midnight Bridge";
@@ -88,7 +89,7 @@
   });
 
   onDestroy(() => {
-    window.removeEventListener('resize', checkMobile);
+    window.removeEventListener("resize", checkMobile);
   });
 
   // Apply theme to document root
@@ -193,7 +194,6 @@
       loadTraceFromFile(file);
     }
   }
-
 </script>
 
 <div
@@ -225,9 +225,7 @@
     />
   {/if}
 
-  <div
-    class="flex-1 flex flex-col overflow-hidden min-h-0 relative"
-  >
+  <div class="flex-1 flex flex-col overflow-hidden min-h-0 relative">
     <HeaderBar
       {hasData}
       onToggleSidebar={toggleThreadsList}
@@ -248,7 +246,7 @@
         ? 'none'
         : 'blur(4px)'};"
     >
-      <div class="{hasData && showTOC && !isMobile ? 'pr-[260px]' : ''}">
+      <div class={hasData && showTOC && !isMobile ? "pr-[260px]" : ""}>
         {#if hasData}
           <TraceView />
         {:else}

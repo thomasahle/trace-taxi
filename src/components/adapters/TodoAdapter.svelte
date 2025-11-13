@@ -3,12 +3,12 @@
 
   interface Todo {
     content: string;
-    status: 'pending' | 'in_progress' | 'completed';
+    status: "pending" | "in_progress" | "completed";
     activeForm: string;
   }
 
   let todos: Todo[] = [];
-  let output = '';
+  let output = "";
   let isSuccess = false;
 
   // Extract input todos
@@ -19,45 +19,54 @@
   // Extract output
   if (ctx?.pair?.output) {
     const out = ctx.pair.output;
-    if (typeof out === 'string') {
+    if (typeof out === "string") {
       output = out;
-      isSuccess = out.toLowerCase().includes('success');
-    } else if (out && typeof out === 'object') {
-      output = out.message || out.result || '';
-      isSuccess = out.success || out.status === 'success' || false;
+      isSuccess = out.toLowerCase().includes("success");
+    } else if (out && typeof out === "object") {
+      output = out.message || out.result || "";
+      isSuccess = out.success || out.status === "success" || false;
     }
   }
 
   // Count todos by status
   const statusCounts = {
-    completed: todos.filter(t => t.status === 'completed').length,
-    in_progress: todos.filter(t => t.status === 'in_progress').length,
-    pending: todos.filter(t => t.status === 'pending').length,
-    total: todos.length
+    completed: todos.filter((t) => t.status === "completed").length,
+    in_progress: todos.filter((t) => t.status === "in_progress").length,
+    pending: todos.filter((t) => t.status === "pending").length,
+    total: todos.length,
   };
 
   // Calculate progress percentage
-  const progressPercent = statusCounts.total > 0
-    ? Math.round((statusCounts.completed / statusCounts.total) * 100)
-    : 0;
+  const progressPercent =
+    statusCounts.total > 0
+      ? Math.round((statusCounts.completed / statusCounts.total) * 100)
+      : 0;
 
   // Get status icon
   function getStatusIcon(status: string): string {
-    switch(status) {
-      case 'completed': return '✅';
-      case 'in_progress': return '⏳';
-      case 'pending': return '⭕';
-      default: return '❓';
+    switch (status) {
+      case "completed":
+        return "✅";
+      case "in_progress":
+        return "⏳";
+      case "pending":
+        return "⭕";
+      default:
+        return "❓";
     }
   }
 
   // Get status color class
   function getStatusClass(status: string): string {
-    switch(status) {
-      case 'completed': return 'completed';
-      case 'in_progress': return 'in-progress';
-      case 'pending': return 'pending';
-      default: return '';
+    switch (status) {
+      case "completed":
+        return "completed";
+      case "in_progress":
+        return "in-progress";
+      case "pending":
+        return "pending";
+      default:
+        return "";
     }
   }
 </script>
@@ -93,7 +102,7 @@
         <span class="todo-icon">{getStatusIcon(todo.status)}</span>
         <div class="todo-content">
           <div class="todo-text">{todo.content}</div>
-          {#if todo.status === 'in_progress' && todo.activeForm}
+          {#if todo.status === "in_progress" && todo.activeForm}
             <div class="active-form">🔄 {todo.activeForm}</div>
           {/if}
         </div>
@@ -110,7 +119,9 @@
 
 <style>
   .todo-container {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+      sans-serif;
   }
 
   .todo-header {
