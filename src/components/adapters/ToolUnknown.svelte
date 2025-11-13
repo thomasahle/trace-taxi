@@ -1,46 +1,60 @@
-
 <script lang="ts">
   export let ctx: any;
-  let name = ctx?.event?.name ?? 'tool';
+  let name = ctx?.event?.name ?? "tool";
   let input = ctx?.event?.input;
   let output = ctx?.pair?.output;
 
-  // Try to parse output if it's a string containing JSON
-  function formatOutput(output: any): { formatted: string; isJson: boolean } {
-    if (!output) return { formatted: '', isJson: false };
+  // Try to parse and reformat output
+  function formatOutput(output: any): string {
+    if (!output) return "";
 
-    // If output is a string, try to parse it as JSON
-    if (typeof output === 'string') {
-      try {
-        const parsed = JSON.parse(output);
-        return { formatted: JSON.stringify(parsed, null, 2), isJson: true };
-      } catch {
-        return { formatted: output, isJson: false };
-      }
+    let textToFormat = "";
+
+    // Extract text from various formats
+    if (typeof output === "string") {
+      textToFormat = output;
+    } else if (Array.isArray(output)) {
+      // Handle array of content blocks - join without adding extra newlines
+      textToFormat = output
+        .map((item: any) => {
+          if (typeof item === "string") return item;
+          if (item?.text) return item.text;
+          if (item?.type === "text" && item?.text) return item.text;
+          return JSON.stringify(item);
+        })
+        .join("");
+    } else {
+      // Already an object
+      textToFormat = JSON.stringify(output);
     }
 
-    // If output is already an object, stringify it
-    return { formatted: JSON.stringify(output, null, 2), isJson: true };
+    // Try to parse and reformat as JSON with single-space indent
+    const trimmed = textToFormat.trim();
+    try {
+      const parsed = JSON.parse(trimmed);
+      const formatted = JSON.stringify(parsed, null, 1);
+      return formatted;
+    } catch (e) {
+      // Not valid JSON, return as-is
+      return textToFormat;
+    }
   }
 
   $: formattedOutput = formatOutput(output);
 </script>
 
 <div class="panel card">
-  <div class="role">tool · {name}</div>
-  <div class="small">No custom renderer registered. Showing raw JSON.</div>
-
   {#if input && Object.keys(input).length > 0}
     <div class="section">
       <div class="section-title">Input</div>
-      <pre class="code">{JSON.stringify(input, null, 2)}</pre>
+      <pre class="code">{JSON.stringify(input, null, 1)}</pre>
     </div>
   {/if}
 
   {#if output}
     <div class="section">
       <div class="section-title">Output</div>
-      <pre class="code">{formattedOutput.formatted}</pre>
+      <pre class="code">{formattedOutput}</pre>
     </div>
   {/if}
 </div>

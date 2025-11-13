@@ -64,8 +64,9 @@ function parseClaudeCodeFormat(raw: any[]): OpenAIMessage[] {
         existing.stop_reason = msg.stop_reason;
       }
     } else {
-      // First time seeing this message
-      messageMap.set(msgId, { ...msg });
+      // First time seeing this message - store the full original entry as _originalEntry
+      const msgWithOriginal = { ...msg, _originalEntry: entry };
+      messageMap.set(msgId, msgWithOriginal);
     }
   }
 

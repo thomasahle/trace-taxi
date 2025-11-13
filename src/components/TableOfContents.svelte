@@ -154,17 +154,19 @@
         }}
         title={item.event.text}
       >
-        {#if isUser}
-          <div class="w-4 h-4 rounded-full bg-green-600 text-white flex items-center justify-center text-[9px] font-semibold shrink-0">
-            {index + 1}
-          </div>
-        {:else}
-          <span
-            class="shrink-0 min-w-[20px] text-xs {isScrollspy
-              ? 'text-primary font-semibold'
-              : 'text-muted-foreground'}">{index + 1}</span
-          >
-        {/if}
+        <div class="shrink-0 w-6 flex items-center justify-end">
+          {#if isUser}
+            <div class="w-5 h-5 rounded-full bg-green-600 text-white flex items-center justify-center text-[10px] font-semibold">
+              {index + 1}
+            </div>
+          {:else}
+            <span
+              class="w-5 text-center text-xs text-muted-foreground {isScrollspy
+                ? 'font-semibold'
+                : ''}">{index + 1}</span
+            >
+          {/if}
+        </div>
         <span
           class="flex-1 text-xs leading-tight overflow-hidden text-ellipsis whitespace-nowrap {isScrollspy
             ? 'font-semibold'

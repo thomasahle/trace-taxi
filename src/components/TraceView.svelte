@@ -3,6 +3,7 @@
   import MessageBubble from "./MessageBubble.svelte";
   import ToolBlock from "./adapters/ToolBlock.svelte";
   import ThinkingBlock from "./ThinkingBlock.svelte";
+  import CopyRawButton from "./CopyRawButton.svelte";
   import type { TraceEvent } from "../lib/types";
   import { groupToolPairs } from "../lib/utils";
 
@@ -30,38 +31,45 @@
   <div class="msg-list">
     {#each events as e, i}
       {#if e.kind === "system"}
-        <div data-event-index={i}>
+        <div data-event-index={i} class="hoverable-block">
           <MessageBubble role="System" text={e.text} />
+          <CopyRawButton rawData={e.raw} />
         </div>
       {:else if e.kind === "user"}
         <div
           data-event-index={i}
           data-message-index={userMessageIndices.get(i)}
+          class="hoverable-block"
         >
           <MessageBubble role="User" text={e.text} content={e.content} />
+          <CopyRawButton rawData={e.raw} />
         </div>
       {:else if e.kind === "assistant"}
-        <div data-event-index={i}>
+        <div data-event-index={i} class="hoverable-block">
           <MessageBubble role="Assistant" text={e.text} />
+          <CopyRawButton rawData={e.raw} />
         </div>
       {:else if e.kind === "thinking"}
-        <div data-event-index={i}>
+        <div data-event-index={i} class="hoverable-block">
           <ThinkingBlock text={e.text} />
+          <CopyRawButton rawData={e.raw} />
         </div>
       {:else if e.kind === "tool-use"}
-        <div data-event-index={i}>
+        <div data-event-index={i} class="hoverable-block">
           <ToolBlock ctx={{ event: e, pair: pairFor(e) }} />
+          <CopyRawButton rawData={e.raw} />
         </div>
       {:else if e.kind === "tool-result"}
         <!-- Results are rendered alongside their tool-use; skip paired results -->
         {#if !pairs.find(p => p.result === e)}
-          <div data-event-index={i}>
+          <div data-event-index={i} class="hoverable-block">
             <MessageBubble
               role={"Tool · " + e.name}
               text={typeof e.output === "string"
                 ? e.output
                 : JSON.stringify(e.output, null, 2)}
             />
+            <CopyRawButton rawData={e.raw} />
           </div>
         {/if}
       {/if}
@@ -80,5 +88,9 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
+  }
+
+  .hoverable-block {
+    position: relative;
   }
 </style>
