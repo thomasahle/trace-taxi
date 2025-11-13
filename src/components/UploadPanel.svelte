@@ -2,6 +2,7 @@
   import { loadTraceFromFile, errorMessage } from "../lib/store";
   import Button from "$lib/components/ui/button.svelte";
   import Card from "$lib/components/ui/card.svelte";
+  import { Github } from "lucide-svelte";
 
   let dragging = false;
   let fileInput: HTMLInputElement;
@@ -101,15 +102,14 @@
     </div>
     <div class="mt-4 text-sm text-muted-foreground">
       If this is a bug, please report it on
-      <Button
-        variant="link"
+      <a
         href="https://github.com/thomasahle/trace-taxi/issues"
+        class="inline-flex items-center gap-1 underline hover:opacity-80"
         target="_blank"
         rel="noopener noreferrer"
-        icon="external-link"
       >
         GitHub
-      </Button>.
+      </a>.
     </div>
   {/if}
 </div>
