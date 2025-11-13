@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { parseJsonl } from './parser';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 
 describe('parseJsonl', () => {
   describe('Claude Code format', () => {
@@ -566,7 +566,7 @@ not json at all
       expect(snapshotEvents.length).toBe(0);
     });
 
-    it('should parse Claude session file with thinking blocks', () => {
+    it.skipIf(!existsSync('/Users/ahle/.claude/projects/-Users-ahle-repos-trace-taxi/5f1cf5f9-eb95-4abf-9a29-ea9070f91064.jsonl'))('should parse Claude session file with thinking blocks', () => {
       const sessionPath = '/Users/ahle/.claude/projects/-Users-ahle-repos-trace-taxi/5f1cf5f9-eb95-4abf-9a29-ea9070f91064.jsonl';
       const traceContent = readFileSync(sessionPath, 'utf-8');
 
