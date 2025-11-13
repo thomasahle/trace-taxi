@@ -28,7 +28,7 @@
 </script>
 
 <div class="max-w-[800px] m-0 p-5">
-  <div class="flex flex-col gap-4">
+  <div class="msg-list flex flex-col gap-4">
     {#each events as e, i}
       {#if e.kind === "system"}
         <div data-event-index={i} class="hoverable-block group relative">
