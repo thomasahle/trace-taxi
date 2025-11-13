@@ -4,6 +4,8 @@
   import ThreadsList from "./components/ThreadsList.svelte";
   import TableOfContents from "./components/TableOfContents.svelte";
   import HeaderBar from "./components/HeaderBar.svelte";
+  import { Toaster } from "$lib/components/ui/sonner";
+  import { toast } from "svelte-sonner";
   import { loadTraceFromUrl, loadTraceFromFile, theme } from "./lib/store";
   import {
     threads,
@@ -24,8 +26,6 @@
   let isMobile = false;
   let showThreadsList = true;
   let showTOC = true;
-  let showShareNotification = false;
-  let shareNotificationMessage = "";
   let mainContent: HTMLElement | null = null;
 
   // Detect mobile viewport
@@ -149,11 +149,7 @@
   }
 
   function showNotification(message: string) {
-    shareNotificationMessage = message;
-    showShareNotification = true;
-    setTimeout(() => {
-      showShareNotification = false;
-    }, 3000);
+    toast.success(message);
   }
 
   // Global drag and drop handlers
@@ -269,11 +265,5 @@
     {/if}
   </div>
 
-  {#if showShareNotification}
-    <div
-      class="fixed bottom-6 left-1/2 -translate-x-1/2 border border-border/30 rounded-lg px-6 py-3 text-sm shadow-lg z-[1001] animate-slide-up bg-glass-heavy"
-    >
-      {shareNotificationMessage}
-    </div>
-  {/if}
+  <Toaster />
 </div>

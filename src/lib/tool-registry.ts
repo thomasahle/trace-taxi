@@ -113,7 +113,8 @@ export function getTool(name: string): ToolRenderer {
   registerTool(n, {
     component: TodoAdapter,
     label: (ctx) => {
-      const todos = ctx.event?.input?.todos || [];
+      const todos =
+        (ctx.event.kind === "tool-use" ? ctx.event.input?.todos : []) || [];
       if (todos.length === 0) return "Todo List";
 
       const completed = todos.filter(

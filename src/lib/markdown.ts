@@ -8,12 +8,19 @@ marked.setOptions({
   // For safe HTML rendering, use marked.use({ renderer: ... }) with allowlist
   gfm: true,
   breaks: true,
+});
+
+// Use the marked extension API for syntax highlighting
+marked.use({
+  // @ts-expect-error - highlight is supported but types may be outdated
   highlight: (code: string, lang: string) => {
     try {
       if (lang && hljs.getLanguage(lang)) {
         return hljs.highlight(code, { language: lang }).value;
       }
-    } catch {}
+    } catch {
+      // Ignore errors from getLanguage
+    }
     return hljs.highlightAuto(code).value;
   },
 });

@@ -3,13 +3,17 @@ export type AnyRecord = Record<string, any>;
 export type OpenAIMessage = {
   id?: string;
   type?: string; // for response/message streams
+  object?: string; // for streaming chunks
   role: "system" | "user" | "assistant" | "tool" | string;
   content: any; // text or array of content blocks
   name?: string; // tool name when role === 'tool' (older formats)
   tool_name?: string; // newer format
   tool_call_id?: string;
+  tool_calls?: any[]; // legacy OpenAI format
+  output?: any; // tool output in newer format
   metadata?: AnyRecord;
   created_at?: number;
+  _originalEntry?: any; // preserved original JSONL entry
 };
 
 export type TraceEvent =
