@@ -40,7 +40,7 @@
 <div
   role="button"
   tabindex="0"
-  class="border-2 border-dashed rounded-xl p-12 text-center bg-muted transition-all bg-opacity-50 hover:opacity-100 {dragging
+  class="border-2 border-dashed rounded-xl p-12 text-center bg-glass transition-all bg-opacity-50 hover:opacity-100 {dragging
     ? 'border-primary bg-primary/10'
     : 'border-border'}"
   on:dragover={onDragOver}

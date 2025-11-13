@@ -51,7 +51,7 @@
       class="m-0 text-2xl font-semibold tracking-tight uppercase leading-none pt-1 cursor-pointer hover:opacity-80 transition-opacity flex items-center gap-2"
       on:click={onHeaderClick}
     >
-      <img src="/favicon.svg" alt="Taxi" class="w-6 h-6" />
+      <img src="/favicon.png" alt="Taxi" class="w-6 h-6" />
       Trace Taxi
     </h1>
   </div>
