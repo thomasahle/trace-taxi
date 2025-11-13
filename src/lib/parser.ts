@@ -157,12 +157,8 @@ export function parseJsonl(text: string): TraceData {
     // Tool result (new format): role 'tool'
     if (m.role === 'tool') {
       const name = m.tool_name || m.name || 'tool';
-      // Tool content may be string or array with output_text blocks
+      // Keep the original structure to preserve images and other content types
       let output = m.output ?? m.content ?? '';
-      if (Array.isArray(output)) {
-        const txt = output.map((b: any) => b?.text ?? b?.output_text ?? b?.value ?? '').join('\n');
-        output = txt.trim() || output;
-      }
       events.push({
         kind: 'tool-result',
         tool_call_id: m.tool_call_id || m.id || '',
@@ -200,15 +196,8 @@ export function parseJsonl(text: string): TraceData {
         // Process each tool result
         for (const block of toolResults) {
           let output = block.content || '';
-          // Handle array content in tool results
-          if (Array.isArray(output)) {
-            output = output.map((item: any) => {
-              if (typeof item === 'string') return item;
-              if (item?.text) return item.text;
-              if (item?.type === 'text' && item?.text) return item.text;
-              return JSON.stringify(item);
-            }).join('\n');
-          }
+          // Keep the original structure to preserve images and other content types
+          // The adapters will handle the parsing
           events.push({
             kind: 'tool-result',
             tool_call_id: block.tool_use_id || '',
@@ -229,8 +218,23 @@ export function parseJsonl(text: string): TraceData {
       continue;
     }
     if (m.role === 'user') {
-      const text = textFromContent(m.content);
-      if (text) events.push({ kind: 'user', text, raw: m, created_at: m.created_at });
+      // Check if content has images
+      let hasImages = false;
+      if (Array.isArray(m.content)) {
+        hasImages = m.content.some((item: any) =>
+          item?.type === 'image' ||
+          (item?.type === 'text' && item?.text?.includes('[Image #')) // Handle "[Image #n]" style references
+        );
+      }
+
+      if (hasImages) {
+        // Preserve full content structure for messages with images
+        events.push({ kind: 'user', text: '', content: m.content, raw: m, created_at: m.created_at });
+      } else {
+        // Extract just text for regular messages
+        const text = textFromContent(m.content);
+        if (text) events.push({ kind: 'user', text, raw: m, created_at: m.created_at });
+      }
       continue;
     }
     if (m.role === 'assistant') {

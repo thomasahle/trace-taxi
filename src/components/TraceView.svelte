@@ -38,7 +38,7 @@
           data-event-index={i}
           data-message-index={userMessageIndices.get(i)}
         >
-          <MessageBubble role="User" text={e.text} />
+          <MessageBubble role="User" text={e.text} content={e.content} />
         </div>
       {:else if e.kind === "assistant"}
         <div data-event-index={i}>

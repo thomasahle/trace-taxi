@@ -22,7 +22,9 @@
                      toolName.includes('search') ||
                      toolName.includes('ls') ||
                      toolName.includes('webfetch') ||
-                     toolName.includes('websearch');
+                     toolName.includes('websearch') ||
+                     toolName.includes('mcp__chrome-devtools__list') ||
+                     toolName.includes('mcp__chrome-devtools__get');
   const isCollapsedByDefault = isReadOnly ||
                                toolName.includes('todo') ||
                                toolName === 'todowrite';
@@ -111,6 +113,29 @@
         return `${pickup} → ${dropoff}`;
       }
       return pickup || dropoff;
+    } else if (name.includes('mcp__chrome-devtools')) {
+      // Chrome DevTools specific summaries
+      if (name.includes('screenshot')) {
+        if (input.fullPage) return 'Full page screenshot';
+        if (input.uid) return `Element: ${input.uid}`;
+        return 'Screenshot';
+      } else if (name.includes('navigate')) {
+        return input.url || '';
+      } else if (name.includes('click')) {
+        return input.uid || '';
+      } else if (name.includes('fill')) {
+        if (input.value) return `"${input.value}"`;
+        return '';
+      } else if (name.includes('wait')) {
+        return input.text || '';
+      } else if (name.includes('press')) {
+        return input.key || '';
+      } else if (name.includes('evaluate')) {
+        const func = input.function || '';
+        const firstLine = func.split('\n')[0];
+        return firstLine.length > 50 ? firstLine.slice(0, 47) + '...' : firstLine;
+      }
+      return '';
     }
 
     // Fallback: show first meaningful value

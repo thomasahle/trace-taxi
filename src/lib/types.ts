@@ -15,7 +15,7 @@ export type OpenAIMessage = {
 
 export type TraceEvent =
   | { kind: 'system'; text: string; raw: AnyRecord; created_at?: number }
-  | { kind: 'user'; text: string; raw: AnyRecord; created_at?: number }
+  | { kind: 'user'; text: string; content?: any; raw: AnyRecord; created_at?: number }
   | { kind: 'assistant'; text: string; raw: AnyRecord; created_at?: number }
   | { kind: 'thinking'; text: string; raw: AnyRecord; created_at?: number }
   | { kind: 'tool-use'; id: string; name: string; input: AnyRecord; raw: AnyRecord; created_at?: number }

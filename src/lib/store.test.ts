@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { get } from 'svelte/store';
 import { loadTraceFromUrl, loadTraceFromFile, trace, errorMessage, theme, Theme } from './store';
+import { activeThread } from './threads';
 import type { TraceData } from './types';
+
+// Mock fetch
+global.fetch = vi.fn();
 
 // Mock parseJsonl
 vi.mock('./parser', () => ({
@@ -22,9 +26,6 @@ vi.mock('./parser', () => ({
     };
   })
 }));
-
-// Mock fetch
-global.fetch = vi.fn();
 
 // Mock File
 class MockFile {
@@ -53,9 +54,9 @@ describe('loadTraceFromUrl', () => {
 
     await loadTraceFromUrl('http://example.com/trace.jsonl');
 
-    const traceData = get(trace);
-    expect(traceData.title).toBe('Test Trace');
-    expect(traceData.events).toHaveLength(2);
+    const traceData = get(activeThread)?.data;
+    expect(traceData?.title).toBe('Test Trace');
+    expect(traceData?.events).toHaveLength(2);
     expect(get(errorMessage)).toBeNull();
   });
 
@@ -84,7 +85,7 @@ describe('loadTraceFromUrl', () => {
 
     await loadTraceFromUrl('http://example.com/empty.jsonl');
 
-    expect(get(errorMessage)).toBe('No events found in trace file');
+    expect(get(errorMessage)).toContain('No messages found');
   });
 
   it('should handle network errors', async () => {
@@ -157,9 +158,9 @@ describe('loadTraceFromFile', () => {
 
     await loadTraceFromFile(file as any);
 
-    const traceData = get(trace);
-    expect(traceData.title).toBe('Test Trace');
-    expect(traceData.events).toHaveLength(2);
+    const traceData = get(activeThread)?.data;
+    expect(traceData?.title).toBe('Test Trace');
+    expect(traceData?.events).toHaveLength(2);
     expect(get(errorMessage)).toBeNull();
   });
 
@@ -168,8 +169,7 @@ describe('loadTraceFromFile', () => {
 
     await loadTraceFromFile(file as any);
 
-    expect(get(errorMessage)).toContain('No events found in trace file');
-    expect(get(errorMessage)).toContain('valid JSONL');
+    expect(get(errorMessage)).toContain('No messages found');
   });
 
   it('should handle file read errors', async () => {
@@ -227,7 +227,7 @@ describe('loadTraceFromFile', () => {
     await loadTraceFromFile(file as any);
 
     // parseJsonl returns empty events for invalid content
-    expect(get(errorMessage)).toContain('No events found');
+    expect(get(errorMessage)).toContain('No messages found');
   });
 
   it('should handle large files', async () => {
@@ -236,8 +236,8 @@ describe('loadTraceFromFile', () => {
 
     await loadTraceFromFile(file as any);
 
-    const traceData = get(trace);
-    expect(traceData.events.length).toBeGreaterThan(0);
+    const traceData = get(activeThread)?.data;
+    expect(traceData?.events.length).toBeGreaterThan(0);
   });
 });
 
@@ -293,7 +293,7 @@ describe('theme store', () => {
   });
 
   it('should load theme from localStorage', async () => {
-    localStorageMock.setItem('theme', 'dark');
+    localStorage.setItem('theme', 'dark');
 
     // Re-import to trigger initialization
     vi.resetModules();
