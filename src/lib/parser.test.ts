@@ -1,6 +1,44 @@
 import { describe, it, expect } from "vitest";
 import { parseJsonl } from "./parser";
 import { readFileSync, existsSync } from "fs";
+import type { TraceEvent } from "./types";
+
+// Type guard helpers for tests
+function assertUserEvent(
+  event: TraceEvent,
+): asserts event is Extract<TraceEvent, { kind: "user" }> {
+  expect(event.kind).toBe("user");
+}
+
+function assertAssistantEvent(
+  event: TraceEvent,
+): asserts event is Extract<TraceEvent, { kind: "assistant" }> {
+  expect(event.kind).toBe("assistant");
+}
+
+function assertSystemEvent(
+  event: TraceEvent,
+): asserts event is Extract<TraceEvent, { kind: "system" }> {
+  expect(event.kind).toBe("system");
+}
+
+function assertToolUseEvent(
+  event: TraceEvent,
+): asserts event is Extract<TraceEvent, { kind: "tool-use" }> {
+  expect(event.kind).toBe("tool-use");
+}
+
+function assertToolResultEvent(
+  event: TraceEvent,
+): asserts event is Extract<TraceEvent, { kind: "tool-result" }> {
+  expect(event.kind).toBe("tool-result");
+}
+
+function assertThinkingEvent(
+  event: TraceEvent,
+): asserts event is Extract<TraceEvent, { kind: "thinking" }> {
+  expect(event.kind).toBe("thinking");
+}
 
 describe("parseJsonl", () => {
   describe("Claude Code format", () => {
@@ -13,9 +51,9 @@ describe("parseJsonl", () => {
       const result = parseJsonl(claudeTrace);
 
       expect(result.events).toHaveLength(2);
-      expect(result.events[0].kind).toBe("user");
+      assertUserEvent(result.events[0]);
       expect(result.events[0].text).toBe("Hello");
-      expect(result.events[1].kind).toBe("assistant");
+      assertAssistantEvent(result.events[1]);
       expect(result.events[1].text).toBe("Hi there!");
     });
 

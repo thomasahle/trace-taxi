@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Progress from "$lib/components/ui/progress/progress.svelte";
+
   export let ctx: any;
 
   interface Todo {
@@ -79,9 +81,7 @@
     </span>
   </div>
 
-  <div class="progress-bar">
-    <div class="progress-fill" style="width: {progressPercent}%"></div>
-  </div>
+  <Progress value={progressPercent} max={100} class="h-1.5 mb-3" />
 
   <div class="status-summary">
     <span class="status-item completed">
@@ -140,20 +140,6 @@
   .todo-stats {
     font-size: 13px;
     color: var(--muted);
-  }
-
-  .progress-bar {
-    height: 6px;
-    background: var(--border-light);
-    border-radius: 3px;
-    overflow: hidden;
-    margin-bottom: 12px;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #46c876 0%, #1a7f37 100%);
-    transition: width 0.3s ease;
   }
 
   .status-summary {
