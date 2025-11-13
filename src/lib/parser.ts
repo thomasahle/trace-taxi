@@ -196,8 +196,15 @@ export function parseJsonl(text: string): TraceData {
         // Process each tool result
         for (const block of toolResults) {
           let output = block.content || '';
-          // Keep the original structure to preserve images and other content types
-          // The adapters will handle the parsing
+          // Handle array content in tool results
+          if (Array.isArray(output)) {
+            output = output.map((item: any) => {
+              if (typeof item === 'string') return item;
+              if (item?.text) return item.text;
+              if (item?.type === 'text' && item?.text) return item.text;
+              return JSON.stringify(item);
+            }).join('\n');
+          }
           events.push({
             kind: 'tool-result',
             tool_call_id: block.tool_use_id || '',
