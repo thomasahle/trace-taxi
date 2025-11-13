@@ -461,3 +461,12 @@ h6 {
 .dark .bg-glass-header {
   background-color: rgba(0, 0, 0, 0.8);
 }
+
+/* Adapter component utilities */
+.adapter-header {
+  @apply flex items-center gap-2 mb-3 font-semibold text-sm;
+}
+
+.result-card {
+  @apply p-3 bg-accent/30 rounded-md border border-border hover:bg-accent/50 transition-colors cursor-pointer;
+}

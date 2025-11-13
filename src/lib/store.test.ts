@@ -12,7 +12,7 @@ import { activeThread } from "./threads";
 import type { TraceData } from "./types";
 
 // Mock fetch
-global.fetch = vi.fn();
+globalThis.fetch = vi.fn();
 
 // Mock parseJsonl
 vi.mock("./parser", () => ({
@@ -26,8 +26,8 @@ vi.mock("./parser", () => ({
     return {
       title: "Test Trace",
       events: [
-        { kind: "user", text: "Hello" },
-        { kind: "assistant", text: "Hi" },
+        { kind: "user", text: "Hello", raw: {} },
+        { kind: "assistant", text: "Hi", raw: {} },
       ],
       originalMessages: [],
     };
@@ -60,7 +60,7 @@ describe("loadTraceFromUrl", () => {
       statusText: "OK",
       text: async () => '{"role":"user","content":"test"}',
     };
-    (global.fetch as any).mockResolvedValue(mockResponse);
+    (globalThis.fetch as any).mockResolvedValue(mockResponse);
 
     await loadTraceFromUrl("http://example.com/trace.jsonl");
 
@@ -76,7 +76,7 @@ describe("loadTraceFromUrl", () => {
       status: 404,
       statusText: "Not Found",
     };
-    (global.fetch as any).mockResolvedValue(mockResponse);
+    (globalThis.fetch as any).mockResolvedValue(mockResponse);
 
     await loadTraceFromUrl("http://example.com/missing.jsonl");
 
@@ -91,7 +91,7 @@ describe("loadTraceFromUrl", () => {
       statusText: "OK",
       text: async () => "invalid",
     };
-    (global.fetch as any).mockResolvedValue(mockResponse);
+    (globalThis.fetch as any).mockResolvedValue(mockResponse);
 
     await loadTraceFromUrl("http://example.com/empty.jsonl");
 
@@ -100,7 +100,7 @@ describe("loadTraceFromUrl", () => {
 
   it("should handle network errors", async () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    (global.fetch as any).mockRejectedValue(new Error("Network error"));
+    (globalThis.fetch as any).mockRejectedValue(new Error("Network error"));
 
     await loadTraceFromUrl("http://example.com/trace.jsonl");
 
@@ -119,7 +119,7 @@ describe("loadTraceFromUrl", () => {
       statusText: "OK",
       text: async () => '{"role":"user","content":"test"}',
     };
-    (global.fetch as any).mockResolvedValue(mockResponse);
+    (globalThis.fetch as any).mockResolvedValue(mockResponse);
 
     await loadTraceFromUrl("http://example.com/trace.jsonl");
 
@@ -134,7 +134,7 @@ describe("loadTraceFromUrl", () => {
       statusText: "OK",
       text: async () => "error-trigger",
     };
-    (global.fetch as any).mockResolvedValue(mockResponse);
+    (globalThis.fetch as any).mockResolvedValue(mockResponse);
 
     await loadTraceFromUrl("http://example.com/bad.jsonl");
 
@@ -146,7 +146,7 @@ describe("loadTraceFromUrl", () => {
 
   it("should handle non-Error exceptions", async () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    (global.fetch as any).mockRejectedValue("String error");
+    (globalThis.fetch as any).mockRejectedValue("String error");
 
     await loadTraceFromUrl("http://example.com/trace.jsonl");
 
@@ -273,7 +273,7 @@ describe("trace store", () => {
   it("should be writable", () => {
     const newData: TraceData = {
       title: "New Trace",
-      events: [{ kind: "user", text: "test" }],
+      events: [{ kind: "user", text: "test", raw: {} }],
       originalMessages: [],
     };
 
@@ -346,8 +346,8 @@ describe("theme store", () => {
 
   it("should handle missing localStorage gracefully", async () => {
     // Simulate SSR environment
-    const originalWindow = global.window;
-    delete (global as any).window;
+    const originalWindow = globalThis.window;
+    delete (globalThis as any).window;
 
     vi.resetModules();
     const module = await import("./store");
@@ -356,12 +356,12 @@ describe("theme store", () => {
     expect(() => module.theme.set("dark")).not.toThrow();
 
     // Restore window
-    global.window = originalWindow;
+    globalThis.window = originalWindow;
   });
 
   it("should update theme without persisting in SSR mode", async () => {
-    const originalWindow = global.window;
-    delete (global as any).window;
+    const originalWindow = globalThis.window;
+    delete (globalThis as any).window;
 
     vi.resetModules();
     const module = await import("./store");
@@ -372,6 +372,6 @@ describe("theme store", () => {
     expect(current).toBe("dark");
 
     // Restore window
-    global.window = originalWindow;
+    globalThis.window = originalWindow;
   });
 });

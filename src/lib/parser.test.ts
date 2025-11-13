@@ -67,12 +67,12 @@ describe("parseJsonl", () => {
 
       expect(result.events).toHaveLength(3);
       // Parser processes blocks in order: text accumulates, then gets pushed before tool-use
-      expect(result.events[0].kind).toBe("assistant");
+      assertAssistantEvent(result.events[0]);
       expect(result.events[0].text).toBe("Let me read that file");
-      expect(result.events[1].kind).toBe("tool-use");
+      assertToolUseEvent(result.events[1]);
       expect(result.events[1].name).toBe("Read");
       expect(result.events[1].input).toEqual({ file_path: "/test.txt" });
-      expect(result.events[2].kind).toBe("tool-result");
+      assertToolResultEvent(result.events[2]);
       expect(result.events[2].output).toBe("file contents");
     });
 
@@ -85,7 +85,7 @@ describe("parseJsonl", () => {
       const result = parseJsonl(claudeTrace);
 
       expect(result.events).toHaveLength(1);
-      expect(result.events[0].kind).toBe("user");
+      assertUserEvent(result.events[0]);
       expect(result.events[0].text).toBe("Test");
     });
 
@@ -98,7 +98,7 @@ describe("parseJsonl", () => {
       const result = parseJsonl(claudeTrace);
 
       expect(result.events).toHaveLength(1);
-      expect(result.events[0].kind).toBe("user");
+      assertUserEvent(result.events[0]);
     });
 
     it("should handle system messages in Claude Code format", () => {
@@ -110,9 +110,9 @@ describe("parseJsonl", () => {
       const result = parseJsonl(claudeTrace);
 
       expect(result.events).toHaveLength(2);
-      expect(result.events[0].kind).toBe("system");
+      assertSystemEvent(result.events[0]);
       expect(result.events[0].text).toBe("You are a helpful assistant");
-      expect(result.events[1].kind).toBe("user");
+      assertUserEvent(result.events[1]);
     });
 
     it("should handle tool results with array content", () => {
@@ -124,9 +124,9 @@ describe("parseJsonl", () => {
       const result = parseJsonl(claudeTrace);
 
       expect(result.events).toHaveLength(2);
-      expect(result.events[0].kind).toBe("tool-use");
+      assertToolUseEvent(result.events[0]);
       expect(result.events[0].name).toBe("Bash");
-      expect(result.events[1].kind).toBe("tool-result");
+      assertToolResultEvent(result.events[1]);
       expect(result.events[1].output).toContain("file1.txt");
       expect(result.events[1].output).toContain("file2.txt");
     });
@@ -142,9 +142,9 @@ describe("parseJsonl", () => {
       const result = parseJsonl(openaiTrace);
 
       expect(result.events).toHaveLength(2);
-      expect(result.events[0].kind).toBe("user");
+      assertUserEvent(result.events[0]);
       expect(result.events[0].text).toBe("Hello");
-      expect(result.events[1].kind).toBe("assistant");
+      assertAssistantEvent(result.events[1]);
       expect(result.events[1].text).toBe("Hi there!");
     });
 
@@ -157,12 +157,12 @@ describe("parseJsonl", () => {
       const result = parseJsonl(openaiTrace);
 
       expect(result.events).toHaveLength(3);
-      expect(result.events[0].kind).toBe("assistant");
+      assertAssistantEvent(result.events[0]);
       expect(result.events[0].text).toBe("Let me check that");
-      expect(result.events[1].kind).toBe("tool-use");
+      assertToolUseEvent(result.events[1]);
       expect(result.events[1].name).toBe("get_weather");
       expect(result.events[1].input).toEqual({ location: "SF" });
-      expect(result.events[2].kind).toBe("tool-result");
+      assertToolResultEvent(result.events[2]);
       expect(result.events[2].name).toBe("get_weather");
       expect(result.events[2].output).toBe("72F and sunny");
     });
@@ -177,11 +177,11 @@ describe("parseJsonl", () => {
 
       expect(result.events).toHaveLength(3);
       // Parser processes blocks in order: text accumulates, then gets pushed before tool-use
-      expect(result.events[0].kind).toBe("assistant");
+      assertAssistantEvent(result.events[0]);
       expect(result.events[0].text).toBe("Let me help");
-      expect(result.events[1].kind).toBe("tool-use");
+      assertToolUseEvent(result.events[1]);
       expect(result.events[1].name).toBe("Read");
-      expect(result.events[2].kind).toBe("tool-result");
+      assertToolResultEvent(result.events[2]);
       expect(result.events[2].output).toBe("file data");
     });
 
@@ -194,9 +194,9 @@ describe("parseJsonl", () => {
       const result = parseJsonl(openaiTrace);
 
       expect(result.events).toHaveLength(2);
-      expect(result.events[0].kind).toBe("system");
+      assertSystemEvent(result.events[0]);
       expect(result.events[0].text).toBe("You are a helpful assistant");
-      expect(result.events[1].kind).toBe("user");
+      assertUserEvent(result.events[1]);
       expect(result.events[1].text).toBe("Hello");
     });
   });
@@ -216,8 +216,8 @@ describe("parseJsonl", () => {
       const result = parseJsonl(jsonArray);
 
       expect(result.events).toHaveLength(2);
-      expect(result.events[0].kind).toBe("user");
-      expect(result.events[1].kind).toBe("assistant");
+      assertUserEvent(result.events[0]);
+      assertAssistantEvent(result.events[1]);
     });
 
     it("should skip invalid JSON lines", () => {
@@ -230,7 +230,9 @@ this is not json
       const result = parseJsonl(mixedTrace);
 
       expect(result.events).toHaveLength(2);
+      assertUserEvent(result.events[0]);
       expect(result.events[0].text).toBe("Valid line");
+      assertAssistantEvent(result.events[1]);
       expect(result.events[1].text).toBe("Another valid line");
     });
 
@@ -267,7 +269,7 @@ this is not json
       const result = parseJsonl(trace);
 
       expect(result.events).toHaveLength(1);
-      expect(result.events[0].kind).toBe("tool-use");
+      assertToolUseEvent(result.events[0]);
       expect(result.events[0].name).toBe("TestTool");
     });
   });
@@ -282,7 +284,7 @@ this is not json
 
       // Should parse as Claude Code format (has type, message, uuid, timestamp fields)
       expect(result.events).toHaveLength(1);
-      expect(result.events[0].kind).toBe("user");
+      assertUserEvent(result.events[0]);
     });
 
     it("should default to OpenAI format when Claude Code markers are absent", () => {
@@ -294,7 +296,7 @@ this is not json
 
       // Should parse as OpenAI format (no type/uuid/timestamp wrapper)
       expect(result.events).toHaveLength(1);
-      expect(result.events[0].kind).toBe("user");
+      assertUserEvent(result.events[0]);
     });
 
     it("should check first 10 entries for format detection", () => {
@@ -459,7 +461,7 @@ not json at all
       const result = parseJsonl(trace);
 
       expect(result.events).toHaveLength(1);
-      expect(result.events[0].kind).toBe("user");
+      assertUserEvent(result.events[0]);
     });
 
     it("should handle very long lines without crashing", () => {
@@ -521,7 +523,7 @@ not json at all
 
       // Should process system messages, skip unknown types
       expect(result.events).toHaveLength(1);
-      expect(result.events[0].kind).toBe("system");
+      assertSystemEvent(result.events[0]);
     });
 
     it("should handle malformed tool_calls in legacy format", () => {

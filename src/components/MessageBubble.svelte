@@ -91,8 +91,7 @@
               <img
                 src="data:{part.content.mediaType};base64,{part.content.data}"
                 alt="User uploaded image"
-                class="rounded-lg max-w-full"
-                style="max-height: 400px; object-fit: contain;"
+                class="rounded-lg max-w-full max-h-[400px] object-contain"
               />
             </div>
           {/if}

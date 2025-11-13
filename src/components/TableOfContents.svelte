@@ -129,7 +129,7 @@
     ? 'z-50'
     : 'z-10'}"
 >
-  <ScrollArea class="flex-1 p-1 pb-24 pt-3" style="pointer-events: auto;">
+  <ScrollArea class="flex-1 p-1 pb-24 pt-3 pointer-events-auto">
     {#each conversationMessages as item, index}
       {@const isUser = item.event.kind === "user"}
       {@const isSelected = index === selectedIndex}

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { get } from "svelte/store";
 import type { TraceData } from "./types";
+import type { Thread } from "./threads";
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -27,7 +28,7 @@ const localStorageMock = (() => {
   };
 })();
 
-global.localStorage = localStorageMock as any;
+globalThis.localStorage = localStorageMock as any;
 
 describe("threads store", () => {
   let createThreadsStore: any;
@@ -58,7 +59,7 @@ describe("threads store", () => {
 
   describe("initialization", () => {
     it("should initialize with empty array when no stored data", () => {
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       expect(threadList).toEqual([]);
     });
 
@@ -113,7 +114,7 @@ describe("threads store", () => {
       const data = createMockTraceData("New Thread", 10);
       threads.add(data);
 
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       expect(threadList).toHaveLength(1);
       expect(threadList[0].title).toBe("New Thread");
       expect(threadList[0].eventCount).toBe(10);
@@ -123,7 +124,7 @@ describe("threads store", () => {
       threads.add(createMockTraceData("Thread 1"));
       threads.add(createMockTraceData("Thread 2"));
 
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       expect(threadList).toHaveLength(2);
       expect(threadList[0].id).not.toBe(threadList[1].id);
       expect(threadList[0].id).toMatch(/^thread-\d+-[a-z0-9]+$/);
@@ -133,7 +134,7 @@ describe("threads store", () => {
       threads.add(createMockTraceData("First"));
       threads.add(createMockTraceData("Second"));
 
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       expect(threadList[0].title).toBe("Second");
       expect(threadList[1].title).toBe("First");
     });
@@ -143,7 +144,7 @@ describe("threads store", () => {
       data.title = "";
       threads.add(data);
 
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       expect(threadList[0].title).toBe("Untitled Trace");
     });
 
@@ -153,7 +154,7 @@ describe("threads store", () => {
 
       threads.add(createMockTraceData("Test"));
 
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       expect(threadList[0].timestamp).toBe(mockTime);
     });
 
@@ -174,7 +175,7 @@ describe("threads store", () => {
         threads.add(createMockTraceData(`Thread ${i}`));
       }
 
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       expect(threadList).toHaveLength(50);
       // Most recent should be first
       expect(threadList[0].title).toBe("Thread 59");
@@ -190,7 +191,7 @@ describe("threads store", () => {
       } as any;
       threads.add(data);
 
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       expect(threadList[0].eventCount).toBe(0);
     });
   });
@@ -198,18 +199,18 @@ describe("threads store", () => {
   describe("update", () => {
     it("should update existing thread", () => {
       threads.add(createMockTraceData("Original"));
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       const threadId = threadList[0].id;
 
       threads.update(threadId, { title: "Updated" });
 
-      const updated = get(threads);
+      const updated = get(threads) as Thread[];
       expect(updated[0].title).toBe("Updated");
     });
 
     it("should update timestamp when updating thread", () => {
       threads.add(createMockTraceData("Test"));
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       const threadId = threadList[0].id;
       const originalTimestamp = threadList[0].timestamp;
 
@@ -218,7 +219,7 @@ describe("threads store", () => {
 
       threads.update(threadId, { title: "Updated" });
 
-      const updated = get(threads);
+      const updated = get(threads) as Thread[];
       expect(updated[0].timestamp).toBe(newTime);
       expect(updated[0].timestamp).toBeGreaterThan(originalTimestamp);
     });
@@ -239,12 +240,12 @@ describe("threads store", () => {
       threads.add(createMockTraceData("Thread 1"));
       threads.add(createMockTraceData("Thread 2"));
 
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       const thread1Id = threadList.find((t) => t.title === "Thread 1")!.id;
 
       threads.update(thread1Id, { title: "Updated Thread 1" });
 
-      const updated = get(threads);
+      const updated = get(threads) as Thread[];
       expect(updated.find((t) => t.id === thread1Id)!.title).toBe(
         "Updated Thread 1",
       );
@@ -256,7 +257,7 @@ describe("threads store", () => {
 
       threads.update("non-existent-id", { title: "Should Not Apply" });
 
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       expect(threadList[0].title).toBe("Test");
     });
   });
@@ -268,7 +269,7 @@ describe("threads store", () => {
 
       threads.delete(threadId);
 
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       expect(threadList).toHaveLength(0);
     });
 
@@ -288,12 +289,12 @@ describe("threads store", () => {
       threads.add(createMockTraceData("Keep"));
       threads.add(createMockTraceData("Delete"));
 
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       const deleteId = threadList.find((t) => t.title === "Delete")!.id;
 
       threads.delete(deleteId);
 
-      const remaining = get(threads);
+      const remaining = get(threads) as Thread[];
       expect(remaining).toHaveLength(1);
       expect(remaining[0].title).toBe("Keep");
     });
@@ -303,7 +304,7 @@ describe("threads store", () => {
 
       threads.delete("non-existent-id");
 
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       expect(threadList).toHaveLength(1);
     });
   });
@@ -313,7 +314,7 @@ describe("threads store", () => {
       threads.add(createMockTraceData("Thread 1"));
       threads.add(createMockTraceData("Thread 2"));
 
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       const thread2Id = threadList.find((t) => t.title === "Thread 2")!.id;
 
       const retrieved = threads.get(thread2Id);
@@ -344,7 +345,7 @@ describe("threads store", () => {
 
       threads.clear();
 
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       expect(threadList).toHaveLength(0);
     });
 
@@ -362,7 +363,7 @@ describe("threads store", () => {
     it("should work on already empty store", () => {
       threads.clear();
 
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       expect(threadList).toHaveLength(0);
     });
   });
@@ -374,7 +375,7 @@ describe("threads store", () => {
 
       threads.rename(threadId, "New Name");
 
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       expect(threadList[0].title).toBe("New Name");
     });
 
@@ -388,7 +389,7 @@ describe("threads store", () => {
 
       threads.rename(threadId, "Renamed");
 
-      const updated = get(threads);
+      const updated = get(threads) as Thread[];
       expect(updated[0].timestamp).toBe(newTime);
     });
 
@@ -408,12 +409,12 @@ describe("threads store", () => {
       threads.add(createMockTraceData("Thread 1"));
       threads.add(createMockTraceData("Thread 2"));
 
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       const thread1Id = threadList.find((t) => t.title === "Thread 1")!.id;
 
       threads.rename(thread1Id, "Renamed Thread 1");
 
-      const updated = get(threads);
+      const updated = get(threads) as Thread[];
       expect(updated.find((t) => t.title === "Thread 2")).toBeTruthy();
     });
 
@@ -422,7 +423,7 @@ describe("threads store", () => {
 
       threads.rename("non-existent-id", "Should Not Apply");
 
-      const threadList = get(threads);
+      const threadList = get(threads) as Thread[];
       expect(threadList[0].title).toBe("Test");
     });
   });
