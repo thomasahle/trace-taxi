@@ -76,12 +76,9 @@
 </script>
 
 <div
-  class="w-[280px] h-screen border-r border-border/30 flex flex-col {isMobile
+  class="w-[280px] h-screen border-r border-border/30 flex flex-col bg-glass {isMobile
     ? 'fixed top-0 left-0 z-50'
     : ''}"
-  style="background-color: {$theme === 'dark'
-    ? 'rgba(0, 0, 0, 0.5)'
-    : 'rgba(255, 255, 255, 0.3)'}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);"
 >
   <div
     class="flex items-center justify-between h-12 px-4 border-b border-border"

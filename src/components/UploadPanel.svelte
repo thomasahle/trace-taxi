@@ -98,6 +98,7 @@
       >
         ×
       </button>
+      <br />
       <span>
         If this is a bug, please report it on
         <a

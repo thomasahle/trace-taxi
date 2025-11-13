@@ -197,10 +197,7 @@
 </script>
 
 <div
-  class="flex h-screen overflow-hidden"
-  style="background-image: url('/{$theme === 'dark'
-    ? 'black-taxi.png'
-    : 'white-taxi.png'}'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;"
+  class="flex h-screen overflow-hidden bg-taxi"
   on:dragenter={handleDragEnter}
   on:dragleave={handleDragLeave}
   on:dragover={handleDragOver}
@@ -235,16 +232,9 @@
 
     <div
       bind:this={mainContent}
-      class="flex-1 flex flex-col min-w-0 overflow-y-scroll main-content"
-      style="background-color: {$theme === 'dark'
-        ? 'transparent'
-        : hasData
-          ? 'rgba(255, 255, 255, 0.1)'
-          : 'transparent'}; backdrop-filter: {$theme === 'dark' || !hasData
-        ? 'none'
-        : 'blur(4px)'}; -webkit-backdrop-filter: {$theme === 'dark' || !hasData
-        ? 'none'
-        : 'blur(4px)'};"
+      class="flex-1 flex flex-col min-w-0 overflow-y-scroll main-content {hasData
+        ? 'main-backdrop'
+        : ''}"
     >
       <div class={hasData && showTOC && !isMobile ? "pr-[260px]" : ""}>
         {#if hasData}
@@ -281,10 +271,7 @@
 
   {#if showShareNotification}
     <div
-      class="fixed bottom-6 left-1/2 -translate-x-1/2 border border-border/30 rounded-lg px-6 py-3 text-sm shadow-lg z-[1001] animate-slide-up"
-      style="background-color: {$theme === 'dark'
-        ? 'rgba(0, 0, 0, 0.9)'
-        : 'rgba(255, 255, 255, 0.9)'}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);"
+      class="fixed bottom-6 left-1/2 -translate-x-1/2 border border-border/30 rounded-lg px-6 py-3 text-sm shadow-lg z-[1001] animate-slide-up bg-glass-heavy"
     >
       {shareNotificationMessage}
     </div>

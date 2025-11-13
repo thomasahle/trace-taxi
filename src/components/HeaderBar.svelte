@@ -35,10 +35,7 @@
 </script>
 
 <header
-  class="flex items-center justify-between h-12 px-4 border-b border-border/30 shrink-0 z-10"
-  style="background-color: {$theme === 'dark'
-    ? 'rgba(0, 0, 0, 0.8)'
-    : 'rgba(255, 255, 255, 0.3)'}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);"
+  class="flex items-center justify-between h-12 px-4 border-b border-border/30 shrink-0 z-10 bg-glass-header"
 >
   <div class="flex items-center gap-3">
     <Button

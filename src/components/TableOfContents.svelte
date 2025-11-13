@@ -125,12 +125,9 @@
 </script>
 
 <div
-  class="fixed top-12 right-4 w-[260px] max-h-[calc(100vh-3rem)] flex flex-col overflow-hidden {isMobile
+  class="fixed top-12 right-4 w-[260px] max-h-[calc(100vh-3rem)] flex flex-col overflow-hidden bg-glass pointer-events-none {isMobile
     ? 'z-50'
     : 'z-10'}"
-  style="background-color: {$theme === 'dark'
-    ? 'rgba(0, 0, 0, 0.5)'
-    : 'rgba(255, 255, 255, 0.3)'}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); pointer-events: none;"
 >
   <ScrollArea class="flex-1 p-1 pb-24 pt-3" style="pointer-events: auto;">
     {#each conversationMessages as item, index}
