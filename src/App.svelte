@@ -201,6 +201,10 @@
   style="background-image: url('/{$theme === 'dark'
     ? 'black-taxi.png'
     : 'white-taxi.png'}'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;"
+  on:dragenter={handleDragEnter}
+  on:dragleave={handleDragLeave}
+  on:dragover={handleDragOver}
+  on:drop={handleDrop}
 >
   <!-- Backdrop for mobile overlays -->
   {#if isMobile && (showThreadsList || showTOC)}
@@ -223,15 +227,12 @@
 
   <div
     class="flex-1 flex flex-col overflow-hidden min-h-0 relative"
-    on:dragenter={handleDragEnter}
-    on:dragleave={handleDragLeave}
-    on:dragover={handleDragOver}
-    on:drop={handleDrop}
   >
     <HeaderBar
       {hasData}
       onToggleSidebar={toggleThreadsList}
       onShare={handleShare}
+      onHeaderClick={handleNewThread}
     />
 
     <div

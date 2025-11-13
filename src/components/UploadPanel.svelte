@@ -46,7 +46,7 @@
   on:dragleave={onDragLeave}
   on:drop={onDrop}
   on:keydown={(e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       pick();
     }
@@ -61,9 +61,8 @@
   />
   <h2 class="text-xl font-semibold mb-2">Drop your trace.jsonl here</h2>
   <p class="text-sm text-muted-foreground mb-7">
-    Drop a trace file in OpenAI or Claude format. See your <code
-      >~/.claude/projects/*.jsonl</code
-    > folder for examples.
+    Drop a trace file in OpenAI or Claude format.<br />
+    See your <code>~/.claude/projects/*.jsonl</code> folder for examples.
   </p>
 
   <Button on:click={pick} class="m-10">
@@ -82,6 +81,11 @@
     </svg>
     Select file…
   </Button>
+
+  <p class="text-sm text-muted-foreground">
+    Nothing leaves your computer! All processing is done locally in your
+    browser.
+  </p>
 
   {#if $errorMessage}
     <div

@@ -75,7 +75,7 @@
     {#if !isAssistant}
       <div class="text-sm font-semibold mb-1">{role}</div>
     {/if}
-    <div class="prose prose-sm max-w-none dark:prose-invert {isUser ? 'bg-accent/50 px-4 py-3 rounded-lg' : ''}" on:click|stopPropagation>
+    <div class="prose prose-sm max-w-none dark:prose-invert {isUser ? 'bg-accent/50 px-4 py-3 rounded-lg border border-border/30' : ''}" on:click|stopPropagation>
       {#if parts && parts.length > 0}
         {#each parts as part}
           {#if part.type === 'text'}

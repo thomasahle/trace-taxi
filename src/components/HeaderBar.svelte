@@ -9,6 +9,7 @@
   export let hasData: boolean;
   export let onToggleSidebar: () => void;
   export let onShare: () => void;
+  export let onHeaderClick: () => void;
 
   function toggleTheme() {
     theme.set($theme === "light" ? "dark" : "light");
@@ -49,7 +50,7 @@
     >
       <Menu size={16} />
     </Button>
-    <h1 class="m-0 text-2xl font-semibold tracking-tight uppercase leading-none pt-1">Trace Taxi</h1>
+    <h1 class="m-0 text-2xl font-semibold tracking-tight uppercase leading-none pt-1 cursor-pointer hover:opacity-80 transition-opacity" on:click={onHeaderClick}>Trace Taxi</h1>
   </div>
 
   <div class="flex-1">

@@ -45,10 +45,10 @@
 
 <style>
   .thinking-container {
-    border: 1px solid var(--border-light);
+    border: none;
     border-radius: 6px;
     overflow: hidden;
-    background: var(--thinking-bg, rgba(139, 92, 246, 0.05));
+    background: transparent;
   }
 
   .thinking-container.collapsed {
@@ -61,14 +61,14 @@
     justify-content: space-between;
     align-items: center;
     padding: 8px 12px;
-    background: var(--thinking-header-bg, rgba(139, 92, 246, 0.1));
+    background: transparent;
     cursor: pointer;
     user-select: none;
     min-height: 36px;
   }
 
   .thinking-header:hover {
-    background: var(--thinking-header-hover-bg, rgba(139, 92, 246, 0.15));
+    background: var(--accent);
   }
 
   .thinking-title {
@@ -80,14 +80,14 @@
   }
 
   :global(.thinking-icon) {
-    color: var(--thinking-icon-color, rgb(139, 92, 246));
+    color: var(--foreground);
     flex-shrink: 0;
   }
 
   .thinking-label {
     font-size: 13px;
     font-weight: 600;
-    color: var(--thinking-label-color, rgb(139, 92, 246));
+    color: var(--foreground);
     flex-shrink: 0;
   }
 
@@ -109,7 +109,7 @@
 
   .thinking-body {
     padding: 12px;
-    border-top: 1px solid var(--border-light);
+    border-top: none;
     background: var(--background);
   }
 
