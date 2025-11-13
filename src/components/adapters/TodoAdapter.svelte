@@ -73,37 +73,57 @@
   }
 </script>
 
-<div class="todo-container">
-  <div class="todo-header">
-    <span class="todo-title">📋 Todo List</span>
-    <span class="todo-stats">
+<div class="font-sans">
+  <div class="flex justify-between items-center mb-3">
+    <span class="text-sm font-semibold text-foreground">📋 Todo List</span>
+    <span class="text-sm text-muted-foreground">
       {statusCounts.completed}/{statusCounts.total} completed ({progressPercent}%)
     </span>
   </div>
 
   <Progress value={progressPercent} max={100} class="h-1.5 mb-3" />
 
-  <div class="status-summary">
-    <span class="status-item completed">
+  <div class="flex gap-4 mb-4 text-xs">
+    <span class="flex items-center gap-1" style="color: var(--green)">
       ✅ {statusCounts.completed} completed
     </span>
-    <span class="status-item in-progress">
+    <span class="flex items-center gap-1" style="color: var(--yellow)">
       ⏳ {statusCounts.in_progress} in progress
     </span>
-    <span class="status-item pending">
+    <span class="flex items-center gap-1 text-muted-foreground">
       ⭕ {statusCounts.pending} pending
     </span>
   </div>
 
-  <div class="todo-list">
+  <div
+    class="bg-[var(--code-bg)] border border-border rounded-md overflow-hidden"
+  >
     {#each todos as todo, index}
-      <div class="todo-item {getStatusClass(todo.status)}">
-        <span class="todo-number">{index + 1}</span>
-        <span class="todo-icon">{getStatusIcon(todo.status)}</span>
-        <div class="todo-content">
-          <div class="todo-text">{todo.content}</div>
+      <div
+        class="flex items-start gap-3 px-3 py-2.5 border-b border-border last:border-b-0 transition-colors hover:bg-[var(--panel-hover)] {todo.status ===
+        'completed'
+          ? 'opacity-70'
+          : ''} {todo.status === 'in_progress'
+          ? 'bg-[var(--todo-in-progress-bg)]'
+          : ''}"
+      >
+        <span
+          class="text-[11px] font-semibold text-muted-foreground min-w-[20px] text-center"
+          >{index + 1}</span
+        >
+        <span class="text-base leading-none">{getStatusIcon(todo.status)}</span>
+        <div class="flex-1">
+          <div
+            class="text-sm leading-relaxed {todo.status === 'completed'
+              ? 'line-through text-muted-foreground'
+              : 'text-foreground'}"
+          >
+            {todo.content}
+          </div>
           {#if todo.status === "in_progress" && todo.activeForm}
-            <div class="active-form">🔄 {todo.activeForm}</div>
+            <div class="text-[11px] mt-1 italic" style="color: var(--yellow)">
+              🔄 {todo.activeForm}
+            </div>
           {/if}
         </div>
       </div>
@@ -111,140 +131,13 @@
   </div>
 
   {#if output}
-    <div class="output-status" class:success={isSuccess}>
+    <div
+      class="mt-3 text-xs px-2.5 py-1.5 rounded {isSuccess
+        ? 'bg-[var(--success)]'
+        : 'bg-muted'}"
+      style={isSuccess ? "color: var(--green)" : "color: var(--muted)"}
+    >
       {output}
     </div>
   {/if}
 </div>
-
-<style>
-  .todo-container {
-    font-family:
-      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
-      sans-serif;
-  }
-
-  .todo-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-  }
-
-  .todo-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-  }
-
-  .todo-stats {
-    font-size: 13px;
-    color: var(--muted);
-  }
-
-  .status-summary {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 16px;
-    font-size: 12px;
-  }
-
-  .status-item {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .status-item.completed {
-    color: var(--green);
-  }
-
-  .status-item.in-progress {
-    color: var(--yellow);
-  }
-
-  .status-item.pending {
-    color: var(--muted);
-  }
-
-  .todo-list {
-    background: var(--code-bg);
-    border: 1px solid var(--border-light);
-    border-radius: 6px;
-    overflow: hidden;
-  }
-
-  .todo-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--border-light);
-    transition: background 0.2s ease;
-  }
-
-  .todo-item:last-child {
-    border-bottom: none;
-  }
-
-  .todo-item:hover {
-    background: var(--panel-hover);
-  }
-
-  .todo-item.completed {
-    opacity: 0.7;
-  }
-
-  .todo-item.in-progress {
-    background: var(--todo-in-progress-bg);
-  }
-
-  .todo-number {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted);
-    min-width: 20px;
-    text-align: center;
-  }
-
-  .todo-icon {
-    font-size: 16px;
-    line-height: 1;
-  }
-
-  .todo-content {
-    flex: 1;
-  }
-
-  .todo-text {
-    font-size: 13px;
-    color: var(--text);
-    line-height: 1.5;
-  }
-
-  .todo-item.completed .todo-text {
-    text-decoration: line-through;
-    color: var(--muted);
-  }
-
-  .active-form {
-    font-size: 11px;
-    color: var(--yellow);
-    margin-top: 4px;
-    font-style: italic;
-  }
-
-  .output-status {
-    margin-top: 12px;
-    font-size: 12px;
-    padding: 6px 10px;
-    background: var(--chip);
-    border-radius: 4px;
-    color: var(--muted);
-  }
-
-  .output-status.success {
-    background: var(--success);
-    color: var(--green);
-  }
-</style>

@@ -471,6 +471,7 @@ not json at all
       const result = parseJsonl(trace);
 
       expect(result.events).toHaveLength(1);
+      assertUserEvent(result.events[0]);
       expect(result.events[0].text).toHaveLength(100000);
     });
 
@@ -510,6 +511,7 @@ not json at all
 
       // Should skip entry without message field
       expect(result.events).toHaveLength(1);
+      assertAssistantEvent(result.events[0]);
       expect(result.events[0].text).toBe("Valid");
     });
 

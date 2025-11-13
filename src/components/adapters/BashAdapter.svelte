@@ -44,186 +44,41 @@
   });
 </script>
 
-<div class="bash-container">
+<div class="font-mono text-sm">
   {#if description}
-    <div class="description">{description}</div>
+    <div class="text-muted-foreground italic mb-2 text-sm">{description}</div>
   {/if}
 
   <div class="terminal">
     {#if cmd}
-      <div class="command-line">
-        <span class="prompt">$</span>
-        <span class="command">{@html highlightedCmd || cmd}</span>
+      <div class="flex gap-2 mb-3 items-baseline">
+        <span class="cmd select-none">$</span>
+        <span class="cmd flex-1">{@html highlightedCmd || cmd}</span>
       </div>
     {/if}
 
     {#if stdout}
-      <div class="output">{stdout}</div>
+      <div class="output whitespace-pre-wrap break-all leading-relaxed">
+        {stdout}
+      </div>
     {/if}
 
     {#if stderr}
-      <div class="stderr">{stderr}</div>
+      <div class="stderr whitespace-pre-wrap break-all mt-2">{stderr}</div>
     {/if}
 
-    <div class="metadata">
+    <div class="flex gap-4 mt-3 text-xs">
       {#if exitCode !== null}
-        <span
-          class="exit-code"
-          class:success={exitCode === 0}
-          class:error={exitCode !== 0}
-        >
+        <span class="font-semibold {exitCode === 0 ? 'exit-ok' : 'exit-bad'}">
           exit {exitCode}
         </span>
       {/if}
       {#if duration}
-        <span class="duration">⏱ {duration}</span>
+        <span class="text-muted-foreground">⏱ {duration}</span>
       {/if}
       {#if timeout}
-        <span class="timeout">⏲ timeout: {timeout}ms</span>
+        <span class="text-muted-foreground">⏲ timeout: {timeout}ms</span>
       {/if}
     </div>
   </div>
 </div>
-
-<style>
-  .bash-container {
-    font-family:
-      ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas,
-      monospace;
-    font-size: 13px;
-  }
-
-  .description {
-    color: var(--muted);
-    font-style: italic;
-    margin-bottom: 8px;
-    font-size: 13px;
-  }
-
-  .terminal {
-    background: hsl(0 0% 98%);
-    color: hsl(0 0% 25%);
-    border: 1px solid hsl(0 0% 90%);
-    border-radius: 6px;
-    padding: 12px;
-    overflow-x: auto;
-  }
-
-  :global(.dark) .terminal {
-    background: #1c2128;
-    color: #adbac7;
-    border: 1px solid hsl(0 0% 20%);
-  }
-
-  .command-line {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 12px;
-    align-items: baseline;
-  }
-
-  .prompt {
-    color: hsl(207 85% 40%);
-    font-weight: 600;
-    user-select: none;
-  }
-
-  :global(.dark) .prompt {
-    color: #96d0ff;
-  }
-
-  .command {
-    color: hsl(207 85% 40%);
-    font-weight: 500;
-    flex: 1;
-  }
-
-  :global(.dark) .command {
-    color: #96d0ff;
-    font-weight: normal;
-  }
-
-  .output {
-    white-space: pre-wrap;
-    word-break: break-all;
-    color: hsl(0 0% 30%);
-    line-height: 1.5;
-  }
-
-  :global(.dark) .output {
-    color: #adbac7;
-  }
-
-  .stderr {
-    white-space: pre-wrap;
-    word-break: break-all;
-    color: hsl(0 85% 50%);
-    margin-top: 8px;
-  }
-
-  :global(.dark) .stderr {
-    color: #ff938a;
-  }
-
-  .metadata {
-    display: flex;
-    gap: 16px;
-    margin-top: 12px;
-    font-size: 12px;
-  }
-
-  .exit-code {
-    font-weight: 600;
-  }
-
-  .exit-code.success {
-    color: hsl(140 65% 42%);
-  }
-
-  :global(.dark) .exit-code.success {
-    color: #46c876;
-  }
-
-  .exit-code.error {
-    color: hsl(0 85% 50%);
-  }
-
-  :global(.dark) .exit-code.error {
-    color: #ff938a;
-  }
-
-  .duration,
-  .timeout {
-    color: hsl(0 0% 45%);
-  }
-
-  :global(.dark) .duration,
-  :global(.dark) .timeout {
-    color: #768390;
-  }
-
-  /* Light mode syntax highlighting */
-  :global(.bash-container .hljs-keyword) {
-    color: hsl(340 85% 45%);
-  }
-
-  :global(.dark .bash-container .hljs-keyword) {
-    color: #f47067;
-  }
-
-  :global(.bash-container .hljs-string) {
-    color: hsl(207 85% 40%);
-  }
-
-  :global(.dark .bash-container .hljs-string) {
-    color: #96d0ff;
-  }
-
-  :global(.bash-container .hljs-variable) {
-    color: hsl(270 70% 50%);
-  }
-
-  :global(.dark .bash-container .hljs-variable) {
-    color: #dcbdfb;
-  }
-</style>
