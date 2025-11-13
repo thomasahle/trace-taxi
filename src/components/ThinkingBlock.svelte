@@ -7,15 +7,8 @@
   // Thinking blocks should be collapsed by default to save space
   let open = false;
 
-  // Get a preview of the thinking content
-  function getPreview(text: string): string {
-    const firstLine = text.split("\n")[0];
-    const maxLength = 80;
-    if (firstLine.length <= maxLength) return firstLine;
-    return firstLine.substring(0, maxLength - 3) + "...";
-  }
-
-  $: preview = getPreview(text);
+  // Get the first line as preview (CSS text-ellipsis handles truncation)
+  $: preview = text.split("\n")[0];
   $: html = marked.parse(text || "");
 </script>
 

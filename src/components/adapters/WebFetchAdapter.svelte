@@ -21,12 +21,6 @@
       content = out.content || out.text || JSON.stringify(out, null, 2);
     }
   }
-
-  // Truncate long content for display
-  function truncate(text: string, maxLength: number = 500): string {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + "...";
-  }
 </script>
 
 <div class="font-sans text-sm">
@@ -74,15 +68,10 @@
         Fetched Content:
       </div>
       <div
-        class="p-3 bg-background rounded border border-border text-foreground leading-relaxed whitespace-pre-wrap max-h-[300px] overflow-y-auto text-xs"
+        class="p-3 bg-background rounded border border-border text-foreground leading-relaxed whitespace-pre-wrap max-h-[600px] overflow-y-auto text-xs"
       >
-        {truncate(content)}
+        {content}
       </div>
-      {#if content.length > 500}
-        <div class="mt-1.5 text-xs text-muted-foreground italic">
-          Content truncated ({content.length} characters total)
-        </div>
-      {/if}
     </div>
   {/if}
 </div>
