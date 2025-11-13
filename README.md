@@ -1,6 +1,8 @@
 
 # Agent Trace Viewer (Svelte)
 
+![Trace Taxi](https://raw.githubusercontent.com/thomasahle/trace-taxi/refs/heads/main/public/trace-taxi.png)
+
 A lightweight, extensible viewer for agent traces. Drop in a `.jsonl` file with OpenAI-style messages and get a clean, two‑column view with tool blocks (terminal output, diffs, files) rendered using custom components.
 
 https://github.com/
