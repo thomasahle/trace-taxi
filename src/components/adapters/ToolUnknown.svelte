@@ -45,35 +45,24 @@
 
 <div class="panel card">
   {#if input && Object.keys(input).length > 0}
-    <div class="section">
-      <div class="section-title">Input</div>
+    <div class="mt-3">
+      <div
+        class="text-xs font-semibold uppercase text-muted-foreground mb-1.5 tracking-wide"
+      >
+        Input
+      </div>
       <pre class="code">{JSON.stringify(input, null, 1)}</pre>
     </div>
   {/if}
 
   {#if output}
-    <div class="section">
-      <div class="section-title">Output</div>
+    <div class="mt-4">
+      <div
+        class="text-xs font-semibold uppercase text-muted-foreground mb-1.5 tracking-wide"
+      >
+        Output
+      </div>
       <pre class="code">{formattedOutput}</pre>
     </div>
   {/if}
 </div>
-
-<style>
-  .section {
-    margin-top: 12px;
-  }
-
-  .section-title {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-    margin-bottom: 6px;
-    letter-spacing: 0.5px;
-  }
-
-  .section + .section {
-    margin-top: 16px;
-  }
-</style>

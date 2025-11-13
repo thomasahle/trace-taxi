@@ -141,29 +141,43 @@
   }
 </script>
 
-<div class="chrome-devtools-adapter">
-  <div class="tool-header">
-    <Icon size={14} class="tool-icon" />
-    <span class="tool-name"
+<div class="flex flex-col gap-3">
+  <div
+    class="flex items-center gap-1.5 text-primary font-medium text-xs capitalize"
+  >
+    <Icon size={14} class="text-primary" />
+    <span
       >{toolName.replace("mcp__chrome-devtools__", "").replace(/_/g, " ")}</span
     >
   </div>
 
   {#if Object.keys(input).length > 0}
-    <div class="tool-input">
-      <div class="label">Input:</div>
-      <div class="content">{formatInput(input)}</div>
+    <div class="flex flex-col gap-1.5">
+      <div
+        class="text-xs font-semibold uppercase text-muted-foreground tracking-wide"
+      >
+        Input:
+      </div>
+      <div
+        class="font-mono text-xs text-foreground whitespace-pre-wrap break-words leading-relaxed m-0 px-2 py-2 rounded border border-border"
+        style="background: var(--panel)"
+      >
+        {formatInput(input)}
+      </div>
     </div>
   {/if}
 
   {#if images.length > 0}
-    <div class="tool-images">
+    <div class="flex flex-col gap-3 mt-2">
       {#each images as image}
-        <div class="image-container">
+        <div
+          class="border border-border rounded-lg overflow-hidden p-2"
+          style="background: var(--panel)"
+        >
           <img
             src="data:{image.mediaType};base64,{image.data}"
             alt="Screenshot from {toolName}"
-            class="screenshot"
+            class="w-full h-auto block rounded max-h-[600px] object-contain"
           />
         </div>
       {/each}
@@ -171,99 +185,28 @@
   {/if}
 
   {#if textContent && textContent.trim()}
-    <div class="tool-output">
-      <div class="label">Output:</div>
-      <pre class="content">{textContent}</pre>
+    <div class="flex flex-col gap-1.5">
+      <div
+        class="text-xs font-semibold uppercase text-muted-foreground tracking-wide"
+      >
+        Output:
+      </div>
+      <pre
+        class="font-mono text-xs text-foreground whitespace-pre-wrap break-words leading-relaxed m-0 px-2 py-2 rounded border border-border"
+        style="background: var(--panel)">{textContent}</pre>
     </div>
   {/if}
 
   {#if !textContent && images.length === 0 && output}
-    <div class="tool-output">
-      <div class="label">Raw Output:</div>
-      <pre class="content">{JSON.stringify(output, null, 2)}</pre>
+    <div class="flex flex-col gap-1.5">
+      <div
+        class="text-xs font-semibold uppercase text-muted-foreground tracking-wide"
+      >
+        Raw Output:
+      </div>
+      <pre
+        class="font-mono text-xs text-foreground whitespace-pre-wrap break-words leading-relaxed m-0 px-2 py-2 rounded border border-border"
+        style="background: var(--panel)">{JSON.stringify(output, null, 2)}</pre>
     </div>
   {/if}
 </div>
-
-<style>
-  .chrome-devtools-adapter {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .tool-header {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--primary);
-    font-weight: 500;
-    font-size: 12px;
-    text-transform: capitalize;
-  }
-
-  :global(.tool-icon) {
-    color: var(--primary);
-  }
-
-  .tool-input,
-  .tool-output {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: var(--muted);
-    letter-spacing: 0.5px;
-  }
-
-  .content {
-    font-family:
-      "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
-      "Courier New", monospace;
-    font-size: 12px;
-    color: var(--text);
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    line-height: 1.5;
-    margin: 0;
-    padding: 8px;
-    background: var(--panel);
-    border-radius: 4px;
-    border: 1px solid var(--border-light);
-  }
-
-  .tool-images {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 8px;
-  }
-
-  .image-container {
-    border: 1px solid var(--border-light);
-    border-radius: 8px;
-    overflow: hidden;
-    background: var(--panel);
-    padding: 8px;
-  }
-
-  .screenshot {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 4px;
-    max-width: 100%;
-    object-fit: contain;
-  }
-
-  /* Limit screenshot height for very tall images */
-  .screenshot {
-    max-height: 600px;
-    object-fit: contain;
-  }
-</style>

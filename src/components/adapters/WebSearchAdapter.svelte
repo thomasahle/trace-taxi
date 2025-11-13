@@ -35,53 +35,76 @@
   }
 </script>
 
-<div class="websearch-container">
-  <div class="websearch-header">
-    <span class="icon">🔍</span>
-    <span class="title">Web Search</span>
+<div class="font-sans text-sm">
+  <div class="flex items-center gap-2 mb-3 font-semibold">
+    <span class="text-lg">🔍</span>
+    <span>Web Search</span>
   </div>
 
   {#if query}
-    <div class="query-section">
-      <span class="query-label">Query:</span>
-      <span class="query-text">{query}</span>
+    <div
+      class="px-3 py-2.5 mb-3 rounded"
+      style="background: var(--panel-hover)"
+    >
+      <span class="text-xs font-semibold text-muted-foreground uppercase mr-2"
+        >Query:</span
+      >
+      <span class="text-foreground font-medium">{query}</span>
     </div>
   {/if}
 
   {#if allowedDomains.length > 0 || blockedDomains.length > 0}
-    <div class="filters-section">
+    <div class="flex flex-col gap-1.5 mb-3 text-xs">
       {#if allowedDomains.length > 0}
-        <div class="filter-item">
-          <span class="filter-label">Allowed:</span>
-          <span class="filter-value">{allowedDomains.join(", ")}</span>
+        <div class="flex gap-1.5">
+          <span class="font-semibold text-muted-foreground">Allowed:</span>
+          <span class="text-foreground">{allowedDomains.join(", ")}</span>
         </div>
       {/if}
       {#if blockedDomains.length > 0}
-        <div class="filter-item">
-          <span class="filter-label">Blocked:</span>
-          <span class="filter-value">{blockedDomains.join(", ")}</span>
+        <div class="flex gap-1.5">
+          <span class="font-semibold text-muted-foreground">Blocked:</span>
+          <span class="text-foreground">{blockedDomains.join(", ")}</span>
         </div>
       {/if}
     </div>
   {/if}
 
   {#if isPlainText}
-    <div class="plain-text-result">
-      <div class="result-content">{plainTextContent}</div>
+    <div
+      class="mt-3 p-4 rounded-md border border-border"
+      style="background: var(--panel-hover)"
+    >
+      <div
+        class="text-foreground leading-relaxed whitespace-pre-wrap break-words"
+      >
+        {plainTextContent}
+      </div>
     </div>
   {:else if results.length > 0}
-    <div class="results-section">
-      <div class="results-count">
+    <div class="mt-3">
+      <div
+        class="font-semibold text-foreground mb-3 pb-2 border-b border-border"
+      >
         {results.length}
         {results.length === 1 ? "result" : "results"} found
       </div>
-      <div class="results-list">
+      <div class="flex flex-col gap-3">
         {#each results as result, i}
-          <div class="result-item">
-            <div class="result-header">
-              <span class="result-number">{i + 1}</span>
+          <div
+            class="p-3 rounded-md border border-border"
+            style="background: var(--panel-hover)"
+          >
+            <div class="flex items-center gap-2 mb-1.5">
+              <span
+                class="inline-flex items-center justify-center min-w-[20px] h-5 bg-accent text-white rounded-full text-xs font-semibold px-1.5"
+              >
+                {i + 1}
+              </span>
               {#if result.title}
-                <span class="result-title">{result.title}</span>
+                <span class="font-semibold text-foreground text-sm"
+                  >{result.title}</span
+                >
               {/if}
             </div>
             {#if result.url}
@@ -89,13 +112,13 @@
                 href={result.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="result-url"
+                class="block text-accent-foreground no-underline hover:underline text-xs mb-2 break-all"
               >
                 {result.url}
               </a>
             {/if}
             {#if result.snippet || result.content}
-              <div class="result-snippet">
+              <div class="text-foreground leading-relaxed text-xs">
                 {result.snippet || result.content}
               </div>
             {/if}
@@ -104,163 +127,8 @@
       </div>
     </div>
   {:else}
-    <div class="no-results">No results found</div>
+    <div class="py-5 text-center text-muted-foreground italic">
+      No results found
+    </div>
   {/if}
 </div>
-
-<style>
-  .websearch-container {
-    font-family:
-      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
-      sans-serif;
-    font-size: 13px;
-  }
-
-  .websearch-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-    font-weight: 600;
-  }
-
-  .icon {
-    font-size: 18px;
-  }
-
-  .query-section {
-    padding: 10px 12px;
-    background: var(--panel-hover);
-    border-radius: 4px;
-    margin-bottom: 12px;
-  }
-
-  .query-label {
-    font-weight: 600;
-    color: var(--muted);
-    margin-right: 8px;
-    font-size: 11px;
-    text-transform: uppercase;
-  }
-
-  .query-text {
-    color: var(--text);
-    font-weight: 500;
-  }
-
-  .filters-section {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 12px;
-    font-size: 12px;
-  }
-
-  .filter-item {
-    display: flex;
-    gap: 6px;
-  }
-
-  .filter-label {
-    font-weight: 600;
-    color: var(--muted);
-  }
-
-  .filter-value {
-    color: var(--text);
-  }
-
-  .results-section {
-    margin-top: 12px;
-  }
-
-  .results-count {
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border-light);
-  }
-
-  .results-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .result-item {
-    padding: 12px;
-    background: var(--panel-hover);
-    border-radius: 6px;
-    border: 1px solid var(--border-light);
-  }
-
-  .result-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-
-  .result-number {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 20px;
-    height: 20px;
-    background: var(--accent);
-    color: white;
-    border-radius: 50%;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 0 6px;
-  }
-
-  .result-title {
-    font-weight: 600;
-    color: var(--text);
-    font-size: 14px;
-  }
-
-  .result-url {
-    display: block;
-    color: var(--accent);
-    text-decoration: none;
-    font-size: 12px;
-    margin-bottom: 8px;
-    word-break: break-all;
-  }
-
-  .result-url:hover {
-    text-decoration: underline;
-  }
-
-  .result-snippet {
-    color: var(--text);
-    line-height: 1.5;
-    font-size: 12px;
-  }
-
-  .no-results {
-    padding: 20px;
-    text-align: center;
-    color: var(--muted);
-    font-style: italic;
-  }
-
-  .plain-text-result {
-    margin-top: 12px;
-    padding: 16px;
-    background: var(--panel-hover);
-    border-radius: 6px;
-    border: 1px solid var(--border-light);
-  }
-
-  .result-content {
-    color: var(--text);
-    line-height: 1.6;
-    font-size: 13px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-  }
-</style>

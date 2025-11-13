@@ -29,142 +29,60 @@
   }
 </script>
 
-<div class="webfetch-container">
-  <div class="webfetch-header">
-    <span class="icon">🌐</span>
-    <span class="title">Web Fetch</span>
+<div class="font-sans text-sm">
+  <div class="flex items-center gap-2 mb-3 font-semibold">
+    <span class="text-lg">🌐</span>
+    <span>Web Fetch</span>
   </div>
 
   {#if url}
-    <div class="url-section">
-      <span class="url-label">URL:</span>
-      <a href={url} target="_blank" rel="noopener noreferrer" class="url-link">
+    <div
+      class="flex items-center gap-2 flex-wrap px-3 py-2 mb-3 rounded"
+      style="background: var(--panel-hover)"
+    >
+      <span class="text-xs font-semibold text-muted-foreground uppercase"
+        >URL:</span
+      >
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-xs text-accent-foreground break-all no-underline hover:underline"
+      >
         {url}
       </a>
     </div>
   {/if}
 
   {#if prompt}
-    <div class="prompt-section">
-      <div class="prompt-label">Query:</div>
-      <div class="prompt-content">{prompt}</div>
+    <div class="mb-3">
+      <div class="text-xs font-semibold text-muted-foreground mb-1.5 uppercase">
+        Query:
+      </div>
+      <div
+        class="px-2.5 py-2 rounded border border-border text-foreground leading-relaxed"
+        style="background: var(--panel-hover)"
+      >
+        {prompt}
+      </div>
     </div>
   {/if}
 
   {#if content}
-    <div class="content-section">
-      <div class="content-label">Fetched Content:</div>
-      <div class="content-body">
+    <div class="mt-3">
+      <div class="text-xs font-semibold text-muted-foreground mb-1.5 uppercase">
+        Fetched Content:
+      </div>
+      <div
+        class="p-3 bg-background rounded border border-border text-foreground leading-relaxed whitespace-pre-wrap max-h-[300px] overflow-y-auto text-xs"
+      >
         {truncate(content)}
       </div>
       {#if content.length > 500}
-        <div class="content-truncated">
+        <div class="mt-1.5 text-xs text-muted-foreground italic">
           Content truncated ({content.length} characters total)
         </div>
       {/if}
     </div>
   {/if}
 </div>
-
-<style>
-  .webfetch-container {
-    font-family:
-      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
-      sans-serif;
-    font-size: 13px;
-  }
-
-  .webfetch-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-    font-weight: 600;
-  }
-
-  .icon {
-    font-size: 18px;
-  }
-
-  .url-section {
-    margin-bottom: 12px;
-    padding: 8px 12px;
-    background: var(--panel-hover);
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .url-label {
-    font-weight: 600;
-    color: var(--muted);
-    font-size: 11px;
-    text-transform: uppercase;
-  }
-
-  .url-link {
-    color: var(--accent);
-    text-decoration: none;
-    word-break: break-all;
-    font-size: 12px;
-  }
-
-  .url-link:hover {
-    text-decoration: underline;
-  }
-
-  .prompt-section {
-    margin-bottom: 12px;
-  }
-
-  .prompt-label {
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 6px;
-    font-size: 11px;
-    text-transform: uppercase;
-  }
-
-  .prompt-content {
-    padding: 10px;
-    background: var(--panel-hover);
-    border-radius: 4px;
-    border: 1px solid var(--border-light);
-    color: var(--text);
-    line-height: 1.5;
-  }
-
-  .content-section {
-    margin-top: 12px;
-  }
-
-  .content-label {
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 6px;
-    font-size: 11px;
-    text-transform: uppercase;
-  }
-
-  .content-body {
-    padding: 12px;
-    background: var(--background);
-    border-radius: 4px;
-    border: 1px solid var(--border-light);
-    color: var(--text);
-    line-height: 1.6;
-    white-space: pre-wrap;
-    max-height: 300px;
-    overflow-y: auto;
-    font-size: 12px;
-  }
-
-  .content-truncated {
-    margin-top: 6px;
-    font-size: 11px;
-    color: var(--muted);
-    font-style: italic;
-  }
-</style>

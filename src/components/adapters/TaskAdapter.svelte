@@ -27,143 +27,63 @@
   }
 </script>
 
-<div class="task-container">
-  <div class="task-header">
-    <span class="icon">🤖</span>
-    <div class="header-content">
-      <span class="title">Subagent Task</span>
+<div class="font-sans text-sm">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-xl shrink-0">🤖</span>
+    <div class="flex items-center gap-2 flex-wrap">
+      <span class="font-semibold text-foreground">Subagent Task</span>
       {#if subagentType}
-        <span class="subagent-type">{subagentType}</span>
+        <span
+          class="text-xs px-1.5 py-0.5 bg-accent text-white rounded font-medium"
+        >
+          {subagentType}
+        </span>
       {/if}
     </div>
   </div>
 
   {#if description}
-    <div class="task-description">
-      <span class="label">Description:</span>
-      <span class="value">{description}</span>
+    <div class="mb-3">
+      <span class="font-semibold text-muted-foreground mr-1">Description:</span>
+      <span class="text-foreground">{description}</span>
     </div>
   {/if}
 
   {#if prompt}
-    <div class="task-prompt">
-      <div class="prompt-label">Prompt:</div>
-      <div class="prompt-content">{prompt}</div>
+    <div class="my-3">
+      <div
+        class="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide"
+      >
+        Prompt:
+      </div>
+      <div
+        class="p-3 rounded border border-border whitespace-pre-wrap leading-relaxed text-foreground"
+        style="background: var(--panel-hover)"
+      >
+        {prompt}
+      </div>
     </div>
   {/if}
 
   {#if model}
-    <div class="task-meta">
-      <span class="meta-label">Model:</span>
-      <span class="meta-value">{model}</span>
+    <div class="text-xs text-muted-foreground mb-2">
+      <span class="font-semibold mr-1">Model:</span>
+      <span>{model}</span>
     </div>
   {/if}
 
   {#if result}
-    <div class="task-result">
-      <div class="result-label">Result:</div>
-      <div class="result-content">{result}</div>
+    <div class="my-3">
+      <div
+        class="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide"
+      >
+        Result:
+      </div>
+      <div
+        class="p-3 bg-background rounded border border-border whitespace-pre-wrap leading-relaxed text-foreground max-h-[400px] overflow-y-auto"
+      >
+        {result}
+      </div>
     </div>
   {/if}
 </div>
-
-<style>
-  .task-container {
-    font-family:
-      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
-      sans-serif;
-    font-size: 13px;
-  }
-
-  .task-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-
-  .icon {
-    font-size: 20px;
-    flex-shrink: 0;
-  }
-
-  .header-content {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .title {
-    font-weight: 600;
-    color: var(--text);
-  }
-
-  .subagent-type {
-    font-size: 11px;
-    padding: 2px 6px;
-    background: var(--accent);
-    color: white;
-    border-radius: 3px;
-    font-weight: 500;
-  }
-
-  .task-description {
-    margin-bottom: 12px;
-  }
-
-  .label,
-  .meta-label {
-    font-weight: 600;
-    color: var(--muted);
-    margin-right: 4px;
-  }
-
-  .value,
-  .meta-value {
-    color: var(--text);
-  }
-
-  .task-prompt,
-  .task-result {
-    margin: 12px 0;
-  }
-
-  .prompt-label,
-  .result-label {
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 6px;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .prompt-content {
-    padding: 12px;
-    background: var(--panel-hover);
-    border-radius: 4px;
-    border: 1px solid var(--border-light);
-    white-space: pre-wrap;
-    line-height: 1.5;
-    color: var(--text);
-  }
-
-  .result-content {
-    padding: 12px;
-    background: var(--background);
-    border-radius: 4px;
-    border: 1px solid var(--border-light);
-    white-space: pre-wrap;
-    line-height: 1.5;
-    color: var(--text);
-    max-height: 400px;
-    overflow-y: auto;
-  }
-
-  .task-meta {
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 8px;
-  }
-</style>
