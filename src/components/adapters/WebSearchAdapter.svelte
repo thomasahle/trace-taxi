@@ -15,6 +15,9 @@
   }
 
   // Extract output
+  let isPlainText = false;
+  let plainTextContent = '';
+
   if (ctx?.pair?.output) {
     const out = ctx.pair.output;
     if (typeof out === 'string') {
@@ -22,8 +25,9 @@
         const parsed = JSON.parse(out);
         results = parsed.results || parsed.items || [parsed];
       } catch (e) {
-        // Plain text result
-        results = [{ content: out }];
+        // Plain text result - likely a summary from Claude
+        isPlainText = true;
+        plainTextContent = out;
       }
     } else if (out && typeof out === 'object') {
       results = out.results || out.items || [out];
@@ -61,7 +65,11 @@
     </div>
   {/if}
 
-  {#if results.length > 0}
+  {#if isPlainText}
+    <div class="plain-text-result">
+      <div class="result-content">{plainTextContent}</div>
+    </div>
+  {:else if results.length > 0}
     <div class="results-section">
       <div class="results-count">{results.length} {results.length === 1 ? 'result' : 'results'} found</div>
       <div class="results-list">
@@ -228,5 +236,21 @@
     text-align: center;
     color: var(--muted);
     font-style: italic;
+  }
+
+  .plain-text-result {
+    margin-top: 12px;
+    padding: 16px;
+    background: var(--panel-hover);
+    border-radius: 6px;
+    border: 1px solid var(--border-light);
+  }
+
+  .result-content {
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 13px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
   }
 </style>

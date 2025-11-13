@@ -4,7 +4,17 @@
 
   // Support several shapes:
   // ctx.pair?.output could be {stdout, stderr, exit_code} or string
-  let cmd = ctx?.event?.input?.command ?? ctx?.event?.input?.cmd ?? ctx?.event?.input?.args ?? '';
+  let rawArgs = ctx?.event?.input?.args;
+  let argsString = '';
+
+  // Handle args which may be an array or string
+  if (Array.isArray(rawArgs)) {
+    argsString = rawArgs.join(' ');
+  } else if (typeof rawArgs === 'string') {
+    argsString = rawArgs;
+  }
+
+  let cmd = ctx?.event?.input?.command ?? ctx?.event?.input?.cmd ?? argsString;
   let out = ctx?.pair?.output ?? ctx?.event?.raw?.output ?? ctx?.event?.input?.output ?? '';
   let stdout = '';
   let stderr = '';

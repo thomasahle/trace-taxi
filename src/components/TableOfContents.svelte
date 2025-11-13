@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { trace, theme } from "../lib/store";
+  import { activeThread } from "../lib/threads";
+  import { theme } from "../lib/store";
   import type { MessageEvent } from "../lib/types";
   import { onMount, onDestroy } from "svelte";
   import ScrollArea from "$lib/components/ui/scroll-area.svelte";
@@ -9,7 +10,7 @@
 
   // Extract user and assistant messages for TOC with their original indices
   $: conversationMessages =
-    $trace?.events
+    $activeThread?.data?.events
       ?.map((event: MessageEvent, index: number) => ({
         event,
         globalIndex: index,
@@ -17,11 +18,6 @@
       .filter(
         (item) => item.event.kind === "user" || item.event.kind === "assistant",
       ) || [];
-
-  // Precompute a map from globalIndex -> conversation index for O(1) lookups
-  $: indexByGlobalIndex = new Map(
-    conversationMessages.map((item, i) => [item.globalIndex, i] as const),
-  );
 
   let selectedIndex = -1; // User's clicked selection (persistent)
   let scrollspyIndex = -1; // Auto-detected visible item (dynamic)
@@ -95,7 +91,8 @@
   }
 
   function scrollToMessage(globalIndex: number) {
-    const el = document.querySelector<HTMLElement>(
+    // Scope the query to mainContent to avoid unexpected behavior
+    const el = mainContent?.querySelector<HTMLElement>(
       `[data-event-index="${globalIndex}"]`,
     );
     if (!el) return;
@@ -128,14 +125,14 @@
 </script>
 
 <div
-  class="fixed top-12 right-0 w-[280px] h-[calc(100vh-3rem)] flex flex-col overflow-hidden {isMobile
+  class="fixed top-12 right-4 w-[260px] max-h-[calc(100vh-3rem)] flex flex-col overflow-hidden {isMobile
     ? 'z-50'
     : 'z-10'}"
   style="background-color: {$theme === 'dark'
     ? 'rgba(0, 0, 0, 0.5)'
-    : 'rgba(255, 255, 255, 0.3)'}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);"
+    : 'rgba(255, 255, 255, 0.3)'}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); pointer-events: none;"
 >
-  <ScrollArea class="flex-1 p-1 pb-24 pt-3">
+  <ScrollArea class="flex-1 p-1 pb-24 pt-3" style="pointer-events: auto;">
     {#each conversationMessages as item, index}
       {@const isUser = item.event.kind === "user"}
       {@const isSelected = index === selectedIndex}

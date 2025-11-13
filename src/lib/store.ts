@@ -2,9 +2,16 @@
 import { writable } from 'svelte/store';
 import type { TraceData } from './types';
 import { parseJsonl } from './parser';
+import { threads, activeThreadId } from './threads';
 
+// Keep trace store for backwards compatibility but deprecate its use
 export const trace = writable<TraceData>({ title: '', events: [], originalMessages: [] });
 export const errorMessage = writable<string | null>(null);
+
+export function clearTrace() {
+  // Clear by setting no active thread
+  activeThreadId.set(null);
+}
 
 export async function loadTraceFromUrl(url: string) {
   try {
@@ -18,7 +25,9 @@ export async function loadTraceFromUrl(url: string) {
     if (!data || data.events.length === 0) {
       throw new Error('No events found in trace file');
     }
-    trace.set(data);
+    // Add directly to threads and activate it
+    const newThreadId = threads.add(data);
+    activeThreadId.set(newThreadId);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to load trace from URL';
     errorMessage.set(message);
@@ -34,7 +43,9 @@ export async function loadTraceFromFile(file: File) {
     if (!data || data.events.length === 0) {
       throw new Error('No events found in trace file. Make sure it\'s a valid JSONL trace file.');
     }
-    trace.set(data);
+    // Add directly to threads and activate it
+    const newThreadId = threads.add(data);
+    activeThreadId.set(newThreadId);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to parse trace file';
     errorMessage.set(message);

@@ -1,8 +1,6 @@
 
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { marked } from 'marked';
-  import hljs from 'highlight.js';
+  import { marked } from '$lib/markdown';
 
   export let role: string;
   export let text: string;
@@ -25,20 +23,6 @@
   $: avatarInfo = getAvatarInfo(role);
   $: isAssistant = role.toLowerCase() === 'assistant';
   $: isUser = role.toLowerCase() === 'user';
-
-  // Configure marked once on mount
-  onMount(() => {
-    marked.setOptions({
-      highlight: (code, lang) => {
-        try {
-          if (lang && hljs.getLanguage(lang)) {
-            return hljs.highlight(code, { language: lang }).value;
-          }
-        } catch {}
-        return hljs.highlightAuto(code).value;
-      }
-    });
-  });
 
   // Reactively parse markdown whenever text changes
   $: html = marked.parse(text || '');

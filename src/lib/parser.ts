@@ -12,18 +12,24 @@ function parseLine(line: string): any | null {
 
 // Detect trace format by examining the first few entries
 function detectTraceFormat(raw: any[]): 'openai' | 'claude-code' {
-  // Check first few non-empty entries
-  for (const entry of raw.slice(0, 10)) {
+  // Check first few message entries (skip summaries and snapshots)
+  let checked = 0;
+  for (const entry of raw) {
     if (!entry) continue;
+    // Skip non-message entries for detection
+    if (entry.type === 'summary' || entry.type === 'file-history-snapshot') continue;
 
     // Claude Code traces have a specific structure with type + message
     if (entry.type && entry.message && entry.uuid && entry.timestamp) {
       // Further validate it's Claude Code format
-      if (entry.type === 'user' || entry.type === 'assistant' ||
-          entry.type === 'system' || entry.type === 'file-history-snapshot') {
+      if (entry.type === 'user' || entry.type === 'assistant' || entry.type === 'system') {
         return 'claude-code';
       }
     }
+
+    // Stop after checking 10 actual message entries
+    checked++;
+    if (checked >= 10) break;
   }
 
   // Default to OpenAI format
@@ -32,7 +38,8 @@ function detectTraceFormat(raw: any[]): 'openai' | 'claude-code' {
 
 // Parse Claude Code format traces
 function parseClaudeCodeFormat(raw: any[]): OpenAIMessage[] {
-  const messages: OpenAIMessage[] = [];
+  // First, merge messages with the same message.id (streaming responses)
+  const messageMap = new Map<string, any>();
 
   for (const entry of raw) {
     // Skip file history snapshots and non-message types
@@ -40,39 +47,29 @@ function parseClaudeCodeFormat(raw: any[]): OpenAIMessage[] {
     if (entry.type === 'file-history-snapshot') continue;
     if (entry.type === 'summary') continue;
 
-    // Handle user messages - these can be either actual user messages or tool results
-    if (entry.type === 'user' && entry.message) {
-      const msg = entry.message;
+    // Only process recognized message types
+    if (entry.type !== 'user' && entry.type !== 'assistant' && entry.type !== 'system') continue;
 
-      // Check if this is a tool result (has tool_result in content array)
-      if (Array.isArray(msg.content)) {
-        const hasToolResult = msg.content.some((block: any) => block?.type === 'tool_result');
-        if (hasToolResult) {
-          // This is a tool result, keep the message structure as-is
-          messages.push(msg);
-          continue;
-        }
+    const msg = entry.message;
+    const msgId = msg.id || `${entry.type}-${entry.uuid}`;
+
+    if (messageMap.has(msgId)) {
+      // Merge content arrays
+      const existing = messageMap.get(msgId);
+      if (Array.isArray(existing.content) && Array.isArray(msg.content)) {
+        existing.content.push(...msg.content);
       }
-
-      // Regular user message
-      messages.push(msg);
-      continue;
-    }
-
-    // Handle assistant messages
-    if (entry.type === 'assistant' && entry.message) {
-      messages.push(entry.message);
-      continue;
-    }
-
-    // Handle system messages
-    if (entry.type === 'system' && entry.message) {
-      messages.push(entry.message);
-      continue;
+      // Update stop_reason if it exists (last chunk has the final stop_reason)
+      if (msg.stop_reason) {
+        existing.stop_reason = msg.stop_reason;
+      }
+    } else {
+      // First time seeing this message
+      messageMap.set(msgId, { ...msg });
     }
   }
 
-  return messages;
+  return Array.from(messageMap.values());
 }
 
 // Parse OpenAI format traces
@@ -124,7 +121,23 @@ export function parseJsonl(text: string): TraceData {
         if (t === 'text') {
           const txt = (block.text?.value ?? block.text ?? block?.content ?? block?.value ?? '');
           assistantText += (assistantText ? '\n' : '') + (txt || '');
+        } else if (t === 'thinking') {
+          // Push any accumulated assistant text first
+          if (assistantText.trim()) {
+            events.push({ kind: 'assistant', text: assistantText.trim(), raw: m, created_at: m.created_at });
+            assistantText = '';
+          }
+          // Create separate thinking event
+          const thinkingText = block.thinking || '';
+          if (thinkingText) {
+            events.push({ kind: 'thinking', text: thinkingText, raw: m, created_at: m.created_at });
+          }
         } else if (t === 'tool_use') {
+          // Push any accumulated assistant text first
+          if (assistantText.trim()) {
+            events.push({ kind: 'assistant', text: assistantText.trim(), raw: m, created_at: m.created_at });
+            assistantText = '';
+          }
           events.push({
             kind: 'tool-use',
             id: block.id || block.tool_call_id || cryptoId(),

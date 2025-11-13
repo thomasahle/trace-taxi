@@ -12,6 +12,8 @@
     const f = e.dataTransfer?.files?.[0];
     if (f) {
       loadTraceFromFile(f);
+      // Mark that we handled this drop so parent doesn't process it again
+      (e as any).__uploadPanelHandled = true;
     }
   }
   function onDragOver(e: DragEvent) {
@@ -36,12 +38,19 @@
 
 <div
   role="button"
+  tabindex="0"
   class="border-2 border-dashed rounded-xl p-12 text-center bg-muted transition-all bg-opacity-50 hover:opacity-100 {dragging
     ? 'border-primary bg-primary/10'
     : 'border-border'}"
   on:dragover={onDragOver}
   on:dragleave={onDragLeave}
   on:drop={onDrop}
+  on:keydown={(e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      pick();
+    }
+  }}
 >
   <input
     bind:this={fileInput}
@@ -53,7 +62,7 @@
   <h2 class="text-xl font-semibold mb-2">Drop your trace.jsonl here</h2>
   <p class="text-sm text-muted-foreground mb-7">
     Drop a trace file in OpenAI or Claude format. See your <code
-      >~/.clade/projects/*.jsonl</code
+      >~/.claude/projects/*.jsonl</code
     > folder for examples.
   </p>
 

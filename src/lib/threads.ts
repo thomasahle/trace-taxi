@@ -42,9 +42,9 @@ function createThreadsStore() {
     subscribe,
 
     // Add a new thread
-    add: (data: TraceData) => {
+    add: (data: TraceData): string => {
+      const id = `thread-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       update(threads => {
-        const id = `thread-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         const newThread: Thread = {
           id,
           title: data.title || 'Untitled Trace',
@@ -58,6 +58,7 @@ function createThreadsStore() {
         saveThreadsToStorage(updated);
         return updated;
       });
+      return id;
     },
 
     // Update an existing thread

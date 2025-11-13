@@ -17,6 +17,7 @@ export type TraceEvent =
   | { kind: 'system'; text: string; raw: AnyRecord; created_at?: number }
   | { kind: 'user'; text: string; raw: AnyRecord; created_at?: number }
   | { kind: 'assistant'; text: string; raw: AnyRecord; created_at?: number }
+  | { kind: 'thinking'; text: string; raw: AnyRecord; created_at?: number }
   | { kind: 'tool-use'; id: string; name: string; input: AnyRecord; raw: AnyRecord; created_at?: number }
   | { kind: 'tool-result'; tool_call_id: string; name: string; output: AnyRecord; raw: AnyRecord; created_at?: number };
 

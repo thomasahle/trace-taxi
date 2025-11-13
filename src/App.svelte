@@ -5,12 +5,11 @@
   import TableOfContents from "./components/TableOfContents.svelte";
   import HeaderBar from "./components/HeaderBar.svelte";
   import {
-    trace,
     loadTraceFromUrl,
     loadTraceFromFile,
     theme,
   } from "./lib/store";
-  import { threads, activeThreadId, type Thread } from "./lib/threads";
+  import { threads, activeThreadId, activeThread, type Thread } from "./lib/threads";
   import {
     decompressFromHash,
     createShareLink,
@@ -18,7 +17,7 @@
   } from "./lib/share";
   import { parseJsonl } from "./lib/parser";
 
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   let dragging = false;
   let dragCounter = 0;
   let isMobile = false;
@@ -57,7 +56,9 @@
     if (hashText) {
       try {
         const data = parseJsonl(hashText);
-        trace.set(data);
+        // Add directly to threads and activate it
+        const newThreadId = threads.add(data);
+        activeThreadId.set(newThreadId);
         return;
       } catch (error) {
         console.error("Failed to parse trace from hash:", error);
@@ -86,6 +87,10 @@
     }
   });
 
+  onDestroy(() => {
+    window.removeEventListener('resize', checkMobile);
+  });
+
   // Apply theme to document root
   $: {
     if (typeof document !== "undefined") {
@@ -97,27 +102,16 @@
     }
   }
 
-  $: hasData = $trace?.events?.length > 0;
-
-  // Watch for trace changes and save to threads
-  $: if (hasData && $trace) {
-    // If there's an active thread, check by ID; otherwise check by title
-    const existingThread = $activeThreadId
-      ? $threads.find((t) => t.id === $activeThreadId)
-      : $threads.find((t) => t.title === $trace.title);
-
-    if (!existingThread) {
-      threads.add($trace);
-    }
-  }
+  // Check if there's data from the active thread
+  $: hasData = $activeThread?.data?.events?.length > 0;
 
   function handleSelectThread(thread: Thread) {
-    trace.set(thread.data);
+    // activeThreadId is already set by ThreadsList, no need to update trace manually
+    // TraceView now reads from activeThread derived store
   }
 
   function handleNewThread() {
     activeThreadId.set(null);
-    clearTrace();
   }
 
   function toggleThreadsList() {
@@ -125,12 +119,12 @@
   }
 
   async function handleShare() {
-    if (!hasData || !$trace.originalMessages) {
+    if (!hasData || !$activeThread?.data?.originalMessages) {
       return;
     }
 
     // Convert trace to JSONL format
-    const jsonlText = $trace.originalMessages
+    const jsonlText = $activeThread.data.originalMessages
       .map((msg) => JSON.stringify(msg))
       .join("\n");
 
@@ -149,7 +143,7 @@
     } else {
       // Fallback to download
       showNotification("Trace too large for URL, downloading file...");
-      downloadTrace(jsonlText, `${$trace.title || "trace"}.jsonl`);
+      downloadTrace(jsonlText, `${$activeThread.data.title || "trace"}.jsonl`);
     }
   }
 
@@ -189,15 +183,17 @@
     dragging = false;
     dragCounter = 0;
 
+    // Check if a child component already handled this drop
+    if ((e as any).__uploadPanelHandled) {
+      return; // Already processed by UploadPanel
+    }
+
     const file = e.dataTransfer?.files?.[0];
     if (file && (file.name.endsWith(".jsonl") || file.name.endsWith(".json"))) {
       loadTraceFromFile(file);
     }
   }
 
-  function clearTrace() {
-    trace.set({ title: "", events: [], originalMessages: [] });
-  }
 </script>
 
 <div
@@ -240,10 +236,7 @@
 
     <div
       bind:this={mainContent}
-      class="flex-1 flex flex-col min-w-0 overflow-y-scroll main-content {hasData &&
-      showTOC && !isMobile
-        ? 'pr-[280px]'
-        : ''}"
+      class="flex-1 flex flex-col min-w-0 overflow-y-scroll main-content"
       style="background-color: {$theme === 'dark'
         ? 'transparent'
         : hasData
@@ -254,15 +247,17 @@
         ? 'none'
         : 'blur(4px)'};"
     >
-      {#if hasData}
-        <TraceView />
-      {:else}
-        <div class="flex justify-center p-8 pt-16">
-          <div class="w-full max-w-[800px]">
-            <UploadPanel />
+      <div class="{hasData && showTOC && !isMobile ? 'pr-[260px]' : ''}">
+        {#if hasData}
+          <TraceView />
+        {:else}
+          <div class="flex justify-center p-8 pt-16">
+            <div class="w-full max-w-[800px]">
+              <UploadPanel />
+            </div>
           </div>
-        </div>
-      {/if}
+        {/if}
+      </div>
     </div>
 
     {#if hasData && showTOC}

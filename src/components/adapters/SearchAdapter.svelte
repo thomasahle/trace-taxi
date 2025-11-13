@@ -92,7 +92,7 @@
 
   {#if results.length > 0}
     <div class="results-list">
-      {#each results.slice(0, 20) as result}
+      {#each results as result}
         {#if operation === 'grep' && outputMode === 'content'}
           <div class="match-line">
             <code>{result}</code>
@@ -104,11 +104,6 @@
           </div>
         {/if}
       {/each}
-      {#if results.length > 20}
-        <div class="more-results">
-          ... and {results.length - 20} more
-        </div>
-      {/if}
     </div>
   {:else if matchCount === 0}
     <div class="no-results">No matches found</div>

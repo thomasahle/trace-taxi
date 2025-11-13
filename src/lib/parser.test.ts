@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { parseJsonl } from './parser';
+import { readFileSync } from 'fs';
 
 describe('parseJsonl', () => {
   describe('Claude Code format', () => {
@@ -27,12 +28,12 @@ describe('parseJsonl', () => {
       const result = parseJsonl(claudeTrace);
 
       expect(result.events).toHaveLength(3);
-      // Parser pushes tool-use first, then assistant text
-      expect(result.events[0].kind).toBe('tool-use');
-      expect(result.events[0].name).toBe('Read');
-      expect(result.events[0].input).toEqual({ file_path: '/test.txt' });
-      expect(result.events[1].kind).toBe('assistant');
-      expect(result.events[1].text).toBe('Let me read that file');
+      // Parser processes blocks in order: text accumulates, then gets pushed before tool-use
+      expect(result.events[0].kind).toBe('assistant');
+      expect(result.events[0].text).toBe('Let me read that file');
+      expect(result.events[1].kind).toBe('tool-use');
+      expect(result.events[1].name).toBe('Read');
+      expect(result.events[1].input).toEqual({ file_path: '/test.txt' });
       expect(result.events[2].kind).toBe('tool-result');
       expect(result.events[2].output).toBe('file contents');
     });
@@ -137,11 +138,11 @@ describe('parseJsonl', () => {
       const result = parseJsonl(openaiTrace);
 
       expect(result.events).toHaveLength(3);
-      // Parser pushes tool-use first, then assistant text
-      expect(result.events[0].kind).toBe('tool-use');
-      expect(result.events[0].name).toBe('Read');
-      expect(result.events[1].kind).toBe('assistant');
-      expect(result.events[1].text).toBe('Let me help');
+      // Parser processes blocks in order: text accumulates, then gets pushed before tool-use
+      expect(result.events[0].kind).toBe('assistant');
+      expect(result.events[0].text).toBe('Let me help');
+      expect(result.events[1].kind).toBe('tool-use');
+      expect(result.events[1].name).toBe('Read');
       expect(result.events[2].kind).toBe('tool-result');
       expect(result.events[2].output).toBe('file data');
     });
@@ -563,6 +564,19 @@ not json at all
       // These should not appear in events
       const snapshotEvents = result.events.filter((e: any) => e.kind === 'file-history-snapshot');
       expect(snapshotEvents.length).toBe(0);
+    });
+
+    it('should parse Claude session file with thinking blocks', () => {
+      const sessionPath = '/Users/ahle/.claude/projects/-Users-ahle-repos-trace-taxi/5f1cf5f9-eb95-4abf-9a29-ea9070f91064.jsonl';
+      const traceContent = readFileSync(sessionPath, 'utf-8');
+
+      const result = parseJsonl(traceContent);
+
+      console.log('Parsed events:', result.events.length);
+      console.log('First 5 events:', result.events.slice(0, 5).map(e => ({ kind: e.kind, text: e.text?.substring(0, 100) })));
+
+      // Should have many events from the long conversation
+      expect(result.events.length).toBeGreaterThan(0);
     });
   });
 });

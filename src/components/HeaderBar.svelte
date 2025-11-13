@@ -86,7 +86,7 @@
       target="_blank"
       rel="noopener noreferrer"
       class="flex items-center gap-1.5 px-2.5 h-8 rounded-md hover:bg-accent/50 transition-colors border border-border/30"
-      title="View on GitHub - {starCount ? `${starCount} stars` : 'Loading...'}"
+      title={starCount ? `View on GitHub - ${starCount} stars` : 'View on GitHub - Loading...'}
     >
       <Github size={14} />
       {#if starCount !== null}

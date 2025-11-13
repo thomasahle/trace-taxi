@@ -43,7 +43,7 @@
       threads.delete(thread.id);
       if ($activeThreadId === thread.id) {
         activeThreadId.set(null);
-        trace.set({ title: '', events: [] });
+        // No need to manually clear trace - TraceView reads from activeThread
       }
     }
   }
