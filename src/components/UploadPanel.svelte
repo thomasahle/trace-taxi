@@ -91,24 +91,25 @@
     <div
       class="flex items-center justify-between gap-3 mt-4 px-4 py-3 bg-destructive/10 border border-destructive rounded-md text-destructive text-sm"
     >
-      <span>⚠️ {$errorMessage}</span>
+      <span>{$errorMessage}</span>
       <button
         class="bg-transparent border-0 text-destructive text-2xl leading-none cursor-pointer p-0 w-6 h-6 flex items-center justify-center shrink-0 hover:opacity-70"
         on:click={dismissError}
       >
         ×
       </button>
-      <br />
-      <span>
-        If this is a bug, please report it on
-        <a
-          href="https://github.com/thomasahle/trace-taxi/issues"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          GitHub
-        </a>.
-      </span>
+    </div>
+    <div class="mt-4 text-sm text-muted-foreground">
+      If this is a bug, please report it on
+      <Button
+        variant="link"
+        href="https://github.com/thomasahle/trace-taxi/issues"
+        target="_blank"
+        rel="noopener noreferrer"
+        icon="external-link"
+      >
+        GitHub
+      </Button>.
     </div>
   {/if}
 </div>

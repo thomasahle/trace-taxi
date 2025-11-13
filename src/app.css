@@ -1,6 +1,26 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/*
+ * CSS Organization:
+ *
+ * 1. @theme: Tailwind CSS 4 design tokens (colors, radius)
+ * 2. :root & .dark: Custom CSS variables for specialized components
+ *    - Font families (--font-display, --font-body, --font-mono)
+ *    - Tool block colors (--tool-header-bg, etc.)
+ *    - Status colors (--code-bg, --panel-hover, etc.)
+ * 3. Base styles: Typography, body, code blocks
+ * 4. Terminal styles: Specialized syntax highlighting (must remain custom)
+ * 5. Syntax highlighting: Code block colors (must remain custom)
+ * 6. Prose styles: Markdown rendering
+ * 7. Utility classes: Glass morphism, backgrounds, animations
+ *
+ * Note: Many custom CSS variables (--text, --muted, --bg, --border-light)
+ * are still used throughout component <style> blocks. Future work could
+ * migrate these to Tailwind utilities, but they're kept for now to avoid
+ * breaking changes.
+ */
+
 @theme {
   /* Yellow base color theme */
   --color-background: hsl(0 0% 100%);
