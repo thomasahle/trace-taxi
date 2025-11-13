@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { ChevronDown, ChevronRight, Brain } from 'lucide-svelte';
+  import { ChevronDown, ChevronRight, Brain } from "lucide-svelte";
+  import { marked } from "$lib/markdown";
 
   export let text: string;
 
@@ -8,17 +9,18 @@
 
   // Get a preview of the thinking content
   function getPreview(text: string): string {
-    const firstLine = text.split('\n')[0];
+    const firstLine = text.split("\n")[0];
     const maxLength = 80;
     if (firstLine.length <= maxLength) return firstLine;
-    return firstLine.substring(0, maxLength - 3) + '...';
+    return firstLine.substring(0, maxLength - 3) + "...";
   }
 
   $: preview = getPreview(text);
+  $: html = marked.parse(text || "");
 </script>
 
 <div class="thinking-container" class:collapsed={!open}>
-  <div class="thinking-header" on:click={() => open = !open}>
+  <div class="thinking-header" on:click={() => (open = !open)}>
     <div class="thinking-title">
       <Brain size={16} class="thinking-icon" />
       <span class="thinking-label">Thinking</span>
@@ -35,8 +37,8 @@
     </span>
   </div>
   {#if open}
-    <div class="thinking-body">
-      <pre class="thinking-content">{text}</pre>
+    <div class="thinking-body text-xs">
+      {@html html}
     </div>
   {/if}
 </div>
@@ -121,7 +123,8 @@
     word-wrap: break-word;
     line-height: 1.5;
     font-size: 13px;
-    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
+      "Courier New", monospace;
     color: var(--text);
     max-height: 400px;
     overflow-y: auto;
