@@ -37,120 +37,52 @@
   }
 </script>
 
-<div class="taxi-estimate-container">
-  <div class="route-header">
-    <span class="route-icon">🚕</span>
-    <div class="route-details">
-      <div class="route-line">
-        <span class="location-label">From:</span>
-        <span class="location">{pickup}</span>
+<div class="font-sans text-sm">
+  <div class="flex gap-3 mb-3">
+    <span class="text-xl shrink-0">🚕</span>
+    <div class="flex-1">
+      <div class="flex gap-2 mb-1">
+        <span class="text-xs text-muted-foreground min-w-[40px]">From:</span>
+        <span class="text-foreground font-medium">{pickup}</span>
       </div>
-      <div class="route-line">
-        <span class="location-label">To:</span>
-        <span class="location">{dropoff}</span>
+      <div class="flex gap-2 mb-1">
+        <span class="text-xs text-muted-foreground min-w-[40px]">To:</span>
+        <span class="text-foreground font-medium">{dropoff}</span>
       </div>
       {#if when && when !== "now"}
-        <div class="route-meta">⏰ {when}</div>
+        <div class="text-xs text-muted-foreground mt-1">⏰ {when}</div>
       {/if}
     </div>
   </div>
 
-  <div class="estimate-results">
-    <div class="estimate-item">
-      <span class="estimate-label">ETA</span>
-      <span class="estimate-value">{etaMinutes} min</span>
+  <div
+    class="flex gap-5 p-3 rounded-md mb-2"
+    style="background: var(--panel-hover)"
+  >
+    <div class="flex flex-col gap-1">
+      <span class="text-[11px] text-muted-foreground uppercase tracking-wide"
+        >ETA</span
+      >
+      <span class="text-base font-semibold text-accent-foreground"
+        >{etaMinutes} min</span
+      >
     </div>
-    <div class="estimate-item">
-      <span class="estimate-label">Fare</span>
-      <span class="estimate-value">${priceUsd.toFixed(2)}</span>
+    <div class="flex flex-col gap-1">
+      <span class="text-[11px] text-muted-foreground uppercase tracking-wide"
+        >Fare</span
+      >
+      <span class="text-base font-semibold text-accent-foreground"
+        >${priceUsd.toFixed(2)}</span
+      >
     </div>
   </div>
 
   {#if note}
-    <div class="note">💭 {note}</div>
+    <div
+      class="text-xs text-muted-foreground italic px-3 py-2 rounded"
+      style="background: var(--panel-hover)"
+    >
+      💭 {note}
+    </div>
   {/if}
 </div>
-
-<style>
-  .taxi-estimate-container {
-    font-family:
-      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
-      sans-serif;
-    font-size: 13px;
-  }
-
-  .route-header {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-
-  .route-icon {
-    font-size: 20px;
-    flex-shrink: 0;
-  }
-
-  .route-details {
-    flex: 1;
-  }
-
-  .route-line {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 4px;
-  }
-
-  .location-label {
-    font-size: 11px;
-    color: var(--muted);
-    min-width: 40px;
-  }
-
-  .location {
-    color: var(--text);
-    font-weight: 500;
-  }
-
-  .route-meta {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 4px;
-  }
-
-  .estimate-results {
-    display: flex;
-    gap: 20px;
-    padding: 12px;
-    background: var(--panel-hover);
-    border-radius: 6px;
-    margin-bottom: 8px;
-  }
-
-  .estimate-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .estimate-label {
-    font-size: 11px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .estimate-value {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--accent);
-  }
-
-  .note {
-    font-size: 12px;
-    color: var(--muted);
-    font-style: italic;
-    padding: 8px 12px;
-    background: var(--panel-hover);
-    border-radius: 4px;
-  }
-</style>

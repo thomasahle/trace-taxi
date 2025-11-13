@@ -351,8 +351,11 @@ not even close to json
 
       // Should only parse the 3 valid messages
       expect(result.events).toHaveLength(3);
+      assertUserEvent(result.events[0]);
       expect(result.events[0].text).toBe("Valid message 1");
+      assertAssistantEvent(result.events[1]);
       expect(result.events[1].text).toBe("Valid message 2");
+      assertUserEvent(result.events[2]);
       expect(result.events[2].text).toBe("Valid message 3");
     });
 
@@ -381,7 +384,9 @@ not json at all
 
       // Should handle messages with content gracefully
       expect(result.events).toHaveLength(2);
+      assertUserEvent(result.events[0]);
       expect(result.events[0].text).toBe("Good message");
+      assertUserEvent(result.events[1]);
       expect(result.events[1].text).toBe("Another good message");
     });
 
@@ -397,7 +402,9 @@ not json at all
 
       // Should skip messages with null/empty content
       expect(result.events).toHaveLength(2);
+      assertUserEvent(result.events[0]);
       expect(result.events[0].text).toBe("Valid");
+      assertAssistantEvent(result.events[1]);
       expect(result.events[1].text).toBe("Also valid");
     });
 
@@ -485,6 +492,7 @@ not json at all
       const result = parseJsonl(badTrace);
 
       expect(result.events).toHaveLength(3);
+      assertUserEvent(result.events[0]);
       expect(result.events[0].text).toContain("世界");
       expect(result.events[0].text).toContain("🌍");
     });
@@ -498,6 +506,7 @@ not json at all
 
       // Should extract text from valid text blocks
       expect(result.events.length).toBeGreaterThan(0);
+      assertAssistantEvent(result.events[0]);
       expect(result.events[0].text).toBe("valid");
     });
 
@@ -636,9 +645,10 @@ not json at all
       console.log("Parsed events:", result.events.length);
       console.log(
         "First 5 events:",
-        result.events
-          .slice(0, 5)
-          .map((e) => ({ kind: e.kind, text: e.text?.substring(0, 100) })),
+        result.events.slice(0, 5).map((e) => ({
+          kind: e.kind,
+          text: "text" in e ? e.text?.substring(0, 100) : undefined,
+        })),
       );
 
       // Should have many events from the long conversation

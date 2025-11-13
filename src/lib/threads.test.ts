@@ -226,13 +226,13 @@ describe("threads store", () => {
 
     it("should persist updates to localStorage", () => {
       threads.add(createMockTraceData("Original"));
-      const threadId = get(threads)[0].id;
+      const threadId = (get(threads) as Thread[])[0].id;
 
       threads.update(threadId, { title: "Updated Title" });
 
       const stored = JSON.parse(
         localStorageMock.getItem("trace-viewer-threads")!,
-      );
+      ) as Thread[];
       expect(stored[0].title).toBe("Updated Title");
     });
 
@@ -265,7 +265,7 @@ describe("threads store", () => {
   describe("delete", () => {
     it("should remove thread from store", () => {
       threads.add(createMockTraceData("To Delete"));
-      const threadId = get(threads)[0].id;
+      const threadId = (get(threads) as Thread[])[0].id;
 
       threads.delete(threadId);
 
@@ -275,13 +275,13 @@ describe("threads store", () => {
 
     it("should persist deletion to localStorage", () => {
       threads.add(createMockTraceData("To Delete"));
-      const threadId = get(threads)[0].id;
+      const threadId = (get(threads) as Thread[])[0].id;
 
       threads.delete(threadId);
 
       const stored = JSON.parse(
         localStorageMock.getItem("trace-viewer-threads")!,
-      );
+      ) as Thread[];
       expect(stored).toHaveLength(0);
     });
 
@@ -356,7 +356,7 @@ describe("threads store", () => {
 
       const stored = JSON.parse(
         localStorageMock.getItem("trace-viewer-threads")!,
-      );
+      ) as Thread[];
       expect(stored).toHaveLength(0);
     });
 
@@ -371,7 +371,7 @@ describe("threads store", () => {
   describe("rename", () => {
     it("should rename thread", () => {
       threads.add(createMockTraceData("Old Name"));
-      const threadId = get(threads)[0].id;
+      const threadId = (get(threads) as Thread[])[0].id;
 
       threads.rename(threadId, "New Name");
 
@@ -381,8 +381,8 @@ describe("threads store", () => {
 
     it("should update timestamp when renaming", () => {
       threads.add(createMockTraceData("Test"));
-      const threadId = get(threads)[0].id;
-      const originalTimestamp = get(threads)[0].timestamp;
+      const threadId = (get(threads) as Thread[])[0].id;
+      const originalTimestamp = (get(threads) as Thread[])[0].timestamp;
 
       const newTime = originalTimestamp + 1000;
       vi.spyOn(Date, "now").mockReturnValue(newTime);
@@ -395,13 +395,13 @@ describe("threads store", () => {
 
     it("should persist rename to localStorage", () => {
       threads.add(createMockTraceData("Original"));
-      const threadId = get(threads)[0].id;
+      const threadId = (get(threads) as Thread[])[0].id;
 
       threads.rename(threadId, "Renamed Thread");
 
       const stored = JSON.parse(
         localStorageMock.getItem("trace-viewer-threads")!,
-      );
+      ) as Thread[];
       expect(stored[0].title).toBe("Renamed Thread");
     });
 
