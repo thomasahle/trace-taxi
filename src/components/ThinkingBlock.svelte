@@ -19,16 +19,28 @@
   $: html = marked.parse(text || "");
 </script>
 
-<div class="thinking-container" class:collapsed={!open}>
-  <div class="thinking-header" on:click={() => (open = !open)}>
-    <div class="thinking-title">
-      <Brain size={16} class="thinking-icon" />
-      <span class="thinking-label">Thinking</span>
+<div
+  class="border-0 rounded-md overflow-hidden bg-transparent {!open
+    ? 'inline-block max-w-full'
+    : ''}"
+>
+  <div
+    class="flex justify-between items-center px-3 py-2 bg-transparent cursor-pointer select-none min-h-[36px] hover:bg-accent"
+    on:click={() => (open = !open)}
+  >
+    <div class="flex items-center gap-2 flex-1 min-w-0">
+      <Brain size={16} class="text-foreground shrink-0" />
+      <span class="text-sm font-semibold text-foreground shrink-0"
+        >Thinking</span
+      >
       {#if !open && preview}
-        <span class="thinking-preview">{preview}</span>
+        <span
+          class="text-xs text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap flex-1"
+          >{preview}</span
+        >
       {/if}
     </div>
-    <span class="thinking-chevron">
+    <span class="flex items-center text-muted-foreground shrink-0">
       {#if open}
         <ChevronDown size={16} />
       {:else}
@@ -37,117 +49,8 @@
     </span>
   </div>
   {#if open}
-    <div class="thinking-body text-xs">
+    <div class="px-3 py-3 border-t-0 bg-background text-xs">
       {@html html}
     </div>
   {/if}
 </div>
-
-<style>
-  .thinking-container {
-    border: none;
-    border-radius: 6px;
-    overflow: hidden;
-    background: transparent;
-  }
-
-  .thinking-container.collapsed {
-    display: inline-block;
-    max-width: 100%;
-  }
-
-  .thinking-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 12px;
-    background: transparent;
-    cursor: pointer;
-    user-select: none;
-    min-height: 36px;
-  }
-
-  .thinking-header:hover {
-    background: var(--accent);
-  }
-
-  .thinking-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex: 1;
-    min-width: 0;
-  }
-
-  :global(.thinking-icon) {
-    color: var(--foreground);
-    flex-shrink: 0;
-  }
-
-  .thinking-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--foreground);
-    flex-shrink: 0;
-  }
-
-  .thinking-preview {
-    font-size: 12px;
-    color: var(--muted);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    flex: 1;
-  }
-
-  .thinking-chevron {
-    display: flex;
-    align-items: center;
-    color: var(--muted);
-    flex-shrink: 0;
-  }
-
-  .thinking-body {
-    padding: 12px;
-    border-top: none;
-    background: var(--background);
-  }
-
-  .thinking-content {
-    margin: 0;
-    padding: 12px;
-    background: var(--panel-hover);
-    border-radius: 4px;
-    border: 1px solid var(--border-light);
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    line-height: 1.5;
-    font-size: 13px;
-    font-family:
-      "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
-      "Courier New", monospace;
-    color: var(--text);
-    max-height: 400px;
-    overflow-y: auto;
-  }
-
-  /* Scrollbar styling */
-  .thinking-content::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  .thinking-content::-webkit-scrollbar-track {
-    background: var(--background);
-    border-radius: 4px;
-  }
-
-  .thinking-content::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: 4px;
-  }
-
-  .thinking-content::-webkit-scrollbar-thumb:hover {
-    background: var(--border-light);
-  }
-</style>
