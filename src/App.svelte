@@ -51,6 +51,7 @@
 
     // Listen for resize events
     window.addEventListener('resize', checkMobile);
+
     // First, check for hash-based compressed trace
     const hashText = decompressFromHash(window.location.hash);
     if (hashText) {
@@ -71,14 +72,14 @@
       return;
     }
 
-    // If no threads exist, load the example love story trace
+    // If no threads exist, add the example trace to the threads list but don't activate it
     if ($threads.length === 0) {
       try {
         const response = await fetch('/example-love-story.jsonl');
         const text = await response.text();
         const data = parseJsonl(text);
-        data.title = "Love Story: Airport to Midnight Bridge";
-        trace.set(data);
+        data.title = "Love Story - Airport to Midnight Bridge";
+        threads.add(data);
       } catch (error) {
         console.error("Failed to load example trace:", error);
       }
