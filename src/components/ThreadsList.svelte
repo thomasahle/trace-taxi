@@ -1,21 +1,16 @@
 <script lang="ts">
   import { threads, activeThreadId, type Thread } from "../lib/threads";
-  import { trace, theme } from "../lib/store";
+  // No need for global stores here
   import Button from "$lib/components/ui/button.svelte";
   import Input from "$lib/components/ui/input.svelte";
   import ScrollArea from "$lib/components/ui/scroll-area.svelte";
   import { Plus, Pencil, Trash2 } from "lucide-svelte";
-
-  export let onSelectThread: (thread: Thread) => void;
-  export let onNewThread: () => void;
-  export let isMobile: boolean = false;
 
   let editingId: string | null = null;
   let editingTitle: string = "";
 
   function selectThread(thread: Thread) {
     activeThreadId.set(thread.id);
-    onSelectThread(thread);
   }
 
   function startEdit(thread: Thread, event: MouseEvent) {
@@ -75,11 +70,7 @@
   }
 </script>
 
-<div
-  class="w-[280px] h-screen border-r border-border/30 flex flex-col bg-glass {isMobile
-    ? 'fixed top-0 left-0 z-50'
-    : ''}"
->
+<div class="flex h-full flex-col">
   <div
     class="flex items-center justify-between h-12 px-4 border-b border-border"
   >
@@ -91,7 +82,7 @@
     <Button
       size="icon"
       class="w-8 h-8"
-      on:click={onNewThread}
+      on:click={() => activeThreadId.set(null)}
       title="Load new trace"
     >
       <Plus size={16} />

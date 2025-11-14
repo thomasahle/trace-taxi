@@ -5,53 +5,20 @@
   import TableOfContents from "./components/TableOfContents.svelte";
   import HeaderBar from "./components/HeaderBar.svelte";
   import { Toaster } from "$lib/components/ui/sonner";
-  import { toast } from "svelte-sonner";
   import { loadTraceFromUrl, loadTraceFromFile, theme } from "./lib/store";
-  import {
-    threads,
-    activeThreadId,
-    activeThread,
-    type Thread,
-  } from "./lib/threads";
-  import {
-    decompressFromHash,
-    createShareLink,
-    downloadTrace,
-  } from "./lib/share";
+  import { threads, activeThreadId, activeThread } from "./lib/threads";
+  import { decompressFromHash } from "./lib/share";
   import { parseJsonl } from "./lib/parser";
+  import { cn } from "./lib/utils";
 
-  import { onMount, onDestroy } from "svelte";
+  import { onMount } from "svelte";
   let dragging = false;
   let dragCounter = 0;
-  let isMobile = false;
-  let showThreadsList = true;
-  let showTOC = true;
+  import { showThreadsList } from "./lib/ui";
+
   let mainContent: HTMLElement | null = null;
 
-  // Detect mobile viewport
-  function checkMobile() {
-    const wasMobile = isMobile;
-    isMobile = window.innerWidth < 768;
-
-    // When transitioning from desktop to mobile, hide sidebars
-    if (!wasMobile && isMobile) {
-      showThreadsList = false;
-      showTOC = false;
-    }
-    // When transitioning from mobile to desktop, show sidebars
-    else if (wasMobile && !isMobile) {
-      showThreadsList = true;
-      showTOC = true;
-    }
-  }
-
   onMount(async () => {
-    // Check if mobile on mount
-    checkMobile();
-
-    // Listen for resize events
-    window.addEventListener("resize", checkMobile);
-
     // First, check for hash-based compressed trace
     const hashText = decompressFromHash(window.location.hash);
     if (hashText) {
@@ -88,10 +55,6 @@
     }
   });
 
-  onDestroy(() => {
-    window.removeEventListener("resize", checkMobile);
-  });
-
   // Apply theme to document root
   $: {
     if (typeof document !== "undefined") {
@@ -106,51 +69,7 @@
   // Check if there's data from the active thread
   $: hasData = $activeThread?.data?.events?.length > 0;
 
-  function handleSelectThread(thread: Thread) {
-    // activeThreadId is already set by ThreadsList, no need to update trace manually
-    // TraceView now reads from activeThread derived store
-  }
-
-  function handleNewThread() {
-    activeThreadId.set(null);
-  }
-
-  function toggleThreadsList() {
-    showThreadsList = !showThreadsList;
-  }
-
-  async function handleShare() {
-    if (!hasData || !$activeThread?.data?.originalMessages) {
-      return;
-    }
-
-    // Convert trace to JSONL format
-    const jsonlText = $activeThread.data.originalMessages
-      .map((msg) => JSON.stringify(msg))
-      .join("\n");
-
-    // Try compressed URL first
-    const shareResult = createShareLink(jsonlText);
-
-    if (shareResult.compressed) {
-      // Copy to clipboard
-      try {
-        await navigator.clipboard.writeText(shareResult.url);
-        showNotification("Link copied to clipboard!");
-      } catch (error) {
-        console.error("Failed to copy to clipboard:", error);
-        showNotification("Failed to copy link");
-      }
-    } else {
-      // Fallback to download
-      showNotification("Trace too large for URL, downloading file...");
-      downloadTrace(jsonlText, `${$activeThread.data.title || "trace"}.jsonl`);
-    }
-  }
-
-  function showNotification(message: string) {
-    toast.success(message);
-  }
+  // Sidebar visibility handled via store in src/lib/ui.ts
 
   // Global drag and drop handlers
   function handleDragEnter(e: DragEvent) {
@@ -194,60 +113,65 @@
 
 <div
   class="flex h-screen overflow-hidden bg-taxi"
+  role="region"
+  aria-label="File drop area"
   on:dragenter={handleDragEnter}
   on:dragleave={handleDragLeave}
   on:dragover={handleDragOver}
   on:drop={handleDrop}
 >
   <!-- Backdrop for mobile overlays -->
-  {#if isMobile && (showThreadsList || showTOC)}
-    <div
-      class="fixed inset-0 bg-black/50 z-40"
+  {#if $showThreadsList}
+    <button
+      type="button"
+      class="fixed inset-0 bg-black/50 z-40 lg:hidden"
+      aria-label="Close sidebars"
       on:click={() => {
-        showThreadsList = false;
-        showTOC = false;
+        showThreadsList.set(false);
       }}
-    ></div>
+    ></button>
   {/if}
 
-  {#if showThreadsList}
-    <ThreadsList
-      {isMobile}
-      onSelectThread={handleSelectThread}
-      onNewThread={handleNewThread}
-    />
-  {/if}
+  <div
+    class={cn(
+      "w-[280px] h-screen border-r border-border/30 bg-glass overflow-hidden transition-[transform,opacity,width] duration-300 ease-out flex flex-col",
+      "fixed inset-y-0 left-0 z-50 shadow-2xl lg:shadow-none lg:static lg:h-full",
+      $showThreadsList
+        ? "translate-x-0 opacity-100 lg:w-[280px]"
+        : "-translate-x-full opacity-0 lg:w-0 lg:min-w-0 lg:border-transparent",
+    )}
+    aria-hidden={!$showThreadsList}
+  >
+    <ThreadsList />
+  </div>
 
   <div class="flex-1 flex flex-col overflow-hidden min-h-0 relative">
-    <HeaderBar
-      {hasData}
-      onToggleSidebar={toggleThreadsList}
-      onShare={handleShare}
-      onHeaderClick={handleNewThread}
-    />
+    <HeaderBar />
 
     <div
       bind:this={mainContent}
-      class="flex-1 flex flex-col min-w-0 overflow-y-scroll main-content {hasData
-        ? 'main-backdrop'
-        : ''}"
+      class="flex-1 min-w-0 overflow-y-scroll main-content"
+      class:main-backdrop={hasData}
     >
-      <div class={hasData && showTOC && !isMobile ? "pr-[260px]" : ""}>
-        {#if hasData}
+      {#if hasData}
+        <section
+          class="mx-auto max-w-[1100px] px-4 py-4 grid gap-6 lg:grid-cols-[1fr_300px]"
+        >
           <TraceView />
-        {:else}
-          <div class="flex justify-center p-8 pt-16">
-            <div class="w-full max-w-[800px]">
-              <UploadPanel />
-            </div>
+          <div
+            class="hidden sm:block
+  sticky top-12 right-4 w-[300px] max-h-[calc(100vh-3rem)] flex flex-col overflow-hidden z-50 lg:z-10
+          "
+          >
+            <TableOfContents {mainContent} />
           </div>
-        {/if}
-      </div>
+        </section>
+      {:else}
+        <section class="mx-auto w-full max-w-[800px] px-4 pt-16">
+          <UploadPanel />
+        </section>
+      {/if}
     </div>
-
-    {#if hasData && showTOC}
-      <TableOfContents {isMobile} {mainContent} />
-    {/if}
 
     {#if dragging}
       <div

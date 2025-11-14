@@ -42,7 +42,7 @@
     </span>
   </div>
   {#if open}
-    <div class="px-3 py-3 border-t-0 bg-background text-xs">
+    <div class="prose-sm px-3 py-3 border-t-0 bg-background text-xs">
       {@html html}
     </div>
   {/if}

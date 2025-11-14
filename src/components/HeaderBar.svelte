@@ -1,18 +1,43 @@
 <script lang="ts">
   import Button from "$lib/components/ui/button.svelte";
   import { theme } from "../lib/store";
-  import { Menu, Share2, Moon, Sun, Github, Star } from "lucide-svelte";
+  import { Menu, Share2, Moon, Sun, Github } from "lucide-svelte";
   import { onMount } from "svelte";
+  import { toggleThreadsList } from "../lib/ui";
+  import { activeThread, activeThreadId } from "../lib/threads";
+  import { createShareLink, downloadTrace } from "../lib/share";
+  import { toast } from "svelte-sonner";
 
   let starCount: number | null = null;
 
-  export let hasData: boolean;
-  export let onToggleSidebar: () => void;
-  export let onShare: () => void;
-  export let onHeaderClick: () => void;
+  $: hasData = $activeThread?.data?.events?.length > 0;
 
   function toggleTheme() {
     theme.set($theme === "light" ? "dark" : "light");
+  }
+
+  async function handleShare() {
+    const current = $activeThread;
+    if (!current?.data?.originalMessages) return;
+
+    const jsonlText = current.data.originalMessages
+      .map((msg) => JSON.stringify(msg))
+      .join("\n");
+
+    const shareResult = createShareLink(jsonlText);
+
+    if (shareResult.compressed) {
+      try {
+        await navigator.clipboard.writeText(shareResult.url);
+        toast.success("Link copied to clipboard!");
+      } catch (error) {
+        console.error("Failed to copy to clipboard:", error);
+        toast.success("Failed to copy link");
+      }
+    } else {
+      toast.success("Trace too large for URL, downloading file...");
+      downloadTrace(jsonlText, `${current.data.title || "trace"}.jsonl`);
+    }
   }
 
   async function fetchGitHubStars() {
@@ -42,14 +67,14 @@
       variant="outline"
       size="icon"
       class="w-8 h-8"
-      on:click={onToggleSidebar}
+      on:click={toggleThreadsList}
       title="Toggle sidebar"
     >
       <Menu size={16} />
     </Button>
     <h1
       class="m-0 text-2xl font-semibold tracking-tight uppercase leading-none pt-1 cursor-pointer hover:opacity-80 transition-opacity flex items-center gap-2"
-      on:click={onHeaderClick}
+      on:click={() => activeThreadId.set(null)}
     >
       <img src="/favicon.png" alt="Taxi" class="w-6 h-6 -mt-1" />
       Trace Taxi
@@ -66,7 +91,7 @@
         variant="ghost"
         size="icon"
         class="w-8 h-8"
-        on:click={onShare}
+        on:click={handleShare}
         title="Share trace"
       >
         <Share2 size={16} />
