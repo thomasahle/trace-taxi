@@ -9,7 +9,7 @@
   import { threads, activeThreadId, activeThread } from "./lib/threads";
   import { decompressFromHash } from "./lib/share";
   import { parseJsonl } from "./lib/parser";
-  import { cn } from "./lib/utils";
+  import * as Sidebar from "$lib/components/ui/sidebar";
 
   import { onMount } from "svelte";
   let dragging = false;
@@ -112,7 +112,7 @@
 </script>
 
 <div
-  class="flex h-screen overflow-hidden bg-taxi"
+  class="bg-taxi"
   role="region"
   aria-label="File drop area"
   on:dragenter={handleDragEnter}
@@ -120,74 +120,58 @@
   on:dragover={handleDragOver}
   on:drop={handleDrop}
 >
-  <!-- Backdrop for mobile overlays -->
-  {#if $showThreadsList}
-    <button
-      type="button"
-      class="fixed inset-0 bg-black/50 z-40 lg:hidden"
-      aria-label="Close sidebars"
-      on:click={() => {
-        showThreadsList.set(false);
-      }}
-    ></button>
-  {/if}
-
-  <div
-    class={cn(
-      "w-[280px] h-screen border-r border-border/30 bg-glass overflow-hidden transition-[transform,opacity,width] duration-300 ease-out flex flex-col",
-      "fixed inset-y-0 left-0 z-50 shadow-2xl lg:shadow-none lg:static lg:h-full",
-      $showThreadsList
-        ? "translate-x-0 opacity-100 lg:w-[280px]"
-        : "-translate-x-full opacity-0 lg:w-0 lg:min-w-0 lg:border-transparent",
-    )}
-    aria-hidden={!$showThreadsList}
-  >
-    <ThreadsList />
-  </div>
-
-  <div class="flex-1 flex flex-col overflow-hidden min-h-0 relative">
-    <HeaderBar />
-
-    <div
-      bind:this={mainContent}
-      class="flex-1 min-w-0 overflow-y-scroll main-content"
-      class:main-backdrop={hasData}
+  <Sidebar.Provider bind:open={$showThreadsList}>
+    <Sidebar.Sidebar
+      variant="inset"
+      class="bg-glass box-border border-e border-border !m-0 !p-0"
     >
-      {#if hasData}
-        <section
-          class="mx-auto max-w-[1100px] px-4 py-4 grid gap-6 lg:grid-cols-[1fr_300px]"
-        >
-          <TraceView />
-          <div
-            class="hidden sm:block
-  sticky top-12 right-4 w-[300px] max-h-[calc(100vh-3rem)] flex flex-col overflow-hidden z-50 lg:z-10
-          "
-          >
-            <TableOfContents {mainContent} />
-          </div>
-        </section>
-      {:else}
-        <section class="mx-auto w-full max-w-[800px] px-4 pt-16">
-          <UploadPanel />
-        </section>
-      {/if}
-    </div>
+      <Sidebar.SidebarContent>
+        <ThreadsList />
+      </Sidebar.SidebarContent>
+    </Sidebar.Sidebar>
 
-    {#if dragging}
+    <Sidebar.SidebarInset
+      class="!bg-transparent flex flex-col h-screen overflow-hidden !m-0 !p-0 !shadow-none"
+    >
+      <HeaderBar />
+
       <div
-        class="fixed inset-0 bg-black/95 flex items-center justify-center z-[1000] pointer-events-none"
+        bind:this={mainContent}
+        class="main-content flex justify-center overflow-y-auto flex-1 p-0"
+        class:main-backdrop={hasData}
       >
-        <div
-          class="text-center p-8 border-[3px] border-dashed border-primary rounded-xl bg-card"
-        >
-          <h2 class="text-primary m-0 mb-2">Drop your trace file here</h2>
-          <p class="text-muted-foreground m-0">
-            Release to load the .jsonl or .json file
-          </p>
-        </div>
+        {#if hasData}
+          <div class="w-full xl:w-3xl flex-initial">
+            <TraceView />
+          </div>
+          <aside
+            class="w-xs hidden md:block flex-initial self-start sticky top-2 overflow-x-hidden"
+          >
+            <div class="max-h-[calc(100vh-3rem)] overflow-y-auto">
+              <TableOfContents {mainContent} />
+            </div>
+          </aside>
+        {:else}
+          <UploadPanel />
+        {/if}
       </div>
-    {/if}
-  </div>
+
+      {#if dragging}
+        <div
+          class="fixed inset-0 bg-black/95 flex items-center justify-center z-[1000] pointer-events-none"
+        >
+          <div
+            class="text-center p-8 border-[3px] border-dashed border-primary rounded-xl bg-card"
+          >
+            <h2 class="text-primary m-0 mb-2">Drop your trace file here</h2>
+            <p class="text-muted-foreground m-0">
+              Release to load the .jsonl or .json file
+            </p>
+          </div>
+        </div>
+      {/if}
+    </Sidebar.SidebarInset>
+  </Sidebar.Provider>
 
   <Toaster />
 </div>

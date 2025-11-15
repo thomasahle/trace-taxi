@@ -1,6 +1,6 @@
 <script lang="ts">
   import { activeThread } from "../lib/threads";
-  import type { MessageEvent } from "../lib/types";
+  import type { TraceEvent } from "../lib/types";
   import { onMount, onDestroy } from "svelte";
   import ScrollArea from "$lib/components/ui/scroll-area.svelte";
 
@@ -9,7 +9,7 @@
   // Extract user and assistant messages for TOC with their original indices
   $: conversationMessages =
     $activeThread?.data?.events
-      ?.map((event: MessageEvent, index: number) => ({
+      ?.map((event: TraceEvent, index: number) => ({
         event,
         globalIndex: index,
       }))
@@ -98,6 +98,47 @@
     el.scrollIntoView({ behavior: "auto", block: "start" });
   }
 
+  function getDisplayText(event: TraceEvent): string {
+    // For user messages, check content first
+    if (event.kind === "user") {
+      // If there's text, use it
+      if (event.text && event.text.trim()) {
+        return event.text;
+      }
+
+      // Extract from content array if available
+      if (event.content && Array.isArray(event.content)) {
+        // Try to find text in content array
+        for (const item of event.content) {
+          if (item?.type === "text" && item.text) {
+            return item.text;
+          }
+        }
+        // If only images, show placeholder
+        const hasImage = event.content.some(
+          (item: any) => item?.type === "image",
+        );
+        if (hasImage) {
+          return "[Image]";
+        }
+      }
+
+      return "[Empty message]";
+    }
+
+    // For assistant messages
+    if (
+      event.kind === "assistant" ||
+      event.kind === "system" ||
+      event.kind === "thinking"
+    ) {
+      return event.text || "[Empty message]";
+    }
+
+    // For tool events (shouldn't happen in TOC since we filter to user/assistant)
+    return "[Tool event]";
+  }
+
   function truncateText(text: string, maxLength: number = 40): string {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + "...";
@@ -142,7 +183,7 @@
           isScrollingProgrammatically = false;
         }, 100);
       }}
-      title={item.event.text}
+      title={getDisplayText(item.event)}
     >
       <div class="shrink-0 w-6 flex items-center justify-end">
         {#if isUser}
@@ -162,7 +203,7 @@
       <span
         class="flex-1 text-xs leading-tight overflow-hidden text-ellipsis whitespace-nowrap {isScrollspy
           ? 'font-semibold'
-          : ''}">{truncateText(item.event.text)}</span
+          : ''}">{truncateText(getDisplayText(item.event))}</span
       >
     </button>
   {/each}

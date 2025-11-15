@@ -1,9 +1,8 @@
 <script lang="ts">
   import { threads, activeThreadId, type Thread } from "../lib/threads";
-  // No need for global stores here
   import Button from "$lib/components/ui/button.svelte";
   import Input from "$lib/components/ui/input.svelte";
-  import ScrollArea from "$lib/components/ui/scroll-area.svelte";
+  import * as Sidebar from "$lib/components/ui/sidebar";
   import { Plus, Pencil, Trash2 } from "lucide-svelte";
 
   let editingId: string | null = null;
@@ -71,8 +70,8 @@
 </script>
 
 <div class="flex h-full flex-col">
-  <div
-    class="flex items-center justify-between h-12 px-4 border-b border-border"
+  <Sidebar.SidebarHeader
+    class="flex flex-row items-center justify-between h-12 px-4 border-b border-border"
   >
     <h1
       class="m-0 text-2xl font-semibold tracking-tight uppercase leading-none pt-1"
@@ -87,70 +86,77 @@
     >
       <Plus size={16} />
     </Button>
-  </div>
+  </Sidebar.SidebarHeader>
 
-  <ScrollArea class="flex-1 p-2">
-    {#if $threads.length === 0}
-      <div class="text-center py-10 px-5 text-muted-foreground">
-        <p class="mb-2">No saved traces</p>
-        <p class="text-sm">Load a trace file to get started</p>
-      </div>
-    {:else}
-      {#each $threads as thread (thread.id)}
-        <div
-          class="flex items-center gap-2 px-3 py-3 mb-1 rounded-md cursor-pointer transition-colors border border-transparent {$activeThreadId ===
-          thread.id
-            ? 'bg-active border-primary'
-            : 'hover:bg-accent/50'}"
-          on:click={() => selectThread(thread)}
-        >
-          <div class="flex-1 min-w-0">
-            {#if editingId === thread.id}
-              <Input
-                bind:value={editingTitle}
-                on:blur={() => saveEdit(thread)}
-                on:keydown={(e) => handleKeydown(e, thread)}
-                class="h-8 text-sm"
-                autofocus
-              />
-            {:else}
-              <div class="text-sm font-medium truncate mb-1">
-                {thread.title}
-              </div>
-              <div class="flex gap-3 text-xs text-muted-foreground">
-                <span class="whitespace-nowrap">{thread.eventCount} events</span
-                >
-                <span class="whitespace-nowrap"
-                  >{formatTimestamp(thread.timestamp)}</span
-                >
-              </div>
-            {/if}
-          </div>
-
-          {#if editingId !== thread.id && $activeThreadId === thread.id}
-            <div class="flex gap-1 transition-opacity">
-              <Button
-                variant="ghost"
-                size="icon"
-                class="w-6 h-6 hover:bg-accent"
-                on:click={(e) => startEdit(thread, e)}
-                title="Rename"
-              >
-                <Pencil size={14} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                class="w-6 h-6 hover:bg-destructive/10 hover:text-destructive"
-                on:click={(e) => deleteThread(thread, e)}
-                title="Delete"
-              >
-                <Trash2 size={14} />
-              </Button>
-            </div>
-          {/if}
+  <Sidebar.SidebarGroup class="flex-1 overflow-hidden">
+    <Sidebar.SidebarGroupContent class="overflow-y-auto h-full">
+      {#if $threads.length === 0}
+        <div class="text-center py-10 px-5 text-muted-foreground">
+          <p class="mb-2">No saved traces</p>
+          <p class="text-sm">Load a trace file to get started</p>
         </div>
-      {/each}
-    {/if}
-  </ScrollArea>
+      {:else}
+        <Sidebar.SidebarMenu>
+          {#each $threads as thread (thread.id)}
+            <Sidebar.SidebarMenuItem>
+              <div
+                class="flex items-center gap-2 px-3 py-3 mb-1 rounded-md cursor-pointer transition-colors border border-transparent {$activeThreadId ===
+                thread.id
+                  ? 'bg-active border-primary'
+                  : 'hover:bg-accent/50'}"
+                on:click={() => selectThread(thread)}
+              >
+                <div class="flex-1 min-w-0">
+                  {#if editingId === thread.id}
+                    <Input
+                      bind:value={editingTitle}
+                      on:blur={() => saveEdit(thread)}
+                      on:keydown={(e) => handleKeydown(e, thread)}
+                      class="h-8 text-sm"
+                      autofocus
+                    />
+                  {:else}
+                    <div class="text-sm font-medium truncate mb-1">
+                      {thread.title}
+                    </div>
+                    <div class="flex gap-3 text-xs text-muted-foreground">
+                      <span class="whitespace-nowrap"
+                        >{thread.eventCount} events</span
+                      >
+                      <span class="whitespace-nowrap"
+                        >{formatTimestamp(thread.timestamp)}</span
+                      >
+                    </div>
+                  {/if}
+                </div>
+
+                {#if editingId !== thread.id && $activeThreadId === thread.id}
+                  <div class="flex gap-1 transition-opacity">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      class="w-6 h-6 hover:bg-accent"
+                      on:click={(e) => startEdit(thread, e)}
+                      title="Rename"
+                    >
+                      <Pencil size={14} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      class="w-6 h-6 hover:bg-destructive/10 hover:text-destructive"
+                      on:click={(e) => deleteThread(thread, e)}
+                      title="Delete"
+                    >
+                      <Trash2 size={14} />
+                    </Button>
+                  </div>
+                {/if}
+              </div>
+            </Sidebar.SidebarMenuItem>
+          {/each}
+        </Sidebar.SidebarMenu>
+      {/if}
+    </Sidebar.SidebarGroupContent>
+  </Sidebar.SidebarGroup>
 </div>

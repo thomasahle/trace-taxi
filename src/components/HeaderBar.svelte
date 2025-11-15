@@ -1,9 +1,9 @@
 <script lang="ts">
   import Button from "$lib/components/ui/button.svelte";
   import { theme } from "../lib/store";
-  import { Menu, Share2, Moon, Sun, Github } from "lucide-svelte";
+  import { Share2, Moon, Sun, Github } from "lucide-svelte";
   import { onMount } from "svelte";
-  import { toggleThreadsList } from "../lib/ui";
+  import { SidebarTrigger } from "$lib/components/ui/sidebar";
   import { activeThread, activeThreadId } from "../lib/threads";
   import { createShareLink, downloadTrace } from "../lib/share";
   import { toast } from "svelte-sonner";
@@ -60,31 +60,25 @@
 </script>
 
 <header
-  class="flex items-center justify-between h-12 px-4 border-b border-border/30 shrink-0 z-10 bg-glass-header"
+  class="flex justify-between h-12 px-4 border-b border-border/30 bg-glass-header"
 >
+  <!-- Left side: Sidebar trigger and title -->
   <div class="flex items-center gap-3">
-    <Button
-      variant="outline"
-      size="icon"
-      class="w-8 h-8"
-      on:click={toggleThreadsList}
-      title="Toggle sidebar"
-    >
-      <Menu size={16} />
-    </Button>
-    <h1
-      class="m-0 text-2xl font-semibold tracking-tight uppercase leading-none pt-1 cursor-pointer hover:opacity-80 transition-opacity flex items-center gap-2"
-      on:click={() => activeThreadId.set(null)}
-    >
-      <img src="/favicon.png" alt="Taxi" class="w-6 h-6 -mt-1" />
-      Trace Taxi
+    <SidebarTrigger class="w-8 h-8" />
+    <h1 class="m-0 text-2xl font-semibold pt-1">
+      <button
+        type="button"
+        class="w-full text-left bg-transparent border-0 p-0 m-0 cursor-pointer hover:opacity-80 transition-opacity flex items-center gap-2"
+        on:click={() => activeThreadId.set(null)}
+        aria-label="Clear active trace"
+      >
+        <img src="/favicon.png" alt="Taxi" class="w-6 h-6 -mt-1" />
+        Trace Taxi
+      </button>
     </h1>
   </div>
 
-  <div class="flex-1">
-    <!-- Reserved for future features -->
-  </div>
-
+  <!-- Right side: Theme toggle, share button, GitHub link -->
   <div class="flex items-center gap-2">
     {#if hasData}
       <Button

@@ -80,6 +80,16 @@
   --green: hsl(140 65% 42%);
   --yellow: hsl(45 100% 50%);
   --success: hsl(140 50% 90%);
+
+  /* Sidebar colors - light mode */
+  --color-sidebar: hsl(0 0% 100%);
+  --color-sidebar-foreground: hsl(0 0% 3.9%);
+  --color-sidebar-primary: var(--color-primary);
+  --color-sidebar-primary-foreground: var(--color-primary-foreground);
+  --color-sidebar-accent: var(--color-accent);
+  --color-sidebar-accent-foreground: var(--color-accent-foreground);
+  --color-sidebar-border: var(--color-border);
+  --color-sidebar-ring: var(--color-ring);
 }
 
 .dark {
@@ -130,6 +140,16 @@
   --green: hsl(140 65% 65%);
   --yellow: hsl(45 100% 60%);
   --success: hsl(140 40% 25%);
+
+  /* Sidebar colors - dark mode */
+  --color-sidebar: hsl(0 0% 12%);
+  --color-sidebar-foreground: hsl(0 0% 95%);
+  --color-sidebar-primary: var(--color-primary);
+  --color-sidebar-primary-foreground: var(--color-primary-foreground);
+  --color-sidebar-accent: var(--color-accent);
+  --color-sidebar-accent-foreground: var(--color-accent-foreground);
+  --color-sidebar-border: var(--color-border);
+  --color-sidebar-ring: var(--color-ring);
 }
 
 * {
@@ -441,4 +461,13 @@ h6 {
 
 .result-card {
   @apply p-3 bg-accent/30 rounded-md border border-border hover:bg-accent/50 transition-colors cursor-pointer;
+}
+
+/* Force solid sidebar background on mobile Sheet */
+[data-mobile="true"][data-sidebar="sidebar"] {
+  background-color: hsl(0 0% 100%) !important;
+}
+
+.dark [data-mobile="true"][data-sidebar="sidebar"] {
+  background-color: hsl(0 0% 12%) !important;
 }
