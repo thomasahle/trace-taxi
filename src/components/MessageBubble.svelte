@@ -27,7 +27,7 @@
   // Process content with images - simple version
   function processContent(content: any, text: string) {
     if (!content || !Array.isArray(content)) {
-      return { html: marked.parse(text || ""), parts: [] };
+      return { html: String(marked.parse(text || "")), parts: [] };
     }
 
     let parts: Array<{ type: "text" | "image"; content: any }> = [];
@@ -35,7 +35,7 @@
     // Process content in the order it appears
     for (const item of content) {
       if (item?.type === "text" && item.text) {
-        parts.push({ type: "text", content: marked.parse(item.text) });
+        parts.push({ type: "text", content: String(marked.parse(item.text)) });
       } else if (item?.type === "image" && item.source?.type === "base64") {
         parts.push({
           type: "image",
@@ -49,11 +49,11 @@
 
     // Fallback to simple text if no parts
     if (parts.length === 0 && text) {
-      parts.push({ type: "text", content: marked.parse(text) });
+      parts.push({ type: "text", content: String(marked.parse(text)) });
     }
 
     return {
-      html: marked.parse(text || ""),
+      html: String(marked.parse(text || "")),
       parts,
     };
   }
@@ -80,7 +80,6 @@
       class="prose prose-sm max-w-none dark:prose-invert {isUser
         ? 'bg-accent/50 px-4 py-3 rounded-lg border border-border/30'
         : ''}"
-      on:click|stopPropagation
     >
       {#if parts && parts.length > 0}
         {#each parts as part}
@@ -90,7 +89,7 @@
             <div class="my-3">
               <img
                 src="data:{part.content.mediaType};base64,{part.content.data}"
-                alt="User uploaded image"
+                alt="Uploaded by user"
                 class="rounded-lg max-w-full max-h-[400px] object-contain"
               />
             </div>

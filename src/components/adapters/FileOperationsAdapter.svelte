@@ -52,7 +52,7 @@
 
   // Get file extension for syntax highlighting
   function getLanguage(path: string): string {
-    const ext = path.split(".").pop()?.toLowerCase();
+    const ext = path.split(".").pop()?.toLowerCase() ?? "";
     const langMap: Record<string, string> = {
       js: "javascript",
       ts: "typescript",

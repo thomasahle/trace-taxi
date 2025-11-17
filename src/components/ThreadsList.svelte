@@ -104,7 +104,15 @@
                 thread.id
                   ? 'bg-active border-primary'
                   : 'hover:bg-accent/50'}"
+                role="button"
+                tabindex="0"
                 on:click={() => selectThread(thread)}
+                on:keydown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    selectThread(thread);
+                  }
+                }}
               >
                 <div class="flex-1 min-w-0">
                   {#if editingId === thread.id}

@@ -19,7 +19,15 @@
 >
   <div
     class="flex justify-between items-center px-3 py-2 bg-transparent cursor-pointer select-none min-h-[36px] hover:bg-accent"
+    role="button"
+    tabindex="0"
     on:click={() => (open = !open)}
+    on:keydown={(e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        open = !open;
+      }
+    }}
   >
     <div class="flex items-center gap-2 flex-1 min-w-0">
       <Brain size={16} class="text-foreground shrink-0" />

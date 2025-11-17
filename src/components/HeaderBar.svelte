@@ -10,7 +10,7 @@
 
   let starCount: number | null = null;
 
-  $: hasData = $activeThread?.data?.events?.length > 0;
+  $: hasData = ($activeThread?.data?.events?.length ?? 0) > 0;
 
   function toggleTheme() {
     theme.set($theme === "light" ? "dark" : "light");

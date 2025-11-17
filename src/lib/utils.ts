@@ -1,5 +1,12 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { HTMLAttributes } from "svelte/elements";
+
+export type WithoutChildrenOrChild<T> = Omit<T, "child" | "children">;
+export type WithoutChildren<T> = Omit<T, "children">;
+export type WithElementRef<T, E extends HTMLElement = HTMLElement> = T & {
+  ref?: E | null;
+};
 
 export function isObject(x: any): x is Record<string, any> {
   return x && typeof x === "object" && !Array.isArray(x);

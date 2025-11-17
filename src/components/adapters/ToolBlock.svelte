@@ -5,15 +5,17 @@
 
   export let ctx: ToolRenderContext;
 
-  $: renderer = getTool(ctx.event?.name || "tool");
-  $: label = renderer.label ? renderer.label(ctx) : ctx.event?.name;
+  $: toolName = (
+    ctx.event?.kind === "tool-use" ? ctx.event.name : "tool"
+  ).toLowerCase();
+  $: renderer = getTool(toolName || "tool");
+  $: label = renderer.label ? renderer.label(ctx) : toolName;
   $: summary = getSummary(ctx);
 
   // Determine if tool should be open by default
   // Read-only tools (Read, Grep, Glob, etc.) are collapsed by default
   // Modifying tools (Write, Edit, Bash, etc.) are open by default
   // TodoWrite is collapsed by default to save vertical space
-  const toolName = ctx.event?.name?.toLowerCase() || "";
   const isReadOnly =
     toolName.includes("read") ||
     toolName.includes("grep") ||
@@ -31,8 +33,10 @@
   let open = !isCollapsedByDefault;
 
   function getSummary(ctx: ToolRenderContext): string {
-    const input = ctx.event?.input || {};
-    const name = ctx.event?.name?.toLowerCase() || "";
+    const input = (ctx.event?.kind === "tool-use" ? ctx.event.input : {}) || {};
+    const name =
+      (ctx.event?.kind === "tool-use" ? ctx.event.name : "").toLowerCase() ||
+      "";
 
     // Extract key parameters based on tool type
     if (name.includes("glob")) {
@@ -166,7 +170,15 @@
   <div
     class="tool-header flex justify-between items-center px-3 py-2 cursor-pointer select-none"
     style="background: var(--tool-header-bg);"
+    role="button"
+    tabindex="0"
     on:click={() => (open = !open)}
+    on:keydown={(e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        open = !open;
+      }
+    }}
   >
     <div class="flex items-center gap-1.5 flex-1 min-w-0">
       <span class="font-medium text-[13px]" style="color: var(--text);"

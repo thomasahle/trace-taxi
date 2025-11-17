@@ -11,9 +11,10 @@
 
   export let ctx: ToolRenderContext;
 
-  $: input = ctx.event?.input || {};
-  $: rawOutput = ctx.pair?.output || "";
-  $: toolName = ctx.event?.name || "";
+  $: input = (ctx.event?.kind === "tool-use" ? ctx.event.input : {}) || {};
+  $: rawOutput =
+    (ctx.pair?.kind === "tool-result" ? ctx.pair.output : "") || "";
+  $: toolName = (ctx.event?.kind === "tool-use" ? ctx.event.name : "") || "";
 
   // Parse output if it's a JSON string
   $: output = (() => {

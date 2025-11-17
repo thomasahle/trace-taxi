@@ -67,7 +67,7 @@
   }
 
   // Check if there's data from the active thread
-  $: hasData = $activeThread?.data?.events?.length > 0;
+  $: hasData = ($activeThread?.data?.events?.length ?? 0) > 0;
 
   // Sidebar visibility handled via store in src/lib/ui.ts
 
