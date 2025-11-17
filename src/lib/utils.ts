@@ -62,7 +62,8 @@ export function groupToolPairs(
   const out: Array<{ use: any; result?: any }> = [];
   for (const u of uses) {
     const r = results.find(
-      (x: any) => x.tool_call_id === u.id || x.tool_call_id?.includes?.(u.id),
+      (x: any) =>
+        u.id && (x.tool_call_id === u.id || x.tool_call_id?.includes?.(u.id)),
     );
     out.push({ use: u, result: r });
   }

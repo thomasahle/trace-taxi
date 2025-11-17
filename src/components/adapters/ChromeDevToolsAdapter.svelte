@@ -112,10 +112,10 @@
 
   // Get icon based on tool name
   function getIcon(name: string) {
-    if (name.includes("screenshot")) return Camera;
-    if (name.includes("navigate")) return Globe;
-    if (name.includes("click")) return MousePointer;
-    if (name.includes("snapshot")) return FileText;
+    if (name?.includes("screenshot")) return Camera;
+    if (name?.includes("navigate")) return Globe;
+    if (name?.includes("click")) return MousePointer;
+    if (name?.includes("snapshot")) return FileText;
     return Monitor;
   }
 

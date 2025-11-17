@@ -17,9 +17,9 @@
 
   // Detect operation type
   const toolName = ctx?.event?.name?.toLowerCase() || "";
-  if (toolName.includes("grep")) {
+  if (toolName?.includes("grep")) {
     operation = "grep";
-  } else if (toolName.includes("glob") || toolName.includes("find")) {
+  } else if (toolName?.includes("glob") || toolName?.includes("find")) {
     operation = "glob";
   }
 
