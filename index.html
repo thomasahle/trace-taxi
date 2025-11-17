@@ -30,7 +30,7 @@
     <!-- Keywords -->
     <meta
       name="keywords"
-      content="agent traces, claude code, AI visualization, developer tools, trace viewer, agent debugging, anthropic"
+      content="agent traces, JSONL viewer, AI visualization, developer tools, trace viewer, agent debugging, LLM traces, AI agent logs"
     />
 
     <!-- Theme Color -->
@@ -54,23 +54,40 @@
     <!-- Description -->
     <meta
       name="description"
-      content="Interactive viewer for Claude Code agent traces. Visualize and analyze AI agent conversations, tool usage, and execution flows with syntax highlighting and search capabilities."
+      content="Interactive viewer for AI agent traces in JSONL format. Visualize and analyze agent conversations, tool usage, and execution flows with syntax highlighting and search capabilities."
     />
     <meta
       property="og:description"
-      content="Interactive viewer for Claude Code agent traces. Visualize and analyze AI agent conversations, tool usage, and execution flows with syntax highlighting and search capabilities."
+      content="Interactive viewer for AI agent traces in JSONL format. Visualize and analyze agent conversations, tool usage, and execution flows with syntax highlighting and search capabilities."
     />
     <meta
       name="twitter:description"
-      content="Interactive viewer for Claude Code agent traces. Visualize and analyze AI agent conversations, tool usage, and execution flows."
+      content="Interactive viewer for AI agent traces in JSONL format. Visualize and analyze agent conversations, tool usage, and execution flows."
     />
 
     <!-- Other -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Trace Taxi" />
+
+    <!-- Structured Data for Search Engines -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Trace Taxi",
+        "alternateName": "Trace Taxi - Agent Trace Viewer",
+        "url": "https://trace.taxi",
+        "description": "Interactive viewer for AI agent traces in JSONL format. Visualize and analyze agent conversations, tool usage, and execution flows."
+      }
+    </script>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <link rel="shortcut icon" href="/favicon.png" />
+    <link rel="manifest" href="/manifest.json" />
   </head>
   <body>
     <div id="app"></div>

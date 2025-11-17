@@ -64,13 +64,6 @@
 </script>
 
 <div class="text-sm">
-  <div class="adapter-header">
-    <span class="text-xs text-foreground">Pattern:</span>
-    <code class="bg-transparent p-0 font-mono text-xs text-red-600"
-      >{operation === "grep" ? formatPattern(pattern) : pattern}</code
-    >
-  </div>
-
   <div class="flex items-center gap-1.5 mb-2.5 text-xs">
     <span class="text-muted-foreground">📁 {path}</span>
     {#if glob}

@@ -1,0 +1,23 @@
+{
+  "name": "Trace Taxi - Agent Trace Viewer",
+  "short_name": "Trace Taxi",
+  "description": "Interactive viewer for AI agent traces in JSONL format",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/trace-taxi.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "theme_color": "#fcd034",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "start_url": "/",
+  "scope": "/"
+}
