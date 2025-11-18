@@ -59,13 +59,40 @@ export function groupToolPairs(
   // Pair tool-use with tool-result (by id / tool_call_id)
   const uses = events.filter((e) => e.kind === "tool-use");
   const results = events.filter((e) => e.kind === "tool-result");
+
+  // Build a map for O(1) lookups - key is tool_call_id, value is the result
+  const resultMap = new Map<string, any>();
+  const partialMatchResults: any[] = [];
+
+  for (const r of results) {
+    if (r.tool_call_id) {
+      // Store exact matches in the map (only if not already present - keep first match)
+      if (!resultMap.has(r.tool_call_id)) {
+        resultMap.set(r.tool_call_id, r);
+      }
+      // Keep track of results for potential partial matching
+      partialMatchResults.push(r);
+    }
+  }
+
   const out: Array<{ use: any; result?: any }> = [];
   for (const u of uses) {
-    const r = results.find(
-      (x: any) =>
-        u.id && (x.tool_call_id === u.id || x.tool_call_id?.includes?.(u.id)),
-    );
-    out.push({ use: u, result: r });
+    if (u.id) {
+      // First try exact match (O(1))
+      let r = resultMap.get(u.id);
+
+      // If no exact match, check for partial matches (only when needed)
+      if (!r) {
+        r = partialMatchResults.find((x: any) =>
+          x.tool_call_id?.includes?.(u.id),
+        );
+      }
+
+      out.push({ use: u, result: r });
+    } else {
+      // If use has no id, it can't be paired
+      out.push({ use: u, result: undefined });
+    }
   }
   return out;
 }
