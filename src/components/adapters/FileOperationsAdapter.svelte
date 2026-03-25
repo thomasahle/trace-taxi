@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import hljs from "highlight.js";
+  import { FileCode2, FileText, FileJson, FileType, File } from "lucide-svelte";
 
   export let ctx: any;
 
@@ -29,7 +30,8 @@
   // Extract input parameters
   if (ctx?.event?.input) {
     const input = ctx.event.input;
-    filePath = input.file_path || input.path || input.filename || "";
+    filePath =
+      input.file_path || input.filePath || input.path || input.filename || "";
     content = input.content || input.text || "";
     oldString = input.old_string || input.old || "";
     newString = input.new_string || input.new || "";
@@ -47,6 +49,32 @@
     } else if (out && typeof out === "object") {
       output = out.message || out.result || JSON.stringify(out, null, 2);
       isSuccess = out.success || out.status === "success" || false;
+    }
+  }
+
+  function getFileIcon(path: string) {
+    const ext = path.split(".").pop()?.toLowerCase();
+    switch (ext) {
+      case "js":
+      case "ts":
+      case "jsx":
+      case "tsx":
+      case "svelte":
+      case "vue":
+        return FileCode2;
+      case "json":
+      case "yaml":
+      case "yml":
+        return FileJson;
+      case "css":
+      case "scss":
+      case "html":
+        return FileType;
+      case "md":
+      case "txt":
+        return FileText;
+      default:
+        return File;
     }
   }
 
@@ -187,27 +215,32 @@
       // Apply syntax highlighting to Read output
       try {
         const lang = getLanguage(filePath);
-        // Parse the output format: "1→content\n2→content\n..."
-        const lines = output.split("\n");
-        const highlightedLines = lines.map((line) => {
-          // Match line number prefix (e.g., "   1→" or " 123→")
-          const match = line.match(/^(\s*)(\d+)→(.*)/);
-          if (match) {
-            const indent = match[1];
-            const lineNum = match[2];
-            const content = match[3];
-            try {
-              const highlighted = hljs.highlight(content, {
-                language: lang,
-                ignoreIllegals: true,
-              }).value;
-              return `<span class="line-num">${lineNum}</span>${highlighted}`;
-            } catch {
-              return `<span class="line-num">${lineNum}</span>${content}`;
+        // Extract content from opencode XML wrapper: <content>...</content>
+        const xmlMatch = output.match(/<content>([\s\S]*?)<\/content>/);
+        const rawContent = xmlMatch ? xmlMatch[1] : output;
+        // Parse both "1→content" (Claude Code) and "1: content" (opencode)
+        const lines = rawContent.split("\n");
+        const highlightedLines = lines
+          .map((line) => {
+            const match = line.match(/^(\s*)(\d+)[→:] ?(.*)/);
+            if (match) {
+              const lineNum = match[2];
+              const code = match[3];
+              try {
+                const highlighted = hljs.highlight(code, {
+                  language: lang,
+                  ignoreIllegals: true,
+                }).value;
+                return `<span class="line-num">${lineNum}</span>${highlighted}`;
+              } catch {
+                return `<span class="line-num">${lineNum}</span>${escapeHtml(code)}`;
+              }
             }
-          }
-          return line;
-        });
+            // Skip metadata lines (footer like "(End of file...)")
+            if (line.startsWith("(") || line === "") return null;
+            return null;
+          })
+          .filter((l) => l !== null);
         highlightedContent = highlightedLines.join("\n");
       } catch {
         highlightedContent = output;
@@ -218,93 +251,79 @@
   }
 </script>
 
-<div class="font-sans">
-  <div class="flex items-center gap-3 mb-3">
-    <span class="font-mono text-sm text-foreground font-semibold"
-      >{filePath}</span
-    >
-  </div>
-
-  {#if operation === "read"}
-    <div class="flex gap-4 mb-3">
-      {#if limit}
-        <span class="text-xs text-muted-foreground"
-          >📖 Limit: {limit} lines</span
-        >
-      {/if}
-      {#if offset}
-        <span class="text-xs text-muted-foreground"
-          >📍 Offset: line {offset}</span
-        >
-      {/if}
-    </div>
-    <pre
-      class="border border-border rounded-md p-3 font-mono text-xs leading-relaxed overflow-x-auto m-0 max-h-[400px] overflow-y-auto"
-      style="background: var(--code-bg)"><code class="block whitespace-pre"
-        >{@html highlightedContent || output}</code
-      ></pre>
-  {/if}
-
-  {#if operation === "write"}
-    <div class="mb-3">
-      <div class="text-xs text-muted-foreground mb-1.5 font-medium">
-        Content:
+{#if operation === "read"}
+  <div class="relative">
+    {#if limit || offset}
+      <div class="absolute top-0 right-0 p-2 z-10 flex gap-2">
+        {#if limit}<span
+            class="text-[10px] bg-background/80 backdrop-blur px-1.5 py-0.5 rounded border border-border text-muted-foreground"
+            >Limit: {limit}</span
+          >{/if}
+        {#if offset}<span
+            class="text-[10px] bg-background/80 backdrop-blur px-1.5 py-0.5 rounded border border-border text-muted-foreground"
+            >Offset: {offset}</span
+          >{/if}
       </div>
-      <pre
-        class="border border-border rounded-md p-3 font-mono text-xs leading-relaxed overflow-x-auto m-0 max-h-[400px] overflow-y-auto"
-        style="background: var(--code-bg)"><code
-          >{@html highlightedContent || content}</code
-        ></pre>
-    </div>
+    {/if}
+    <pre
+      class="font-mono text-xs leading-relaxed overflow-x-auto m-0 max-h-[400px] overflow-y-auto p-3 read-code !border-0 !rounded-none !bg-transparent"><code
+        class="block whitespace-pre">{@html highlightedContent || output}</code
+      ></pre>
+  </div>
+{/if}
+
+{#if operation === "write"}
+  <pre
+    class="font-mono text-xs leading-relaxed overflow-x-auto m-0 max-h-[400px] overflow-y-auto p-3 bg-background"><code
+      class="block whitespace-pre">{@html highlightedContent || content}</code
+    ></pre>
+{/if}
+
+{#if operation === "edit"}
+  <div class="diff-view font-mono text-xs leading-relaxed bg-background">
+    {@html createDiffView(oldString, newString)}
+  </div>
+  {#if replaceAll}
     <div
-      class="text-sm px-3 py-2 rounded-md text-muted-foreground whitespace-pre-wrap break-words font-mono {isSuccess
-        ? 'bg-transparent text-xs px-2 py-1 opacity-70'
-        : ''}"
-      style={!isSuccess ? "background: var(--chip)" : ""}
+      class="px-3 py-2 border-t border-border bg-amber-50/50 dark:bg-amber-900/10 text-xs font-medium text-amber-600 dark:text-amber-400 flex items-center gap-2"
+    >
+      <span class="text-lg leading-none">⚡</span> Replace all occurrences
+    </div>
+  {/if}
+  {#if output && !isSuccess}
+    <div
+      class="px-3 py-2 border-t border-border bg-muted/10 text-xs font-mono text-muted-foreground"
     >
       {output}
     </div>
   {/if}
-
-  {#if operation === "edit"}
-    <div class="mb-3">
-      <div
-        class="diff-view font-mono text-xs leading-relaxed border border-border rounded-md overflow-hidden"
-        style="background: var(--code-bg)"
-      >
-        {@html createDiffView(oldString, newString)}
-      </div>
-      {#if replaceAll}
-        <div class="text-xs font-medium mt-2" style="color: var(--yellow)">
-          ⚡ Replace all occurrences
-        </div>
-      {/if}
-    </div>
-    {#if output && !isSuccess}
-      <div
-        class="text-sm px-3 py-2 rounded-md text-muted-foreground whitespace-pre-wrap break-words font-mono"
-        style="background: var(--chip)"
-      >
-        {output}
-      </div>
-    {/if}
-  {/if}
-</div>
+{/if}
 
 <style>
+  /* Override global pre styles so read content fills the card with no inner box */
+  .read-code {
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    margin: 0 !important;
+  }
+
+  .read-code :global(.line-num),
   .diff-view :global(.line-num) {
     display: inline-block;
-    min-width: 3em;
+    min-width: 2.5em;
     margin-right: 1em;
     text-align: right;
     color: var(--muted);
     user-select: none;
     font-weight: 400;
+    opacity: 0.5;
   }
 
   .diff-view :global(.diff-line) {
     display: flex;
-    padding: 2px 8px;
+    padding: 0 16px;
+    line-height: 1.6;
     white-space: pre-wrap;
     word-wrap: break-word;
   }
@@ -315,6 +334,7 @@
     flex-shrink: 0;
     user-select: none;
     font-weight: 600;
+    opacity: 0.5;
   }
 
   .diff-view :global(.diff-content) {
@@ -323,43 +343,24 @@
   }
 
   .diff-view :global(.diff-line.context) {
-    background: var(--code-bg);
-    color: var(--text);
+    color: var(--muted-foreground);
   }
 
   .diff-view :global(.diff-line.removed) {
-    background: hsl(0 100% 95%);
-    color: hsl(0 70% 30%);
+    background: rgba(244, 63, 94, 0.1);
+    color: var(--foreground);
   }
 
   .diff-view :global(.diff-line.removed .diff-marker) {
-    color: hsl(0 70% 40%);
-  }
-
-  :global(.dark) .diff-view :global(.diff-line.removed) {
-    background: hsl(0 40% 22%);
-    color: hsl(0 60% 80%);
-  }
-
-  :global(.dark) .diff-view :global(.diff-line.removed .diff-marker) {
-    color: hsl(0 70% 70%);
+    color: rgb(244, 63, 94);
   }
 
   .diff-view :global(.diff-line.added) {
-    background: hsl(140 50% 92%);
-    color: hsl(140 70% 25%);
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--foreground);
   }
 
   .diff-view :global(.diff-line.added .diff-marker) {
-    color: hsl(140 70% 35%);
-  }
-
-  :global(.dark) .diff-view :global(.diff-line.added) {
-    background: hsl(140 40% 22%);
-    color: hsl(140 60% 80%);
-  }
-
-  :global(.dark) .diff-view :global(.diff-line.added .diff-marker) {
-    color: hsl(140 70% 70%);
+    color: rgb(34, 197, 94);
   }
 </style>

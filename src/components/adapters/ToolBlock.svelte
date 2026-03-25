@@ -46,13 +46,13 @@
     } else if (name?.includes("grep")) {
       return input.pattern || "";
     } else if (name?.includes("read")) {
-      const path = input.file_path || "";
+      const path = input.file_path || input.filePath || input.path || "";
       return path.split("/").pop() || path;
     } else if (name?.includes("write")) {
-      const path = input.file_path || "";
+      const path = input.file_path || input.filePath || input.path || "";
       return path.split("/").pop() || path;
     } else if (name?.includes("edit")) {
-      const path = input.file_path || "";
+      const path = input.file_path || input.filePath || input.path || "";
       return path.split("/").pop() || path;
     } else if (name === "apply_patch" || name === "applypatch") {
       const patch = input.patchText || input.patch_text || "";
