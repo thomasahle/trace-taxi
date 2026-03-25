@@ -54,6 +54,11 @@
     } else if (name?.includes("edit")) {
       const path = input.file_path || "";
       return path.split("/").pop() || path;
+    } else if (name === "apply_patch" || name === "applypatch") {
+      const patch = input.patchText || input.patch_text || "";
+      const m = patch.match(/\*\*\* (?:Add|Update|Delete) File:\s*(.+)/);
+      if (m) return m[1].trim().split("/").pop() || m[1].trim();
+      return "";
     } else if (name?.includes("bash") || name?.includes("shell")) {
       const cmd = input.command || "";
       return cmd.length > 50 ? cmd.slice(0, 47) + "..." : cmd;

@@ -12,6 +12,116 @@ function parseLine(line: string): any | null {
   }
 }
 
+// Detect if data is an opencode session log
+function isOpenCodeFormat(data: any): boolean {
+  return (
+    isObject(data) &&
+    isObject(data.info) &&
+    Array.isArray(data.messages) &&
+    data.messages.length > 0 &&
+    isObject(data.messages[0].info) &&
+    typeof data.messages[0].info.role === "string" &&
+    Array.isArray(data.messages[0].parts)
+  );
+}
+
+// Parse opencode session format directly to TraceEvents
+function parseOpenCodeFormat(data: any): TraceData {
+  const title: string = data.info?.title || "opencode session";
+  const events: TraceEvent[] = [];
+
+  for (const msg of data.messages) {
+    const role: string = msg.info?.role;
+    const createdAt: number | undefined = msg.info?.time?.created;
+
+    if (role === "user") {
+      let text = "";
+      for (const part of msg.parts ?? []) {
+        if (part.type === "text")
+          text += (text ? "\n" : "") + (part.text ?? "");
+      }
+      if (text.trim())
+        events.push({
+          kind: "user",
+          text: text.trim(),
+          raw: msg,
+          created_at: createdAt,
+        });
+    } else if (role === "assistant") {
+      let assistantText = "";
+      for (const part of msg.parts ?? []) {
+        if (part.type === "step-start" || part.type === "step-finish") continue;
+
+        if (part.type === "text") {
+          assistantText += (assistantText ? "\n" : "") + (part.text ?? "");
+        } else if (part.type === "reasoning") {
+          if (assistantText.trim()) {
+            events.push({
+              kind: "assistant",
+              text: assistantText.trim(),
+              raw: msg,
+              created_at: createdAt,
+            });
+            assistantText = "";
+          }
+          const thinkingText = part.text ?? "";
+          if (thinkingText.trim())
+            events.push({
+              kind: "thinking",
+              text: thinkingText.trim(),
+              raw: msg,
+              created_at: createdAt,
+            });
+        } else if (part.type === "tool") {
+          if (assistantText.trim()) {
+            events.push({
+              kind: "assistant",
+              text: assistantText.trim(),
+              raw: msg,
+              created_at: createdAt,
+            });
+            assistantText = "";
+          }
+          const callID = part.callID || cryptoId();
+          const toolName = part.tool || "tool";
+          const input = part.state?.input ?? {};
+          events.push({
+            kind: "tool-use",
+            id: callID,
+            name: toolName,
+            input,
+            raw: msg,
+            created_at: createdAt,
+          });
+          // Emit tool result if completed
+          if (
+            part.state?.status === "completed" &&
+            part.state?.output != null
+          ) {
+            events.push({
+              kind: "tool-result",
+              tool_call_id: callID,
+              name: toolName,
+              output: part.state.output,
+              raw: msg,
+              created_at: createdAt,
+            });
+          }
+        }
+      }
+      if (assistantText.trim())
+        events.push({
+          kind: "assistant",
+          text: assistantText.trim(),
+          raw: msg,
+          created_at: createdAt,
+        });
+    }
+  }
+
+  return { title, events, originalMessages: [] };
+}
+
 // Detect trace format by examining the first few entries
 function detectTraceFormat(raw: any[]): "openai" | "claude-code" {
   // Check first few message entries (skip summaries and snapshots)
@@ -101,6 +211,12 @@ function parseOpenAIFormat(raw: any[]): OpenAIMessage[] {
 
 // Supports both OpenAI and Claude Code trace formats with automatic detection
 export function parseJsonl(text: string): TraceData {
+  // Check for opencode session format (single JSON object with info + messages)
+  try {
+    const obj = JSON.parse(text);
+    if (isOpenCodeFormat(obj)) return parseOpenCodeFormat(obj);
+  } catch {}
+
   const lines = text.split(/\r?\n/);
   const raw: any[] = [];
   for (const ln of lines) {

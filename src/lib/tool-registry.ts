@@ -15,6 +15,7 @@ import TaskAdapter from "../components/adapters/TaskAdapter.svelte";
 import WebFetchAdapter from "../components/adapters/WebFetchAdapter.svelte";
 import WebSearchAdapter from "../components/adapters/WebSearchAdapter.svelte";
 import ChromeDevToolsAdapter from "../components/adapters/ChromeDevToolsAdapter.svelte";
+import ApplyPatchAdapter from "../components/adapters/ApplyPatchAdapter.svelte";
 
 export type ToolRenderer = {
   label?: (ctx: ToolRenderContext) => string;
@@ -195,6 +196,14 @@ export function getTool(name: string): ToolRenderer {
   registerTool(n, {
     component: ToolUnknown,
     label: (ctx) => "SlashCommand",
+  });
+});
+
+// apply_patch (opencode format)
+["apply_patch", "ApplyPatch"].forEach((n) => {
+  registerTool(n, {
+    component: ApplyPatchAdapter,
+    label: (ctx) => "apply_patch",
   });
 });
 
