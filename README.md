@@ -7,3 +7,12 @@ instead of adding observability and langfuse etc. to everything, I just wanted a
 so I build https://trace.taxi which allows up to "upload" (well, it's serverless, so everything stays in your browser) your trace file and have it visualized as well as I can manage.
 
 I tested mostly with my own logs from ~/.claude/projects/, so it's possible you'll be able to break it. Let me know if you do!
+
+## Running locally
+
+```bash
+npm install
+npm run dev
+```
+
+Then open http://localhost:5173 in your browser.
