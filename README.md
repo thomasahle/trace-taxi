@@ -14,7 +14,7 @@ I tested mostly with my own logs from ~/.claude/projects/, so it's possible you'
 git clone https://github.com/thomasahle/trace-taxi.git
 cd trace-taxi
 npm install
-npm run dev
+npm run dev  # starts a local dev server with hot reload
 ```
 
 Then open http://localhost:5173 in your browser.
