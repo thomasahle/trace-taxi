@@ -11,6 +11,8 @@ I tested mostly with my own logs from ~/.claude/projects/, so it's possible you'
 ## Running locally
 
 ```bash
+git clone https://github.com/thomasahle/trace-taxi.git
+cd trace-taxi
 npm install
 npm run dev
 ```
