@@ -28,7 +28,12 @@
     const input = ctx.event.input;
     pattern = input.pattern || input.regex || input.search || "";
     path = input.path || input.directory || input.dir || ".";
-    glob = input.glob || input.include || "";
+    glob =
+      input.glob ||
+      input.include ||
+      input.glob_pattern ||
+      input.globPattern ||
+      "";
     outputMode = input.output_mode || input.outputMode || "files_with_matches";
 
     // Grep specific options

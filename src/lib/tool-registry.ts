@@ -36,14 +36,22 @@ export function getTool(name: string): ToolRenderer {
 // ---- Built-in renderers ----
 
 // Claude's Bash tool
-["Bash", "bash", "shell", "sh", "terminal", "cmd", "execute_command"].forEach(
-  (n) => {
-    registerTool(n, {
-      component: BashAdapter,
-      label: (ctx) => "Bash",
-    });
-  },
-);
+[
+  "Bash",
+  "bash",
+  "shell",
+  "sh",
+  "terminal",
+  "cmd",
+  "execute_command",
+  "run_bash",
+  "run_command_bash",
+].forEach((n) => {
+  registerTool(n, {
+    component: BashAdapter,
+    label: (ctx) => "Bash",
+  });
+});
 
 // Claude Code: BashOutput - check output of background bash
 ["BashOutput"].forEach((n) => {
@@ -62,14 +70,20 @@ export function getTool(name: string): ToolRenderer {
 });
 
 // File operations (Read/Write/Edit)
-["Read", "read", "file.read", "fs.read", "file_read", "open_file"].forEach(
-  (n) => {
-    registerTool(n, {
-      component: FileOperationsAdapter,
-      label: (ctx) => "Read",
-    });
-  },
-);
+[
+  "Read",
+  "read",
+  "file.read",
+  "fs.read",
+  "file_read",
+  "open_file",
+  "read_file",
+].forEach((n) => {
+  registerTool(n, {
+    component: FileOperationsAdapter,
+    label: (ctx) => "Read",
+  });
+});
 
 [
   "Write",
@@ -78,6 +92,7 @@ export function getTool(name: string): ToolRenderer {
   "fs.write",
   "file_write",
   "create_file",
+  "write_file",
 ].forEach((n) => {
   registerTool(n, {
     component: FileOperationsAdapter,
@@ -85,24 +100,45 @@ export function getTool(name: string): ToolRenderer {
   });
 });
 
-["Edit", "edit", "file.edit", "fs.edit", "file_edit", "modify_file"].forEach(
-  (n) => {
-    registerTool(n, {
-      component: FileOperationsAdapter,
-      label: (ctx) => "Edit",
-    });
-  },
-);
+[
+  "Edit",
+  "edit",
+  "file.edit",
+  "fs.edit",
+  "file_edit",
+  "modify_file",
+  "edit_file",
+].forEach((n) => {
+  registerTool(n, {
+    component: FileOperationsAdapter,
+    label: (ctx) => "Edit",
+  });
+});
 
 // Search operations (Grep/Glob)
-["Grep", "grep", "search", "find_in_files", "search_content"].forEach((n) => {
+[
+  "Grep",
+  "grep",
+  "search",
+  "find_in_files",
+  "search_content",
+  "grep_search",
+].forEach((n) => {
   registerTool(n, {
     component: SearchAdapter,
     label: (ctx) => "Grep",
   });
 });
 
-["Glob", "glob", "find", "find_files", "search_files"].forEach((n) => {
+[
+  "Glob",
+  "glob",
+  "find",
+  "find_files",
+  "search_files",
+  "glob_search",
+  "list_files",
+].forEach((n) => {
   registerTool(n, {
     component: SearchAdapter,
     label: (ctx) => "Glob",
@@ -110,7 +146,14 @@ export function getTool(name: string): ToolRenderer {
 });
 
 // Todo management
-["TodoWrite", "todowrite", "todo", "checklist"].forEach((n) => {
+[
+  "TodoWrite",
+  "todowrite",
+  "todo",
+  "checklist",
+  "set_todos",
+  "update_todos",
+].forEach((n) => {
   registerTool(n, {
     component: TodoAdapter,
     label: (ctx) => {

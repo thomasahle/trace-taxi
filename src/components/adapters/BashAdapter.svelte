@@ -15,7 +15,7 @@
   // Extract input parameters
   if (ctx?.event?.input) {
     const input = ctx.event.input;
-    cmd = input.command || input.cmd || "";
+    cmd = input.command || input.cmd || input.script || "";
     description = input.description || "";
     timeout = input.timeout || null;
   }

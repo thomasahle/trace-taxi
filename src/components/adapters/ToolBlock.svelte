@@ -59,9 +59,14 @@
       const m = patch.match(/\*\*\* (?:Add|Update|Delete) File:\s*(.+)/);
       if (m) return m[1].trim().split("/").pop() || m[1].trim();
       return "";
-    } else if (name?.includes("bash") || name?.includes("shell")) {
-      const cmd = input.command || "";
-      return cmd.length > 50 ? cmd.slice(0, 47) + "..." : cmd;
+    } else if (
+      name?.includes("bash") ||
+      name?.includes("shell") ||
+      name === "run_bash"
+    ) {
+      const cmd = input.command || input.script || input.cmd || "";
+      const label = input.description ? input.description : cmd;
+      return label.length > 50 ? label.slice(0, 47) + "..." : label;
     } else if (name?.includes("notebookedit")) {
       const path = input.notebook_path || "";
       return path.split("/").pop() || path;

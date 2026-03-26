@@ -314,8 +314,11 @@ export function parseJsonl(text: string): TraceData {
     // Tool result (new format): role 'tool'
     if (m.role === "tool") {
       const name = m.tool_name || m.name || "tool";
-      // Keep the original structure to preserve images and other content types
-      const output = m.output ?? m.content ?? "";
+      // Extract text from content array if needed; keep raw value otherwise
+      const rawOutput = m.output ?? m.content ?? "";
+      const output = Array.isArray(rawOutput)
+        ? textFromContent(rawOutput)
+        : rawOutput;
       events.push({
         kind: "tool-result",
         tool_call_id: m.tool_call_id || m.id || "",
