@@ -46,6 +46,16 @@
     if (typeof out === "string") {
       output = out;
       isSuccess = out.toLowerCase().includes("success");
+    } else if (Array.isArray(out)) {
+      // Content array format: [{type: "text", text: "..."}]
+      output = out
+        .map((item: any) => {
+          if (typeof item === "string") return item;
+          if (item?.text) return item.text;
+          return "";
+        })
+        .join("\n");
+      isSuccess = output.toLowerCase().includes("success");
     } else if (out && typeof out === "object") {
       output = out.message || out.result || JSON.stringify(out, null, 2);
       isSuccess = out.success || out.status === "success" || false;

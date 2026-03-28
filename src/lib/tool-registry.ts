@@ -16,6 +16,7 @@ import WebFetchAdapter from "../components/adapters/WebFetchAdapter.svelte";
 import WebSearchAdapter from "../components/adapters/WebSearchAdapter.svelte";
 import ChromeDevToolsAdapter from "../components/adapters/ChromeDevToolsAdapter.svelte";
 import ApplyPatchAdapter from "../components/adapters/ApplyPatchAdapter.svelte";
+import DoneAdapter from "../components/adapters/DoneAdapter.svelte";
 
 export type ToolRenderer = {
   label?: (ctx: ToolRenderContext) => string;
@@ -224,6 +225,22 @@ export function getTool(name: string): ToolRenderer {
   registerTool(n, {
     component: ExitPlanModeAdapter,
     label: (ctx) => "ExitPlanMode",
+  });
+});
+
+// Normal Computing: done tool (signals task completion)
+["done"].forEach((n) => {
+  registerTool(n, {
+    component: DoneAdapter,
+    label: (ctx) => "Done",
+  });
+});
+
+// Claude Code: ToolSearch (fetch deferred tool schemas)
+["ToolSearch", "toolsearch"].forEach((n) => {
+  registerTool(n, {
+    component: BashAdapter,
+    label: (ctx) => "ToolSearch",
   });
 });
 

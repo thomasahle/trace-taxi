@@ -28,7 +28,10 @@
     toolName?.includes("mcp__chrome-devtools__list") ||
     toolName?.includes("mcp__chrome-devtools__get");
   $: isCollapsedByDefault =
-    isReadOnly || toolName?.includes("todo") || toolName === "todowrite";
+    isReadOnly ||
+    toolName?.includes("todo") ||
+    toolName === "todowrite" ||
+    toolName === "done";
 
   let open = !isCollapsedByDefault;
 
@@ -138,6 +141,10 @@
         return `${pickup} → ${dropoff}`;
       }
       return pickup || dropoff;
+    } else if (name === "done") {
+      const msg =
+        input.message || input.result || input.summary || input.text || "";
+      return msg.length > 60 ? msg.slice(0, 57) + "..." : msg;
     } else if (name?.includes("mcp__chrome-devtools")) {
       // Chrome DevTools specific summaries
       if (name?.includes("screenshot")) {
